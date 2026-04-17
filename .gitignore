@@ -1,0 +1,20 @@
+# Secrets — never commit
+.env
+.env.*
+*.key
+*.pem
+.streamlit/secrets.toml
+
+# Local caches and virtual envs
+.cache/
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

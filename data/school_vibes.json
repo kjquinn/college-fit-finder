@@ -1,0 +1,6307 @@
+[
+  {
+    "name": "California Institute of Technology",
+    "unit_id": 110404,
+    "party_scene": 20,
+    "academic_intensity": 100,
+    "greek_life": "low",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 75,
+    "vibe_tags": [
+      "nerdy",
+      "research focused",
+      "intense",
+      "small"
+    ]
+  },
+  {
+    "name": "Minerva University",
+    "unit_id": 484844,
+    "party_scene": 40,
+    "academic_intensity": 92,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "intellectual",
+      "intense",
+      "pre-professional",
+      "tight knit",
+      "progressive",
+      "diverse",
+      "selective"
+    ]
+  },
+  {
+    "name": "Stanford University",
+    "unit_id": 243744,
+    "party_scene": 50,
+    "academic_intensity": 96,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "high",
+    "diversity_score": 82,
+    "vibe_tags": [
+      "research focused",
+      "pre-professional",
+      "entrepreneurial",
+      "outdoorsy"
+    ]
+  },
+  {
+    "name": "Harvard University",
+    "unit_id": 166027,
+    "party_scene": 35,
+    "academic_intensity": 98,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "liberal",
+    "athletics_culture": "medium",
+    "diversity_score": 82,
+    "vibe_tags": [
+      "research focused",
+      "pre-professional",
+      "elite",
+      "intellectual"
+    ]
+  },
+  {
+    "name": "Yale University",
+    "unit_id": 130794,
+    "party_scene": 40,
+    "academic_intensity": 96,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "medium",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "intellectual",
+      "artsy",
+      "tight knit",
+      "elite"
+    ]
+  },
+  {
+    "name": "Columbia University in the City of New York",
+    "unit_id": 190150,
+    "party_scene": 45,
+    "academic_intensity": 96,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 88,
+    "vibe_tags": [
+      "intellectual",
+      "pre-professional",
+      "artsy",
+      "activist"
+    ]
+  },
+  {
+    "name": "University of Chicago",
+    "unit_id": 144050,
+    "party_scene": 25,
+    "academic_intensity": 98,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 78,
+    "vibe_tags": [
+      "intellectual",
+      "quirky",
+      "intense",
+      "nerdy"
+    ]
+  },
+  {
+    "name": "Massachusetts Institute of Technology",
+    "unit_id": 166683,
+    "party_scene": 30,
+    "academic_intensity": 100,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "nerdy",
+      "research focused",
+      "intense",
+      "quirky"
+    ]
+  },
+  {
+    "name": "Curtis Institute of Music",
+    "unit_id": 211893,
+    "party_scene": 40,
+    "academic_intensity": 92,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "intellectual",
+      "intense",
+      "pre-professional",
+      "tight knit",
+      "selective"
+    ]
+  },
+  {
+    "name": "Princeton University",
+    "unit_id": 186131,
+    "party_scene": 45,
+    "academic_intensity": 97,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "high",
+    "diversity_score": 75,
+    "vibe_tags": [
+      "preppy",
+      "research focused",
+      "elite",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Northeastern University",
+    "unit_id": 167358,
+    "party_scene": 50,
+    "academic_intensity": 92,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "medium",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "intellectual",
+      "pre-professional",
+      "progressive",
+      "selective"
+    ]
+  },
+  {
+    "name": "Brown University",
+    "unit_id": 217156,
+    "party_scene": 55,
+    "academic_intensity": 92,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 78,
+    "vibe_tags": [
+      "open curriculum",
+      "artsy",
+      "progressive",
+      "laid back"
+    ]
+  },
+  {
+    "name": "Dartmouth College",
+    "unit_id": 182670,
+    "party_scene": 75,
+    "academic_intensity": 92,
+    "greek_life": "high",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "high",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "outdoorsy",
+      "greek life",
+      "tight knit",
+      "preppy"
+    ]
+  },
+  {
+    "name": "University of Pennsylvania",
+    "unit_id": 215062,
+    "party_scene": 70,
+    "academic_intensity": 94,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "liberal",
+    "athletics_culture": "medium",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "pre-professional",
+      "social",
+      "elite",
+      "career-driven"
+    ]
+  },
+  {
+    "name": "Duke University",
+    "unit_id": 198419,
+    "party_scene": 75,
+    "academic_intensity": 94,
+    "greek_life": "high",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 78,
+    "vibe_tags": [
+      "sports culture",
+      "preppy",
+      "greek life",
+      "pre-professional"
+    ]
+  },
+  {
+    "name": "Vanderbilt University",
+    "unit_id": 221999,
+    "party_scene": 70,
+    "academic_intensity": 92,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 72,
+    "vibe_tags": [
+      "greek life",
+      "preppy",
+      "southern",
+      "social"
+    ]
+  },
+  {
+    "name": "Johns Hopkins University",
+    "unit_id": 162928,
+    "party_scene": 40,
+    "academic_intensity": 95,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "research focused",
+      "pre-med",
+      "intense",
+      "career-driven"
+    ]
+  },
+  {
+    "name": "Colby College",
+    "unit_id": 161086,
+    "party_scene": 35,
+    "academic_intensity": 92,
+    "greek_life": "low",
+    "campus_setting": "rural",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 45,
+    "vibe_tags": [
+      "intellectual",
+      "intense",
+      "tight knit",
+      "outdoorsy",
+      "selective"
+    ]
+  },
+  {
+    "name": "Pomona College",
+    "unit_id": 121345,
+    "party_scene": 50,
+    "academic_intensity": 94,
+    "greek_life": "none",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "medium",
+    "diversity_score": 78,
+    "vibe_tags": [
+      "laid back",
+      "intellectual",
+      "tight knit",
+      "consortium"
+    ]
+  },
+  {
+    "name": "Bowdoin College",
+    "unit_id": 161004,
+    "party_scene": 55,
+    "academic_intensity": 94,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "high",
+    "diversity_score": 72,
+    "vibe_tags": [
+      "outdoorsy",
+      "quality of life",
+      "foodie",
+      "athletic"
+    ]
+  },
+  {
+    "name": "Washington University of Science and Technology",
+    "unit_id": 483780,
+    "party_scene": 35,
+    "academic_intensity": 92,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "intellectual",
+      "intense",
+      "college town vibes",
+      "tight knit",
+      "selective"
+    ]
+  },
+  {
+    "name": "Swarthmore College",
+    "unit_id": 216287,
+    "party_scene": 30,
+    "academic_intensity": 97,
+    "greek_life": "low",
+    "campus_setting": "suburban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 78,
+    "vibe_tags": [
+      "intellectual",
+      "intense",
+      "progressive",
+      "quirky"
+    ]
+  },
+  {
+    "name": "Northwestern University",
+    "unit_id": 147767,
+    "party_scene": 60,
+    "academic_intensity": 93,
+    "greek_life": "high",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "medium",
+    "diversity_score": 78,
+    "vibe_tags": [
+      "pre-professional",
+      "artsy",
+      "type-A",
+      "spirited"
+    ]
+  },
+  {
+    "name": "Rice University",
+    "unit_id": 227757,
+    "party_scene": 50,
+    "academic_intensity": 94,
+    "greek_life": "none",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "medium",
+    "diversity_score": 82,
+    "vibe_tags": [
+      "residential college system",
+      "tight knit",
+      "quirky",
+      "intellectual"
+    ]
+  },
+  {
+    "name": "Williams College",
+    "unit_id": 168342,
+    "party_scene": 50,
+    "academic_intensity": 96,
+    "greek_life": "none",
+    "campus_setting": "rural",
+    "political_leaning": "liberal",
+    "athletics_culture": "high",
+    "diversity_score": 72,
+    "vibe_tags": [
+      "outdoorsy",
+      "tight knit",
+      "intellectual",
+      "athletic"
+    ]
+  },
+  {
+    "name": "Cornell University",
+    "unit_id": 190415,
+    "party_scene": 65,
+    "academic_intensity": 93,
+    "greek_life": "high",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "medium",
+    "diversity_score": 78,
+    "vibe_tags": [
+      "rigorous",
+      "outdoorsy",
+      "social",
+      "preppy"
+    ]
+  },
+  {
+    "name": "Barnard College",
+    "unit_id": 189097,
+    "party_scene": 40,
+    "academic_intensity": 92,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "intellectual",
+      "intense",
+      "pre-professional",
+      "progressive",
+      "diverse",
+      "selective"
+    ]
+  },
+  {
+    "name": "University of California-Los Angeles",
+    "unit_id": 110662,
+    "party_scene": 65,
+    "academic_intensity": 91,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "liberal",
+    "athletics_culture": "dominant",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "sports culture",
+      "diverse",
+      "career-driven"
+    ]
+  },
+  {
+    "name": "Amherst College",
+    "unit_id": 164465,
+    "party_scene": 50,
+    "academic_intensity": 95,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "very liberal",
+    "athletics_culture": "medium",
+    "diversity_score": 75,
+    "vibe_tags": [
+      "intellectual",
+      "tight knit",
+      "open curriculum",
+      "progressive"
+    ]
+  },
+  {
+    "name": "The Juilliard School",
+    "unit_id": 192110,
+    "party_scene": 40,
+    "academic_intensity": 92,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "intellectual",
+      "intense",
+      "pre-professional",
+      "tight knit",
+      "progressive",
+      "diverse",
+      "selective"
+    ]
+  },
+  {
+    "name": "New York University",
+    "unit_id": 193900,
+    "party_scene": 55,
+    "academic_intensity": 85,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "urban",
+      "artsy",
+      "pre-professional",
+      "diverse"
+    ]
+  },
+  {
+    "name": "United States Naval Academy",
+    "unit_id": 164155,
+    "party_scene": 10,
+    "academic_intensity": 90,
+    "greek_life": "none",
+    "campus_setting": "suburban",
+    "political_leaning": "conservative",
+    "athletics_culture": "high",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "military",
+      "disciplined",
+      "tradition",
+      "athletic"
+    ]
+  },
+  {
+    "name": "Claremont McKenna College",
+    "unit_id": 112260,
+    "party_scene": 35,
+    "academic_intensity": 92,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "intellectual",
+      "intense",
+      "college town vibes",
+      "tight knit",
+      "selective"
+    ]
+  },
+  {
+    "name": "University of Southern California",
+    "unit_id": 123961,
+    "party_scene": 75,
+    "academic_intensity": 85,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "liberal",
+    "athletics_culture": "dominant",
+    "diversity_score": 82,
+    "vibe_tags": [
+      "preppy",
+      "sports culture",
+      "greek life",
+      "career-driven"
+    ]
+  },
+  {
+    "name": "Emory University",
+    "unit_id": 139658,
+    "party_scene": 55,
+    "academic_intensity": 91,
+    "greek_life": "high",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "pre-med",
+      "pre-professional",
+      "diverse",
+      "type-A"
+    ]
+  },
+  {
+    "name": "Middlebury College",
+    "unit_id": 230959,
+    "party_scene": 55,
+    "academic_intensity": 93,
+    "greek_life": "low",
+    "campus_setting": "rural",
+    "political_leaning": "liberal",
+    "athletics_culture": "high",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "outdoorsy",
+      "tight knit",
+      "athletic",
+      "environmental"
+    ]
+  },
+  {
+    "name": "University of California-Berkeley",
+    "unit_id": 110635,
+    "party_scene": 55,
+    "academic_intensity": 94,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "high",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "activist",
+      "research focused",
+      "diverse",
+      "intellectual"
+    ]
+  },
+  {
+    "name": "Boston University",
+    "unit_id": 164988,
+    "party_scene": 50,
+    "academic_intensity": 92,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "medium",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "intellectual",
+      "pre-professional",
+      "progressive",
+      "selective"
+    ]
+  },
+  {
+    "name": "University of Notre Dame",
+    "unit_id": 152080,
+    "party_scene": 65,
+    "academic_intensity": 90,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "dominant",
+    "diversity_score": 68,
+    "vibe_tags": [
+      "faith-based",
+      "sports culture",
+      "tight knit",
+      "spirited"
+    ]
+  },
+  {
+    "name": "Tufts University",
+    "unit_id": 168148,
+    "party_scene": 35,
+    "academic_intensity": 92,
+    "greek_life": "low",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "intellectual",
+      "selective"
+    ]
+  },
+  {
+    "name": "Carnegie Mellon University",
+    "unit_id": 211440,
+    "party_scene": 35,
+    "academic_intensity": 96,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "nerdy",
+      "artsy",
+      "intense",
+      "techy"
+    ]
+  },
+  {
+    "name": "College of the Ozarks",
+    "unit_id": 178697,
+    "party_scene": 35,
+    "academic_intensity": 92,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "intellectual",
+      "intense",
+      "college town vibes",
+      "tight knit",
+      "selective"
+    ]
+  },
+  {
+    "name": "Washington University in St Louis",
+    "unit_id": 179867,
+    "party_scene": 50,
+    "academic_intensity": 93,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 75,
+    "vibe_tags": [
+      "pre-med",
+      "research focused",
+      "type-A",
+      "laid back"
+    ]
+  },
+  {
+    "name": "Haverford College",
+    "unit_id": 212911,
+    "party_scene": 35,
+    "academic_intensity": 92,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "intellectual",
+      "intense",
+      "college town vibes",
+      "tight knit",
+      "selective"
+    ]
+  },
+  {
+    "name": "United States Military Academy",
+    "unit_id": 197036,
+    "party_scene": 10,
+    "academic_intensity": 90,
+    "greek_life": "none",
+    "campus_setting": "rural",
+    "political_leaning": "conservative",
+    "athletics_culture": "high",
+    "diversity_score": 62,
+    "vibe_tags": [
+      "military",
+      "disciplined",
+      "tradition",
+      "athletic"
+    ]
+  },
+  {
+    "name": "Harvey Mudd College",
+    "unit_id": 115409,
+    "party_scene": 30,
+    "academic_intensity": 98,
+    "greek_life": "none",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "nerdy",
+      "intense",
+      "stem focused",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Georgetown University",
+    "unit_id": 131496,
+    "party_scene": 60,
+    "academic_intensity": 92,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "medium",
+    "diversity_score": 76,
+    "vibe_tags": [
+      "pre-professional",
+      "politically engaged",
+      "preppy",
+      "international"
+    ]
+  },
+  {
+    "name": "Bates College",
+    "unit_id": 160977,
+    "party_scene": 35,
+    "academic_intensity": 92,
+    "greek_life": "low",
+    "campus_setting": "rural",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 45,
+    "vibe_tags": [
+      "intellectual",
+      "intense",
+      "tight knit",
+      "outdoorsy",
+      "selective"
+    ]
+  },
+  {
+    "name": "Davidson College",
+    "unit_id": 198385,
+    "party_scene": 35,
+    "academic_intensity": 92,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "intellectual",
+      "intense",
+      "college town vibes",
+      "tight knit",
+      "selective"
+    ]
+  },
+  {
+    "name": "Hamilton College",
+    "unit_id": 191515,
+    "party_scene": 35,
+    "academic_intensity": 92,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "intellectual",
+      "intense",
+      "college town vibes",
+      "tight knit",
+      "selective"
+    ]
+  },
+  {
+    "name": "Colgate University",
+    "unit_id": 190099,
+    "party_scene": 35,
+    "academic_intensity": 92,
+    "greek_life": "low",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "intellectual",
+      "intense",
+      "selective"
+    ]
+  },
+  {
+    "name": "Washington and Lee University",
+    "unit_id": 234207,
+    "party_scene": 35,
+    "academic_intensity": 92,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "intellectual",
+      "intense",
+      "college town vibes",
+      "tight knit",
+      "selective"
+    ]
+  },
+  {
+    "name": "Tulane University of Louisiana",
+    "unit_id": 160755,
+    "party_scene": 95,
+    "academic_intensity": 85,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "liberal",
+    "athletics_culture": "medium",
+    "diversity_score": 72,
+    "vibe_tags": [
+      "party focused",
+      "greek life",
+      "urban",
+      "social"
+    ]
+  },
+  {
+    "name": "Webb Institute",
+    "unit_id": 197221,
+    "party_scene": 35,
+    "academic_intensity": 92,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "intellectual",
+      "intense",
+      "college town vibes",
+      "tight knit",
+      "selective"
+    ]
+  },
+  {
+    "name": "Wellesley College",
+    "unit_id": 168218,
+    "party_scene": 25,
+    "academic_intensity": 94,
+    "greek_life": "none",
+    "campus_setting": "suburban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "women's college",
+      "intellectual",
+      "pre-professional",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Georgia Institute of Technology-Main Campus",
+    "unit_id": 139755,
+    "party_scene": 40,
+    "academic_intensity": 93,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 78,
+    "vibe_tags": [
+      "nerdy",
+      "stem focused",
+      "intense",
+      "career-driven"
+    ]
+  },
+  {
+    "name": "United States Air Force Academy",
+    "unit_id": 128328,
+    "party_scene": 35,
+    "academic_intensity": 92,
+    "greek_life": "low",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "intellectual",
+      "outdoorsy",
+      "selective"
+    ]
+  },
+  {
+    "name": "Grinnell College",
+    "unit_id": 153384,
+    "party_scene": 45,
+    "academic_intensity": 92,
+    "greek_life": "none",
+    "campus_setting": "rural",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 75,
+    "vibe_tags": [
+      "progressive",
+      "tight knit",
+      "intellectual",
+      "activist"
+    ]
+  },
+  {
+    "name": "University of North Carolina at Chapel Hill",
+    "unit_id": 199120,
+    "party_scene": 70,
+    "academic_intensity": 89,
+    "greek_life": "high",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "dominant",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "sports culture",
+      "southern charm",
+      "big school energy",
+      "spirited"
+    ]
+  },
+  {
+    "name": "University of Michigan-Ann Arbor",
+    "unit_id": 170976,
+    "party_scene": 75,
+    "academic_intensity": 92,
+    "greek_life": "high",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "dominant",
+    "diversity_score": 75,
+    "vibe_tags": [
+      "sports culture",
+      "big school energy",
+      "spirited",
+      "pre-professional"
+    ]
+  },
+  {
+    "name": "Boston College",
+    "unit_id": 164924,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "medium",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "selective"
+    ]
+  },
+  {
+    "name": "Wesleyan University",
+    "unit_id": 130697,
+    "party_scene": 55,
+    "academic_intensity": 91,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 78,
+    "vibe_tags": [
+      "artsy",
+      "progressive",
+      "activist",
+      "intellectual"
+    ]
+  },
+  {
+    "name": "Northeastern University Oakland",
+    "unit_id": 118888,
+    "party_scene": 50,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "pre-professional",
+      "tight knit",
+      "progressive",
+      "diverse",
+      "selective"
+    ]
+  },
+  {
+    "name": "University of Virginia-Main Campus",
+    "unit_id": 234076,
+    "party_scene": 75,
+    "academic_intensity": 90,
+    "greek_life": "high",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "preppy",
+      "greek life",
+      "southern",
+      "tradition"
+    ]
+  },
+  {
+    "name": "Babson College",
+    "unit_id": 164580,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "selective"
+    ]
+  },
+  {
+    "name": "Denison University",
+    "unit_id": 202523,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "selective"
+    ]
+  },
+  {
+    "name": "College of the Holy Cross",
+    "unit_id": 166124,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "selective"
+    ]
+  },
+  {
+    "name": "Central Penn College",
+    "unit_id": 211477,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "selective"
+    ]
+  },
+  {
+    "name": "California Miramar University",
+    "unit_id": 480781,
+    "party_scene": 50,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "pre-professional",
+      "tight knit",
+      "progressive",
+      "diverse",
+      "selective"
+    ]
+  },
+  {
+    "name": "Colorado College",
+    "unit_id": 126678,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "outdoorsy",
+      "selective"
+    ]
+  },
+  {
+    "name": "Vassar College",
+    "unit_id": 197133,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "selective"
+    ]
+  },
+  {
+    "name": "Rhode Island School of Design",
+    "unit_id": 217493,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "selective"
+    ]
+  },
+  {
+    "name": "University of Miami",
+    "unit_id": 135726,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "medium",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "selective"
+    ]
+  },
+  {
+    "name": "Berea College",
+    "unit_id": 156295,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional",
+      "selective"
+    ]
+  },
+  {
+    "name": "Carleton College",
+    "unit_id": 173258,
+    "party_scene": 40,
+    "academic_intensity": 94,
+    "greek_life": "none",
+    "campus_setting": "rural",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 72,
+    "vibe_tags": [
+      "quirky",
+      "intellectual",
+      "tight knit",
+      "nerdy"
+    ]
+  },
+  {
+    "name": "Florida Agricultural and Mechanical University",
+    "unit_id": 133650,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "The Cooper Union for the Advancement of Science and Art",
+    "unit_id": 190372,
+    "party_scene": 50,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "pre-professional",
+      "tight knit",
+      "progressive",
+      "diverse"
+    ]
+  },
+  {
+    "name": "Hillsdale College",
+    "unit_id": 170286,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Smith College",
+    "unit_id": 167835,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Skidmore College",
+    "unit_id": 195526,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Wake Forest University",
+    "unit_id": 199847,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Dallas Christian College",
+    "unit_id": 224244,
+    "party_scene": 15,
+    "academic_intensity": 82,
+    "greek_life": "none",
+    "campus_setting": "urban",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 68,
+    "vibe_tags": [
+      "faith-based",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "University of Richmond",
+    "unit_id": 233374,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "United States Coast Guard Academy",
+    "unit_id": 130624,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Citadel Military College of South Carolina",
+    "unit_id": 217864,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Crown College",
+    "unit_id": 174862,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "University of Florida",
+    "unit_id": 134130,
+    "party_scene": 80,
+    "academic_intensity": 84,
+    "greek_life": "high",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 75,
+    "vibe_tags": [
+      "sports culture",
+      "greek life",
+      "big school energy",
+      "party focused"
+    ]
+  },
+  {
+    "name": "Florida State University",
+    "unit_id": 134097,
+    "party_scene": 85,
+    "academic_intensity": 82,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "party focused",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Reed College",
+    "unit_id": 209922,
+    "party_scene": 50,
+    "academic_intensity": 96,
+    "greek_life": "none",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 72,
+    "vibe_tags": [
+      "intellectual",
+      "quirky",
+      "counterculture",
+      "intense"
+    ]
+  },
+  {
+    "name": "Yeshiva Zichron Aryeh",
+    "unit_id": 487746,
+    "party_scene": 15,
+    "academic_intensity": 82,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 53,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Pitzer College",
+    "unit_id": 121257,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Franklin W Olin College of Engineering",
+    "unit_id": 441982,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Trinity Bible College and Graduate School",
+    "unit_id": 200484,
+    "party_scene": 15,
+    "academic_intensity": 82,
+    "greek_life": "none",
+    "campus_setting": "rural",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 33,
+    "vibe_tags": [
+      "faith-based",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Trinity University",
+    "unit_id": 229267,
+    "party_scene": 50,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "pre-professional",
+      "diverse"
+    ]
+  },
+  {
+    "name": "Lehigh University",
+    "unit_id": 213543,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Inter American University of Puerto Rico-Fajardo",
+    "unit_id": 242680,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "The University of Texas at Austin",
+    "unit_id": 228778,
+    "party_scene": 80,
+    "academic_intensity": 85,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "big school energy",
+      "sports culture",
+      "spirited",
+      "greek life"
+    ]
+  },
+  {
+    "name": "University of California-San Diego",
+    "unit_id": 110680,
+    "party_scene": 40,
+    "academic_intensity": 88,
+    "greek_life": "low",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 85,
+    "vibe_tags": [
+      "stem focused",
+      "chill",
+      "laid back",
+      "outdoorsy"
+    ]
+  },
+  {
+    "name": "Villanova University",
+    "unit_id": 216597,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Franklin and Marshall College",
+    "unit_id": 212577,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Macalester College",
+    "unit_id": 173902,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "University of Virginia's College at Wise",
+    "unit_id": 233897,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Baptist Missionary Association Theological Seminary",
+    "unit_id": 223117,
+    "party_scene": 15,
+    "academic_intensity": 82,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 53,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "University of California-Irvine",
+    "unit_id": 110653,
+    "party_scene": 70,
+    "academic_intensity": 82,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Whitworth University-Adult Degree Programs",
+    "unit_id": 475200,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "outdoorsy"
+    ]
+  },
+  {
+    "name": "Bucknell University",
+    "unit_id": 211291,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Mississippi College",
+    "unit_id": 176053,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "traditional"
+    ]
+  },
+  {
+    "name": "Trinity College",
+    "unit_id": 130590,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Bryn Mawr College",
+    "unit_id": 211273,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "University of North Carolina School of the Arts",
+    "unit_id": 199184,
+    "party_scene": 45,
+    "academic_intensity": 82,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "San Diego Christian College",
+    "unit_id": 112084,
+    "party_scene": 15,
+    "academic_intensity": 68,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 53,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Kenyon College",
+    "unit_id": 203535,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "California Polytechnic State University-San Luis Obispo",
+    "unit_id": 110422,
+    "party_scene": 65,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "diverse"
+    ]
+  },
+  {
+    "name": "Lafayette College",
+    "unit_id": 213385,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Conception Seminary College",
+    "unit_id": 177083,
+    "party_scene": 15,
+    "academic_intensity": 68,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 43,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "California Institute of the Arts",
+    "unit_id": 111081,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "University of California-Santa Barbara",
+    "unit_id": 110705,
+    "party_scene": 65,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "diverse"
+    ]
+  },
+  {
+    "name": "Hope International University",
+    "unit_id": 120537,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Fairfield University",
+    "unit_id": 129242,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Inter American University of Puerto Rico-Ponce",
+    "unit_id": 242662,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Saint Augustine's University",
+    "unit_id": 199582,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "William & Mary",
+    "unit_id": 231624,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Oberlin College",
+    "unit_id": 204501,
+    "party_scene": 45,
+    "academic_intensity": 88,
+    "greek_life": "none",
+    "campus_setting": "rural",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 78,
+    "vibe_tags": [
+      "artsy",
+      "progressive",
+      "activist",
+      "quirky"
+    ]
+  },
+  {
+    "name": "United States Merchant Marine Academy",
+    "unit_id": 197027,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Pacific Oaks College",
+    "unit_id": 120768,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "The Chicago School at Chicago",
+    "unit_id": 143978,
+    "party_scene": 50,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "pre-professional",
+      "tight knit",
+      "progressive"
+    ]
+  },
+  {
+    "name": "Art Academy of Cincinnati",
+    "unit_id": 201061,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Southern University and A & M College",
+    "unit_id": 160621,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Brescia University",
+    "unit_id": 156356,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "University of Puerto Rico-Bayamon",
+    "unit_id": 243133,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Baptist University of Florida",
+    "unit_id": 132408,
+    "party_scene": 15,
+    "academic_intensity": 68,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 53,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Mount Holyoke College",
+    "unit_id": 166939,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "San Diego State University",
+    "unit_id": 122409,
+    "party_scene": 70,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Case Western Reserve University",
+    "unit_id": 201645,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "West Virginia University Institute of Technology",
+    "unit_id": 237950,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "rural",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 50,
+    "vibe_tags": [
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Yeshiva D'monsey Rabbinical College",
+    "unit_id": 420325,
+    "party_scene": 15,
+    "academic_intensity": 68,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 53,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Dickinson State University",
+    "unit_id": 200059,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "rural",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 50,
+    "vibe_tags": [
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Connecticut College",
+    "unit_id": 128902,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Fisk University",
+    "unit_id": 220181,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "Bais Medrash Elyon",
+    "unit_id": 245777,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Messenger College",
+    "unit_id": 417752,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "University of Georgia",
+    "unit_id": 139959,
+    "party_scene": 85,
+    "academic_intensity": 68,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "party focused",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Ohio Christian University",
+    "unit_id": 201964,
+    "party_scene": 15,
+    "academic_intensity": 68,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 43,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "LeTourneau University",
+    "unit_id": 226231,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Regent University",
+    "unit_id": 231651,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Whitman College",
+    "unit_id": 237057,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "outdoorsy"
+    ]
+  },
+  {
+    "name": "Inter American University of Puerto Rico-Arecibo",
+    "unit_id": 242635,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Scripps College",
+    "unit_id": 123165,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Thomas University",
+    "unit_id": 141167,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Clemson University",
+    "unit_id": 217882,
+    "party_scene": 80,
+    "academic_intensity": 68,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "party focused",
+      "diverse"
+    ]
+  },
+  {
+    "name": "William Jewell College",
+    "unit_id": 179955,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Binghamton University",
+    "unit_id": 196079,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "medium",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Charles R Drew University of Medicine and Science",
+    "unit_id": 111966,
+    "party_scene": 50,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "pre-professional",
+      "tight knit",
+      "progressive",
+      "diverse"
+    ]
+  },
+  {
+    "name": "Methodist College",
+    "unit_id": 147129,
+    "party_scene": 15,
+    "academic_intensity": 68,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 43,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Gettysburg College",
+    "unit_id": 212674,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Bethany Lutheran College",
+    "unit_id": 173142,
+    "party_scene": 15,
+    "academic_intensity": 68,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 43,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Huston-Tillotson University",
+    "unit_id": 225575,
+    "party_scene": 50,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "pre-professional",
+      "tight knit",
+      "diverse"
+    ]
+  },
+  {
+    "name": "University of Washington-Seattle Campus",
+    "unit_id": 236948,
+    "party_scene": 55,
+    "academic_intensity": 88,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "liberal",
+    "athletics_culture": "high",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "outdoorsy",
+      "big school energy",
+      "techy",
+      "career-driven"
+    ]
+  },
+  {
+    "name": "Illinois Wesleyan University",
+    "unit_id": 145646,
+    "party_scene": 15,
+    "academic_intensity": 68,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 43,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Carolina University",
+    "unit_id": 489937,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Clark University",
+    "unit_id": 165334,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Inter American University of Puerto Rico-Bayamon",
+    "unit_id": 242705,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Trine University-Regional/Non-Traditional Campuses",
+    "unit_id": 414878,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "University of Rochester",
+    "unit_id": 195030,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "University of Central Florida",
+    "unit_id": 132903,
+    "party_scene": 85,
+    "academic_intensity": 68,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "party focused",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Florida Institute of Technology-Online",
+    "unit_id": 480569,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Paul Quinn College",
+    "unit_id": 227429,
+    "party_scene": 50,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "pre-professional",
+      "tight knit",
+      "diverse"
+    ]
+  },
+  {
+    "name": "The University of Tampa",
+    "unit_id": 137847,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "medium",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Brandeis University",
+    "unit_id": 165015,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Wilberforce University",
+    "unit_id": 206491,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "SUM Bible College and Theological Seminary",
+    "unit_id": 447953,
+    "party_scene": 15,
+    "academic_intensity": 68,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 53,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Manhattan School of Music",
+    "unit_id": 192712,
+    "party_scene": 50,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "pre-professional",
+      "tight knit",
+      "progressive",
+      "diverse"
+    ]
+  },
+  {
+    "name": "Hampden-Sydney College",
+    "unit_id": 232256,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "The New England Conservatory of Music",
+    "unit_id": 167057,
+    "party_scene": 50,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "pre-professional",
+      "tight knit",
+      "progressive"
+    ]
+  },
+  {
+    "name": "University of Arkansas at Pine Bluff",
+    "unit_id": 106412,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Howard University",
+    "unit_id": 131520,
+    "party_scene": 65,
+    "academic_intensity": 82,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "liberal",
+    "athletics_culture": "medium",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "hbcu",
+      "activist",
+      "pre-professional",
+      "spirited"
+    ]
+  },
+  {
+    "name": "DHARMA REALM BUDDHIST UNIVERSITY",
+    "unit_id": 113616,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Ave Maria University",
+    "unit_id": 446048,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "The University of Tennessee-Knoxville",
+    "unit_id": 221759,
+    "party_scene": 85,
+    "academic_intensity": 68,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "party focused",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "North Carolina State University at Raleigh",
+    "unit_id": 199193,
+    "party_scene": 70,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Inter American University of Puerto Rico-Aguadilla",
+    "unit_id": 242626,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Gnomon",
+    "unit_id": 449384,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "University of California-Davis",
+    "unit_id": 110644,
+    "party_scene": 70,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Dillard University",
+    "unit_id": 158802,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "Dickinson College",
+    "unit_id": 212009,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Brevard College",
+    "unit_id": 198066,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "University of Illinois Urbana-Champaign",
+    "unit_id": 145637,
+    "party_scene": 75,
+    "academic_intensity": 88,
+    "greek_life": "high",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 75,
+    "vibe_tags": [
+      "party focused",
+      "greek life",
+      "big school energy",
+      "stem focused"
+    ]
+  },
+  {
+    "name": "Inter American University of Puerto Rico-San German",
+    "unit_id": 242617,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Mount Marty University",
+    "unit_id": 219198,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "rural",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 45,
+    "vibe_tags": [
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "University of West Alabama",
+    "unit_id": 101587,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Warner University",
+    "unit_id": 138275,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Furman University",
+    "unit_id": 218070,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "University of Lynchburg",
+    "unit_id": 232609,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Southwestern University",
+    "unit_id": 228343,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Millsaps College",
+    "unit_id": 175980,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "University of South Florida",
+    "unit_id": 137351,
+    "party_scene": 85,
+    "academic_intensity": 68,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "party focused",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Chicago State University",
+    "unit_id": 144005,
+    "party_scene": 50,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 75,
+    "vibe_tags": [
+      "pre-professional"
+    ]
+  },
+  {
+    "name": "Soka University of America",
+    "unit_id": 399911,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Beacon College",
+    "unit_id": 384254,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Talmudical Academy-New Jersey",
+    "unit_id": 186900,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Berklee College of Music",
+    "unit_id": 164748,
+    "party_scene": 50,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "pre-professional",
+      "progressive"
+    ]
+  },
+  {
+    "name": "Union College",
+    "unit_id": 196866,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Morehouse College",
+    "unit_id": 140553,
+    "party_scene": 50,
+    "academic_intensity": 84,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "liberal",
+    "athletics_culture": "medium",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "hbcu",
+      "men's college",
+      "pre-professional",
+      "brotherhood"
+    ]
+  },
+  {
+    "name": "Occidental College",
+    "unit_id": 120254,
+    "party_scene": 50,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "pre-professional",
+      "tight knit",
+      "progressive",
+      "diverse"
+    ]
+  },
+  {
+    "name": "Yeshiva Toras Chaim",
+    "unit_id": 451398,
+    "party_scene": 15,
+    "academic_intensity": 68,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 53,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Texas A & M International University",
+    "unit_id": 226152,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "American College of the Building Arts",
+    "unit_id": 485698,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "New Mexico Institute of Mining and Technology",
+    "unit_id": 187967,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "college town vibes",
+      "outdoorsy"
+    ]
+  },
+  {
+    "name": "Texas Christian University",
+    "unit_id": 228875,
+    "party_scene": 15,
+    "academic_intensity": 68,
+    "greek_life": "none",
+    "campus_setting": "suburban",
+    "political_leaning": "conservative",
+    "athletics_culture": "medium",
+    "diversity_score": 53,
+    "vibe_tags": [
+      "faith-based"
+    ]
+  },
+  {
+    "name": "Bennington College",
+    "unit_id": 230816,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "rural",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 45,
+    "vibe_tags": [
+      "tight knit",
+      "outdoorsy"
+    ]
+  },
+  {
+    "name": "College of Saint Mary",
+    "unit_id": 181604,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "University of Maryland-College Park",
+    "unit_id": 163286,
+    "party_scene": 80,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "party focused",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Grambling State University",
+    "unit_id": 159009,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Bentley University",
+    "unit_id": 164739,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Loyola Marymount University",
+    "unit_id": 117946,
+    "party_scene": 50,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "pre-professional",
+      "progressive",
+      "diverse"
+    ]
+  },
+  {
+    "name": "University of Wisconsin-Madison",
+    "unit_id": 240444,
+    "party_scene": 90,
+    "academic_intensity": 87,
+    "greek_life": "high",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "dominant",
+    "diversity_score": 72,
+    "vibe_tags": [
+      "party focused",
+      "sports culture",
+      "big school energy",
+      "spirited"
+    ]
+  },
+  {
+    "name": "Johnson C Smith University",
+    "unit_id": 198756,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Oakwood University",
+    "unit_id": 101912,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "Alcorn State University",
+    "unit_id": 175342,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Coppin State University",
+    "unit_id": 162283,
+    "party_scene": 50,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 85,
+    "vibe_tags": [
+      "pre-professional",
+      "diverse"
+    ]
+  },
+  {
+    "name": "Aultman College of Nursing and Health Sciences",
+    "unit_id": 201177,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Auburn University",
+    "unit_id": 100858,
+    "party_scene": 85,
+    "academic_intensity": 68,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "party focused",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Syracuse University",
+    "unit_id": 196413,
+    "party_scene": 85,
+    "academic_intensity": 80,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "liberal",
+    "athletics_culture": "high",
+    "diversity_score": 72,
+    "vibe_tags": [
+      "party focused",
+      "sports culture",
+      "greek life",
+      "spirited"
+    ]
+  },
+  {
+    "name": "Washington Adventist University",
+    "unit_id": 162210,
+    "party_scene": 15,
+    "academic_intensity": 68,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 53,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "California State University-Long Beach",
+    "unit_id": 110583,
+    "party_scene": 70,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Nossi College of Art and Design",
+    "unit_id": 368452,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "The Chicago School at Los Angeles",
+    "unit_id": 455664,
+    "party_scene": 50,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "pre-professional",
+      "tight knit",
+      "progressive",
+      "diverse"
+    ]
+  },
+  {
+    "name": "Delaware State University",
+    "unit_id": 130934,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Brigham Young University-Hawaii",
+    "unit_id": 230047,
+    "party_scene": 15,
+    "academic_intensity": 68,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 53,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "George Washington University",
+    "unit_id": 131469,
+    "party_scene": 50,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "medium",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "pre-professional",
+      "progressive",
+      "diverse"
+    ]
+  },
+  {
+    "name": "Pacific Union College",
+    "unit_id": 120865,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Cleveland Institute of Music",
+    "unit_id": 202073,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "CUNY Bernard M Baruch College",
+    "unit_id": 190512,
+    "party_scene": 50,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 85,
+    "vibe_tags": [
+      "pre-professional",
+      "sports culture",
+      "diverse"
+    ]
+  },
+  {
+    "name": "Rollins College",
+    "unit_id": 136950,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Defiance College",
+    "unit_id": 202514,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Stevens Institute of Technology",
+    "unit_id": 186867,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Judson University",
+    "unit_id": 146339,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Austin College",
+    "unit_id": 222983,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Santa Clara University",
+    "unit_id": 122931,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Sterling College",
+    "unit_id": 155937,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "rural",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Governors State University",
+    "unit_id": 145336,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "St Olaf College",
+    "unit_id": 174844,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Minneapolis College of Art and Design",
+    "unit_id": 174127,
+    "party_scene": 50,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "pre-professional",
+      "tight knit",
+      "progressive"
+    ]
+  },
+  {
+    "name": "Jewish Theological Seminary of America",
+    "unit_id": 192040,
+    "party_scene": 15,
+    "academic_intensity": 68,
+    "greek_life": "none",
+    "campus_setting": "urban",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 68,
+    "vibe_tags": [
+      "faith-based",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Rust College",
+    "unit_id": 176318,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "Tuskegee University",
+    "unit_id": 102377,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "traditional"
+    ]
+  },
+  {
+    "name": "Stony Brook University",
+    "unit_id": 196097,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "sports culture"
+    ]
+  },
+  {
+    "name": "The College of Idaho",
+    "unit_id": 142294,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "rural",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 45,
+    "vibe_tags": [
+      "tight knit",
+      "outdoorsy",
+      "traditional"
+    ]
+  },
+  {
+    "name": "Evangel University-College of Online Learning",
+    "unit_id": 497824,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Oklahoma Baptist University",
+    "unit_id": 207403,
+    "party_scene": 15,
+    "academic_intensity": 68,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 43,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Landmark College",
+    "unit_id": 247649,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "rural",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 45,
+    "vibe_tags": [
+      "tight knit",
+      "outdoorsy"
+    ]
+  },
+  {
+    "name": "Belhaven University",
+    "unit_id": 175421,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "Purdue University-Main Campus",
+    "unit_id": 243780,
+    "party_scene": 60,
+    "academic_intensity": 84,
+    "greek_life": "high",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "stem focused",
+      "sports culture",
+      "greek life",
+      "career-driven"
+    ]
+  },
+  {
+    "name": "North Carolina A & T State University",
+    "unit_id": 199102,
+    "party_scene": 45,
+    "academic_intensity": 68,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "medium",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "American University of Health Sciences",
+    "unit_id": 433004,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Yeshiva Ohr Yisrael",
+    "unit_id": 486017,
+    "party_scene": 15,
+    "academic_intensity": 55,
+    "greek_life": "none",
+    "campus_setting": "urban",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 68,
+    "vibe_tags": [
+      "faith-based",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "University of Providence",
+    "unit_id": 180258,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "rural",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 45,
+    "vibe_tags": [
+      "tight knit",
+      "outdoorsy",
+      "traditional"
+    ]
+  },
+  {
+    "name": "Anna Maria College",
+    "unit_id": 164492,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Rhodes College",
+    "unit_id": 221351,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "Louisiana State University-Shreveport",
+    "unit_id": 159416,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Bennett College",
+    "unit_id": 197993,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Providence College",
+    "unit_id": 217402,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Quincy University",
+    "unit_id": 148131,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Barclay College",
+    "unit_id": 155070,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "rural",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "tight knit"
+    ]
+  },
+  {
+    "name": "University of Silicon Valley",
+    "unit_id": 112394,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Baylor University",
+    "unit_id": 223232,
+    "party_scene": 60,
+    "academic_intensity": 82,
+    "greek_life": "high",
+    "campus_setting": "suburban",
+    "political_leaning": "conservative",
+    "athletics_culture": "high",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "faith-based",
+      "southern",
+      "sports culture",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Emerson College",
+    "unit_id": 165662,
+    "party_scene": 50,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "pre-professional",
+      "progressive"
+    ]
+  },
+  {
+    "name": "Hallmark University",
+    "unit_id": 225201,
+    "party_scene": 50,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "pre-professional",
+      "tight knit",
+      "diverse"
+    ]
+  },
+  {
+    "name": "Spring Arbor University",
+    "unit_id": 172334,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "University of West Georgia",
+    "unit_id": 141334,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "William Penn University",
+    "unit_id": 154590,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "rural",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "tight knit"
+    ]
+  },
+  {
+    "name": "York University",
+    "unit_id": 181853,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "Wofford College",
+    "unit_id": 218973,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "Bard College",
+    "unit_id": 189088,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "University of San Diego",
+    "unit_id": 122436,
+    "party_scene": 50,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "pre-professional",
+      "progressive",
+      "diverse"
+    ]
+  },
+  {
+    "name": "Yeshiva Gedolah Kesser Torah",
+    "unit_id": 481410,
+    "party_scene": 15,
+    "academic_intensity": 55,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 53,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "University of Connecticut",
+    "unit_id": 129020,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "sports culture"
+    ]
+  },
+  {
+    "name": "University of Puerto Rico at Ponce",
+    "unit_id": 243212,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Albany College of Pharmacy and Health Sciences",
+    "unit_id": 188526,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Manna University",
+    "unit_id": 461528,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Central Christian College of Kansas",
+    "unit_id": 154855,
+    "party_scene": 15,
+    "academic_intensity": 55,
+    "greek_life": "none",
+    "campus_setting": "rural",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 43,
+    "vibe_tags": [
+      "faith-based",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Southeastern University",
+    "unit_id": 137564,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "University of Puerto Rico at Cayey",
+    "unit_id": 243151,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "St. John's College",
+    "unit_id": 245652,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "outdoorsy"
+    ]
+  },
+  {
+    "name": "University of North Florida",
+    "unit_id": 136172,
+    "party_scene": 75,
+    "academic_intensity": 55,
+    "greek_life": "high",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "medium",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "party focused"
+    ]
+  },
+  {
+    "name": "Russell Sage College",
+    "unit_id": 195128,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Trinity Baptist College",
+    "unit_id": 137953,
+    "party_scene": 15,
+    "academic_intensity": 55,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 53,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "University of Dallas",
+    "unit_id": 224323,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "CUNY Hunter College",
+    "unit_id": 190594,
+    "party_scene": 50,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 85,
+    "vibe_tags": [
+      "pre-professional",
+      "sports culture",
+      "diverse"
+    ]
+  },
+  {
+    "name": "Five Towns College",
+    "unit_id": 191205,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Beth Medrash of Asbury Park",
+    "unit_id": 488314,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "University of Montevallo",
+    "unit_id": 101709,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Maine Maritime Academy",
+    "unit_id": 161299,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "rural",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 50,
+    "vibe_tags": [
+      "tight knit",
+      "outdoorsy"
+    ]
+  },
+  {
+    "name": "Moravian University",
+    "unit_id": 214157,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "St Lawrence University",
+    "unit_id": 195216,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Centre College",
+    "unit_id": 156408,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "University of Puerto Rico-Carolina",
+    "unit_id": 243142,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Allegheny College",
+    "unit_id": 210669,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "University of Puerto Rico-Rio Piedras",
+    "unit_id": 243221,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "medium",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Florida International University",
+    "unit_id": 133951,
+    "party_scene": 85,
+    "academic_intensity": 55,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "party focused",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Anderson University",
+    "unit_id": 217633,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "traditional"
+    ]
+  },
+  {
+    "name": "Kansas City Art Institute",
+    "unit_id": 177746,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Virginia Polytechnic Institute and State University",
+    "unit_id": 233921,
+    "party_scene": 70,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "University of Puerto Rico-Humacao",
+    "unit_id": 243179,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "San Francisco Conservatory of Music",
+    "unit_id": 122506,
+    "party_scene": 50,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "pre-professional",
+      "tight knit",
+      "progressive",
+      "diverse"
+    ]
+  },
+  {
+    "name": "Illinois Institute of Technology",
+    "unit_id": 145725,
+    "party_scene": 50,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "pre-professional",
+      "progressive"
+    ]
+  },
+  {
+    "name": "Friends University",
+    "unit_id": 155089,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "rural",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "tight knit"
+    ]
+  },
+  {
+    "name": "St. John's College",
+    "unit_id": 163976,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Georgia State University",
+    "unit_id": 139940,
+    "party_scene": 85,
+    "academic_intensity": 55,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "party focused",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Torah Temimah Talmudical Seminary",
+    "unit_id": 196583,
+    "party_scene": 15,
+    "academic_intensity": 55,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 53,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Ohio Wesleyan University",
+    "unit_id": 204909,
+    "party_scene": 15,
+    "academic_intensity": 55,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 43,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "University of Michigan-Dearborn",
+    "unit_id": 171137,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Yeshiva University",
+    "unit_id": 197708,
+    "party_scene": 15,
+    "academic_intensity": 55,
+    "greek_life": "none",
+    "campus_setting": "urban",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 68,
+    "vibe_tags": [
+      "faith-based"
+    ]
+  },
+  {
+    "name": "Hendrix College",
+    "unit_id": 107080,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "Centenary College of Louisiana",
+    "unit_id": 158477,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "Olivet Nazarene University",
+    "unit_id": 147828,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "The Southern Baptist Theological Seminary",
+    "unit_id": 157748,
+    "party_scene": 15,
+    "academic_intensity": 55,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 43,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Lancaster Bible College",
+    "unit_id": 213400,
+    "party_scene": 15,
+    "academic_intensity": 55,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 43,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Lawrence Technological University",
+    "unit_id": 170675,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Wayland Baptist University",
+    "unit_id": 229780,
+    "party_scene": 15,
+    "academic_intensity": 55,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 53,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Bemidji State University",
+    "unit_id": 173124,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Bethany College",
+    "unit_id": 154721,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "rural",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Davis College",
+    "unit_id": 194569,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Moore College of Art and Design",
+    "unit_id": 214148,
+    "party_scene": 50,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "pre-professional",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Marist University",
+    "unit_id": 192819,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "University of Puerto Rico-Mayaguez",
+    "unit_id": 243197,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "medium",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "CUNY Lehman College",
+    "unit_id": 190637,
+    "party_scene": 50,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "liberal",
+    "athletics_culture": "medium",
+    "diversity_score": 85,
+    "vibe_tags": [
+      "pre-professional",
+      "diverse"
+    ]
+  },
+  {
+    "name": "Averett University",
+    "unit_id": 231420,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Yeshiva Gedolah Zichron Leyma",
+    "unit_id": 476692,
+    "party_scene": 15,
+    "academic_intensity": 55,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 53,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Lake Forest College",
+    "unit_id": 146481,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Lindenwood University",
+    "unit_id": 177968,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Central Methodist University-College of Liberal Arts and Sciences",
+    "unit_id": 176947,
+    "party_scene": 15,
+    "academic_intensity": 55,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 43,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Washington College",
+    "unit_id": 164216,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "The University of the South",
+    "unit_id": 221519,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "Jacksonville University",
+    "unit_id": 134945,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Alma College",
+    "unit_id": 168591,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "McMurry University",
+    "unit_id": 226587,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "CUNY John Jay College of Criminal Justice",
+    "unit_id": 190600,
+    "party_scene": 50,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "liberal",
+    "athletics_culture": "medium",
+    "diversity_score": 85,
+    "vibe_tags": [
+      "pre-professional",
+      "diverse"
+    ]
+  },
+  {
+    "name": "Hebrew Theological College",
+    "unit_id": 145497,
+    "party_scene": 15,
+    "academic_intensity": 55,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 43,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "DePauw University",
+    "unit_id": 150400,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "Texas A&M University-College Station",
+    "unit_id": 228723,
+    "party_scene": 85,
+    "academic_intensity": 55,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "party focused",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Florida Polytechnic University",
+    "unit_id": 482936,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Drury University",
+    "unit_id": 177214,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Bais Medrash Toras Chesed",
+    "unit_id": 449658,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Florida Institute of Technology",
+    "unit_id": 133881,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "East Texas Baptist University",
+    "unit_id": 224527,
+    "party_scene": 15,
+    "academic_intensity": 55,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 53,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Randall University",
+    "unit_id": 207157,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "Embry-Riddle Aeronautical University-Worldwide",
+    "unit_id": 426314,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "medium",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Alabama A & M University",
+    "unit_id": 100654,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Universidad del Sagrado Corazon",
+    "unit_id": 243443,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Alvernia University",
+    "unit_id": 210775,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Gallaudet University",
+    "unit_id": 131450,
+    "party_scene": 50,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "pre-professional",
+      "tight knit",
+      "progressive",
+      "diverse"
+    ]
+  },
+  {
+    "name": "University of Pittsburgh-Pittsburgh Campus",
+    "unit_id": 215293,
+    "party_scene": 75,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "party focused",
+      "diverse"
+    ]
+  },
+  {
+    "name": "East Central University",
+    "unit_id": 207041,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Rutgers University-New Brunswick",
+    "unit_id": 186380,
+    "party_scene": 80,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "party focused",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Yeshiva Ohr Elchonon Chabad West Coast Talmudical Seminary",
+    "unit_id": 126076,
+    "party_scene": 15,
+    "academic_intensity": 55,
+    "greek_life": "none",
+    "campus_setting": "urban",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 68,
+    "vibe_tags": [
+      "faith-based",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "University of West Florida",
+    "unit_id": 138354,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "medium",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "CUNY Brooklyn College",
+    "unit_id": 190549,
+    "party_scene": 50,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "liberal",
+    "athletics_culture": "medium",
+    "diversity_score": 85,
+    "vibe_tags": [
+      "pre-professional",
+      "diverse"
+    ]
+  },
+  {
+    "name": "Franciscan University of Steubenville",
+    "unit_id": 205957,
+    "party_scene": 15,
+    "academic_intensity": 55,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 43,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Minnesota State University Moorhead",
+    "unit_id": 174358,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "University of Arkansas at Little Rock",
+    "unit_id": 106245,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Bethany College",
+    "unit_id": 237181,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "rural",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 45,
+    "vibe_tags": [
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "Milwaukee School of Engineering",
+    "unit_id": 239318,
+    "party_scene": 50,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "pre-professional"
+    ]
+  },
+  {
+    "name": "The Christ College of Nursing and Health Sciences",
+    "unit_id": 201821,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Wesleyan College",
+    "unit_id": 141325,
+    "party_scene": 15,
+    "academic_intensity": 55,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 53,
+    "vibe_tags": [
+      "faith-based",
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Mount St. Joseph University",
+    "unit_id": 204200,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "University of Puerto Rico-Arecibo",
+    "unit_id": 243115,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "college town vibes"
+    ]
+  },
+  {
+    "name": "Livingstone College",
+    "unit_id": 198862,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Albertus Magnus College",
+    "unit_id": 128498,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Bluefield University",
+    "unit_id": 231554,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "Fordham University",
+    "unit_id": 191241,
+    "party_scene": 50,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "medium",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "pre-professional",
+      "progressive",
+      "diverse"
+    ]
+  },
+  {
+    "name": "Warner Pacific University Professional and Graduate Studies",
+    "unit_id": 480198,
+    "party_scene": 50,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "urban",
+    "political_leaning": "very liberal",
+    "athletics_culture": "low",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "pre-professional",
+      "tight knit",
+      "outdoorsy",
+      "progressive"
+    ]
+  },
+  {
+    "name": "University of the Ozarks",
+    "unit_id": 107558,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "The College of Wooster",
+    "unit_id": 206589,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit"
+    ]
+  },
+  {
+    "name": "University of Akron Main Campus",
+    "unit_id": 200800,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "moderate",
+    "athletics_culture": "medium",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Freed-Hardeman University",
+    "unit_id": 220215,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "University of Massachusetts-Amherst",
+    "unit_id": 166629,
+    "party_scene": 65,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "diverse"
+    ]
+  },
+  {
+    "name": "State University of New York at Cortland",
+    "unit_id": 196149,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "suburban",
+    "political_leaning": "liberal",
+    "athletics_culture": "low",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "mainstream"
+    ]
+  },
+  {
+    "name": "Tougaloo College",
+    "unit_id": 176406,
+    "party_scene": 45,
+    "academic_intensity": 55,
+    "greek_life": "low",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "low",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "college town vibes",
+      "tight knit",
+      "traditional"
+    ]
+  },
+  {
+    "name": "University of Phoenix-Arizona",
+    "unit_id": 484613,
+    "party_scene": 55,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "medium",
+    "diversity_score": 75,
+    "vibe_tags": [
+      "pre-professional"
+    ]
+  },
+  {
+    "name": "Grand Canyon University",
+    "unit_id": 104717,
+    "party_scene": 55,
+    "academic_intensity": 45,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "medium",
+    "diversity_score": 75,
+    "vibe_tags": [
+      "pre-professional"
+    ]
+  },
+  {
+    "name": "Arizona State University Campus Immersion",
+    "unit_id": 104151,
+    "party_scene": 70,
+    "academic_intensity": 45,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Arizona State University Digital Immersion",
+    "unit_id": 483124,
+    "party_scene": 70,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Liberty University",
+    "unit_id": 232557,
+    "party_scene": 10,
+    "academic_intensity": 70,
+    "greek_life": "none",
+    "campus_setting": "suburban",
+    "political_leaning": "conservative",
+    "athletics_culture": "medium",
+    "diversity_score": 55,
+    "vibe_tags": [
+      "faith-based",
+      "conservative",
+      "evangelical"
+    ]
+  },
+  {
+    "name": "University of Maryland Global Campus",
+    "unit_id": 163204,
+    "party_scene": 80,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "party focused",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Ohio State University-Main Campus",
+    "unit_id": 204796,
+    "party_scene": 85,
+    "academic_intensity": 82,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 70,
+    "vibe_tags": [
+      "sports culture",
+      "party focused",
+      "big school energy",
+      "spirited"
+    ]
+  },
+  {
+    "name": "University of Arizona",
+    "unit_id": 104179,
+    "party_scene": 70,
+    "academic_intensity": 45,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Pennsylvania State University-Main Campus",
+    "unit_id": 214777,
+    "party_scene": 90,
+    "academic_intensity": 82,
+    "greek_life": "high",
+    "campus_setting": "college town",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "party focused",
+      "sports culture",
+      "big school energy",
+      "greek life"
+    ]
+  },
+  {
+    "name": "Kennesaw State University",
+    "unit_id": 486840,
+    "party_scene": 85,
+    "academic_intensity": 55,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "party focused",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Michigan State University",
+    "unit_id": 171100,
+    "party_scene": 80,
+    "academic_intensity": 45,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "party focused",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "American Public University System",
+    "unit_id": 449339,
+    "party_scene": 55,
+    "academic_intensity": 55,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "conservative",
+    "athletics_culture": "medium",
+    "diversity_score": 65,
+    "vibe_tags": [
+      "pre-professional",
+      "traditional"
+    ]
+  },
+  {
+    "name": "California State University-Fullerton",
+    "unit_id": 110565,
+    "party_scene": 70,
+    "academic_intensity": 45,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "University of Houston",
+    "unit_id": 225511,
+    "party_scene": 85,
+    "academic_intensity": 55,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "party focused",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Indiana University-Bloomington",
+    "unit_id": 151351,
+    "party_scene": 80,
+    "academic_intensity": 45,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 80,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "party focused",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Texas State University",
+    "unit_id": 228459,
+    "party_scene": 85,
+    "academic_intensity": 45,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "party focused",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "University of North Texas",
+    "unit_id": 227216,
+    "party_scene": 85,
+    "academic_intensity": 55,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "party focused",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "The University of Alabama",
+    "unit_id": 100751,
+    "party_scene": 90,
+    "academic_intensity": 75,
+    "greek_life": "high",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "dominant",
+    "diversity_score": 60,
+    "vibe_tags": [
+      "sports culture",
+      "greek life",
+      "southern",
+      "party focused"
+    ]
+  },
+  {
+    "name": "Brigham Young University",
+    "unit_id": 230038,
+    "party_scene": 10,
+    "academic_intensity": 80,
+    "greek_life": "none",
+    "campus_setting": "college town",
+    "political_leaning": "conservative",
+    "athletics_culture": "high",
+    "diversity_score": 40,
+    "vibe_tags": [
+      "faith-based",
+      "conservative",
+      "tight knit",
+      "family values"
+    ]
+  },
+  {
+    "name": "California State University-Northridge",
+    "unit_id": 110608,
+    "party_scene": 70,
+    "academic_intensity": 45,
+    "greek_life": "medium",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "high",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "diverse",
+      "rah-rah"
+    ]
+  },
+  {
+    "name": "Texas Tech University",
+    "unit_id": 229115,
+    "party_scene": 85,
+    "academic_intensity": 55,
+    "greek_life": "high",
+    "campus_setting": "urban",
+    "political_leaning": "moderate",
+    "athletics_culture": "dominant",
+    "diversity_score": 90,
+    "vibe_tags": [
+      "big school energy",
+      "pre-professional",
+      "sports culture",
+      "party focused",
+      "diverse",
+      "rah-rah"
+    ]
+  }
+]
