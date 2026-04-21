@@ -5,7 +5,9 @@ from __future__ import annotations
 import time
 from typing import Any, Iterable
 
+import folium
 import streamlit as st
+from streamlit_folium import st_folium
 
 from agents.agent1_matcher import (
     ScorecardError,
@@ -355,6 +357,7 @@ def _init_session() -> None:
     ss.setdefault("saved_schools", [])        # list of school ids
     ss.setdefault("selected_school_id", None) # set when viewing a profile page
     ss.setdefault("display_limit", 50)        # how many filtered cards to show in list view
+    ss.setdefault("map_selected_id", None)    # school id currently highlighted on the map
 
 
 _init_session()
@@ -863,16 +866,211 @@ def _render_card_grid(cards: list[ProfileCard]) -> None:
                 st.rerun()
 
 
-def _render_map_view_placeholder(cards: list[ProfileCard]) -> None:
-    st.markdown(
-        f"""<div class='cff-map-placeholder'>
-  <h3>🗺️  Interactive map coming soon</h3>
-  <p>We'll show all {len(cards)} schools here as color-coded pins —
-     blue for Match, green for Safety, red for Reach — with a hover card
-     showing fit score and quick stats.</p>
-</div>""",
-        unsafe_allow_html=True,
+# Classification → pin color (exactly as specified).
+CLASS_COLOR = {
+    "Reach":  "#E24B4A",
+    "Match":  "#639922",
+    "Safety": "#185FA5",
+}
+
+
+def _pins_data(cards: list[ProfileCard]) -> list[tuple[ProfileCard, float, float]]:
+    """Return only the cards that have valid lat/lon in schools_by_id."""
+    sbi = st.session_state.schools_by_id
+    out: list[tuple[ProfileCard, float, float]] = []
+    for c in cards:
+        info = sbi.get(c.school_id) or {}
+        lat, lon = info.get("lat"), info.get("lon")
+        if lat is None or lon is None:
+            continue
+        try:
+            out.append((c, float(lat), float(lon)))
+        except (TypeError, ValueError):
+            continue
+    return out
+
+
+def _build_folium_map(pins: list[tuple[ProfileCard, float, float]]) -> folium.Map:
+    if pins:
+        center_lat = sum(lat for _, lat, _ in pins) / len(pins)
+        center_lon = sum(lon for _, _, lon in pins) / len(pins)
+    else:
+        center_lat, center_lon = 39.5, -98.35  # approx CONUS centroid
+
+    m = folium.Map(
+        location=[center_lat, center_lon],
+        zoom_start=5,
+        tiles="CartoDB Positron",
+        control_scale=False,
     )
+
+    for card, lat, lon in pins:
+        color = CLASS_COLOR.get(card.classification, "#555555")
+        folium.CircleMarker(
+            location=[lat, lon],
+            radius=8,
+            color="#ffffff",
+            weight=2,
+            fill=True,
+            fill_color=color,
+            fill_opacity=0.9,
+            tooltip=f"{card.name} — {int(card.overall_fit)}",
+        ).add_to(m)
+
+    # Legend — fixed-position HTML injected into the map iframe.
+    legend_html = f"""
+<div style="position: absolute; bottom: 20px; left: 10px; z-index: 9999;
+            background: white; padding: 8px 12px; border: 1px solid #d8d8d8;
+            border-radius: 8px; font-size: 12px;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+  <div style="margin-bottom: 3px;">
+    <span style="display:inline-block; width:10px; height:10px; border-radius:50%;
+                 background:{CLASS_COLOR['Reach']}; margin-right:6px;
+                 vertical-align: middle;"></span>Reach
+  </div>
+  <div style="margin-bottom: 3px;">
+    <span style="display:inline-block; width:10px; height:10px; border-radius:50%;
+                 background:{CLASS_COLOR['Match']}; margin-right:6px;
+                 vertical-align: middle;"></span>Match
+  </div>
+  <div>
+    <span style="display:inline-block; width:10px; height:10px; border-radius:50%;
+                 background:{CLASS_COLOR['Safety']}; margin-right:6px;
+                 vertical-align: middle;"></span>Safety
+  </div>
+</div>
+"""
+    m.get_root().html.add_child(folium.Element(legend_html))
+    return m
+
+
+def _render_map_detail_panel(card: ProfileCard) -> None:
+    initial = (card.name or "?")[0]
+    color = _initial_color(initial)
+    badge_cls = _class_css(card.classification)
+
+    size = _school_size(card)
+    tuition = _card_tuition(card)
+    tags_html = ""
+    if card.vibe_tags:
+        chips = "".join(f"<span class='cff-vibe-chip'>{t}</span>" for t in card.vibe_tags[:5])
+        tags_html = f"<div class='cff-vibe-chips' style='margin-top:0.5rem;'>{chips}</div>"
+
+    header_html = f"""
+<div style='display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;'>
+  <div class='cff-initial' style='background:{color};'>{initial.upper()}</div>
+  <div style='flex:1;'>
+    <div class='cff-card-name'>{card.name}</div>
+    <div class='cff-card-sub'>{card.city}, {card.state}  ·  {card.climate.title()}</div>
+  </div>
+</div>
+<div style='margin-bottom:0.5rem;'>
+  <span class='cff-class-badge {badge_cls}'>{card.classification}</span>
+</div>
+<div class='cff-fit-label'>OVERALL FIT</div>
+<div class='cff-fit'>{int(card.overall_fit)}</div>
+<div class='cff-thin-bar'><div style='width:{int(card.overall_fit)}%;'></div></div>
+"""
+    st.markdown(header_html, unsafe_allow_html=True)
+
+    # Category bars
+    short_labels = {
+        "academic_fit": "Academic", "affordability": "Affordability",
+        "location_fit": "Location", "weather_fit": "Weather", "vibe_fit": "Vibe",
+    }
+    for cat in ("academic_fit", "affordability", "location_fit", "weather_fit", "vibe_fit"):
+        score = card.category_scores.get(cat, 0)
+        _bar_row(short_labels[cat], float(score))
+
+    # Mini stats
+    mini_html = f"""
+<div class='cff-mini-grid' style='margin-top:0.5rem;'>
+  <div class='cff-mini-cell'><div class='label'>TUITION</div>
+    <div class='value'>{_fmt_currency(tuition)}</div></div>
+  <div class='cff-mini-cell'><div class='label'>ACCEPTANCE</div>
+    <div class='value'>{_fmt_pct(card.acceptance_rate)}</div></div>
+  <div class='cff-mini-cell'><div class='label'>ENROLLMENT</div>
+    <div class='value'>{_fmt_size(size)}</div></div>
+  <div class='cff-mini-cell'><div class='label'>MEDIAN DEBT</div>
+    <div class='value'>{_fmt_currency(card.median_debt)}</div></div>
+</div>
+{tags_html}
+"""
+    st.markdown(mini_html, unsafe_allow_html=True)
+
+    # Actions
+    saved = card.school_id in st.session_state.saved_schools
+    c1, c2 = st.columns(2)
+    with c1:
+        if saved:
+            if st.button("✓ Saved", key=f"map_save_{card.school_id}", use_container_width=True):
+                st.session_state.saved_schools.remove(card.school_id); st.rerun()
+        else:
+            if st.button("Save school", key=f"map_save_{card.school_id}", use_container_width=True):
+                st.session_state.saved_schools.append(card.school_id); st.rerun()
+    with c2:
+        if st.button("View full profile", key=f"map_view_{card.school_id}",
+                     type="primary", use_container_width=True):
+            st.session_state.selected_school_id = card.school_id
+            st.session_state.phase = "school_profile"
+            st.rerun()
+
+
+def _render_map_view(cards: list[ProfileCard]) -> None:
+    pins = _pins_data(cards)
+    total_cards = len(cards)
+    with_coords = len(pins)
+    if with_coords < total_cards:
+        st.caption(
+            f"_Showing {with_coords} of {total_cards} filtered schools on the map "
+            f"(rest are missing geographic coordinates)._"
+        )
+
+    left, right = st.columns([65, 35], gap="medium")
+
+    with left:
+        m = _build_folium_map(pins)
+        # Stable key keeps pan/zoom across reruns; returned_objects limits
+        # reruns to click events only.
+        map_data = st_folium(
+            m, height=600, use_container_width=True,
+            returned_objects=["last_object_clicked"],
+            key="cff_map",
+        )
+
+    # Resolve click → school id, via a rounded-coord lookup to survive float drift.
+    clicked = (map_data or {}).get("last_object_clicked") if map_data else None
+    if clicked and "lat" in clicked and "lng" in clicked:
+        ck = (round(float(clicked["lat"]), 5), round(float(clicked["lng"]), 5))
+        coord_index = {
+            (round(lat, 5), round(lon, 5)): card for card, lat, lon in pins
+        }
+        matched = coord_index.get(ck)
+        if matched and matched.school_id != st.session_state.map_selected_id:
+            st.session_state.map_selected_id = matched.school_id
+            st.rerun()
+
+    with right:
+        selected_card: ProfileCard | None = None
+        if st.session_state.map_selected_id is not None:
+            for c in cards:
+                if c.school_id == st.session_state.map_selected_id:
+                    selected_card = c
+                    break
+
+        if selected_card is None:
+            st.markdown(
+                """<div class='cff-map-placeholder' style='padding:2.5rem 1rem;'>
+  <h3>Click a pin to see school details</h3>
+  <p>Hover each pin for name and fit score.
+     Click to load the school's breakdown here.</p>
+</div>""",
+                unsafe_allow_html=True,
+            )
+        else:
+            with st.container(border=True):
+                _render_map_detail_panel(selected_card)
 
 
 def _render_results_content() -> None:
@@ -900,7 +1098,7 @@ def _render_results_content() -> None:
     ) or "List view"
 
     if st.session_state.sub_view == "Map view":
-        _render_map_view_placeholder(filtered)
+        _render_map_view(filtered)
     else:
         _render_card_grid(filtered)
 
