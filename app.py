@@ -221,6 +221,9 @@ footer {{ visibility: hidden; }}
 }}
 .cff-count {{ color: #555; font-weight: 500; font-size: 0.95rem; }}
 .cff-count strong {{ color: #1a1a1a; }}
+.cff-suggest-label {{
+    font-size: 0.8rem; color: #666; margin: 0.25rem 0 0.3rem; font-weight: 500;
+}}
 
 /* ── Cards (grid view) ──────────────────────────────────────────────── */
 .cff-card-body {{
@@ -355,6 +358,7 @@ def _init_session() -> None:
     ss.setdefault("search_query", "")
     ss.setdefault("saved_schools", [])        # list of school ids
     ss.setdefault("selected_school_id", None) # set when viewing a profile page
+    ss.setdefault("display_limit", 50)        # how many filtered cards to show in list view
 
 
 _init_session()
@@ -613,13 +617,14 @@ def render_running() -> None:
     scored = score_schools(profile, schools, weights=survey["weights"])
 
     msg_slot.markdown(f"<div class='cff-loading-msg'>{LOADING_MESSAGES[4]}</div>", unsafe_allow_html=True)
-    cards = build_profile_cards(scored, profile, survey["weights"], top_n=15)
+    cards = build_profile_cards(scored, profile, survey["weights"], top_n=100)
 
     time.sleep(0.25)
     st.session_state.results = cards
     st.session_state.schools_by_id = {s["id"]: s for s in schools if s.get("id") is not None}
     st.session_state.phase = "results"
     st.session_state.main_tab = "results"
+    st.session_state.display_limit = 50  # reset on every new search
     st.rerun()
 
 
@@ -689,7 +694,7 @@ def _render_toolbar(all_cards: list[ProfileCard], filtered: list[ProfileCard]) -
         st.session_state.search_query = st.text_input(
             "Search schools by name",
             value=st.session_state.search_query,
-            placeholder="Search by school name…",
+            placeholder="Search by school name — pick a match to open its profile…",
             label_visibility="collapsed",
             key="search_query_input",
         )
@@ -699,6 +704,29 @@ def _render_toolbar(all_cards: list[ProfileCard], filtered: list[ProfileCard]) -
             f"<strong>{len(filtered)}</strong> of {len(all_cards)} schools</div>",
             unsafe_allow_html=True,
         )
+
+    # Suggestion row — up to 5 matches shown as clickable buttons that jump
+    # straight to the school's profile page.
+    q = (st.session_state.search_query or "").strip().lower()
+    if q:
+        suggestions = [c for c in all_cards if q in (c.name or "").lower()][:5]
+        if suggestions:
+            st.markdown(
+                "<div class='cff-suggest-label'>Jump to a school:</div>",
+                unsafe_allow_html=True,
+            )
+            sug_cols = st.columns(min(len(suggestions), 5))
+            for i, s in enumerate(suggestions):
+                with sug_cols[i]:
+                    if st.button(
+                        f"🎓 {s.name}",
+                        key=f"sug_{s.school_id}",
+                        use_container_width=True,
+                        help=f"{s.classification} · {int(s.overall_fit)} fit",
+                    ):
+                        st.session_state.selected_school_id = s.school_id
+                        st.session_state.phase = "school_profile"
+                        st.rerun()
 
     # Row 2: classification pills + stackable filter pills
     c1, c2 = st.columns([1, 2])
@@ -823,14 +851,33 @@ def _render_card_grid(cards: list[ProfileCard]) -> None:
     if not cards:
         st.info("No schools match those filters. Try clearing some.")
         return
-    for row_start in range(0, len(cards), 3):
-        row = cards[row_start:row_start + 3]
+
+    limit = int(st.session_state.display_limit)
+    visible = cards[:limit]
+
+    for row_start in range(0, len(visible), 3):
+        row = visible[row_start:row_start + 3]
         cols = st.columns(3, gap="medium")
         for i, card in enumerate(row):
             with cols[i]:
                 with st.container(border=True):
                     _render_card(card)
         # If fewer than 3 cards in this row, leave the rest empty for consistent grid.
+
+    # Show-more footer: only if there are hidden matches.
+    hidden = len(cards) - len(visible)
+    if hidden > 0:
+        st.write("")
+        _, mid, _ = st.columns([1, 2, 1])
+        with mid:
+            if st.button(
+                f"Show {min(25, hidden)} more  ·  {hidden} remaining",
+                type="secondary",
+                use_container_width=True,
+                key="show_more",
+            ):
+                st.session_state.display_limit = limit + 25
+                st.rerun()
 
 
 def _render_map_view_placeholder(cards: list[ProfileCard]) -> None:

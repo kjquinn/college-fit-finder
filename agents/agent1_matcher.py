@@ -166,7 +166,7 @@ def _matches_major(school: dict[str, Any], major: str) -> bool:
 
 def find_matching_schools(
     profile: StudentProfile,
-    min_results: int = 50,
+    min_results: int = 100,
     max_fetched: int = 500,
     per_page: int = 100,
     limit: int | None = None,

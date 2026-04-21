@@ -191,31 +191,70 @@ def _vibe_fit(profile: StudentProfile, school: dict[str, Any]) -> tuple[float, l
 
 
 def _classify(profile: StudentProfile, school: dict[str, Any]) -> str:
-    """Reach / Match / Safety based on GPA + test-score gap vs selectivity."""
-    gaps: list[float] = []
+    """
+    Reach / Match / Safety classifier.
 
-    student_sat = profile.effective_sat()
-    school_sat = school.get("sat_avg")
-    if student_sat and school_sat:
-        gaps.append((student_sat - school_sat) / 100.0)  # +1 unit per 100 SAT pts
-
+    Rules, in order:
+      1. Acceptance rate < 10% → always Reach (elite schools are reaches for
+         everyone, regardless of stats).
+      2. Acceptance rate 10%–20% → Reach unless the student's SAT is above
+         the school's 75th percentile (then fall through to normal eval).
+      3. Acceptance rate > 20% (or the SAT-above-75 exception) → normal eval:
+           Safety = SAT > school 75th AND GPA comfortably above school avg
+           Match  = SAT within 25th–75th AND GPA near average
+           Reach  = SAT < 25th OR GPA clearly below average
+      4. If SAT data is missing, fall back to acceptance rate only:
+           < 20% → Reach, 20%–50% → Match, > 50% → Safety.
+    """
     admit = school.get("admission_rate")
-    if admit is not None and profile.gpa is not None:
-        implied_gpa = 3.0 + (1 - admit) * 1.0
-        gaps.append((profile.gpa - implied_gpa) * 2.0)
+    student_sat = profile.effective_sat()
+    student_gpa = profile.gpa
+    sat_25 = school.get("sat_25")
+    sat_75 = school.get("sat_75")
 
-    # Very-low-admit schools are reaches for almost everyone.
-    if admit is not None and admit < 0.15 and not gaps:
+    # Rule 1: very-selective schools are always a Reach.
+    if admit is not None and admit < 0.10:
         return "Reach"
 
-    if not gaps:
+    # Rule 2: 10%–20% admit — Reach unless SAT clears the 75th percentile.
+    if admit is not None and admit < 0.20:
+        if not (student_sat and sat_75 and student_sat > sat_75):
+            return "Reach"
+        # else fall through to the normal SAT/GPA evaluation below.
+
+    # Normal evaluation. Prefer the SAT percentile path when we have it.
+    if student_sat and sat_25 and sat_75:
+        above_75 = student_sat > sat_75
+        below_25 = student_sat < sat_25
+
+        if admit is not None and student_gpa is not None:
+            implied_gpa = 3.0 + (1 - admit) * 1.0
+            gpa_comfortably_above = student_gpa >= implied_gpa + 0.10
+            gpa_clearly_below     = student_gpa < implied_gpa - 0.15
+
+            if above_75 and gpa_comfortably_above:
+                return "Safety"
+            if below_25 or gpa_clearly_below:
+                return "Reach"
+            # Strong SAT + OK GPA, or SAT in-range + OK GPA → Match.
+            return "Match"
+
+        # GPA missing — classify on SAT percentile alone.
+        if above_75:
+            return "Safety"
+        if below_25:
+            return "Reach"
         return "Match"
 
-    avg = sum(gaps) / len(gaps)
-    if avg >= 0.6:
+    # Rule 4 fallback: no SAT data → use acceptance rate only.
+    if admit is not None:
+        if admit < 0.20:
+            return "Reach"
+        if admit < 0.50:
+            return "Match"
         return "Safety"
-    if avg <= -0.6:
-        return "Reach"
+
+    # No SAT, no admit rate, no GPA relationship — default to Match.
     return "Match"
 
 
