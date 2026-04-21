@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import time
 from typing import Any, Iterable
 
@@ -340,6 +341,71 @@ footer {{ visibility: hidden; }}
     padding: 4rem 2rem; text-align: center; color: #555;
 }}
 .cff-map-placeholder h3 {{ margin: 0 0 0.5rem; color: #1a1a1a; font-weight: 600; }}
+
+/* ── My Profile — header + success flash ───────────────────────────── */
+.cff-profile-header {{
+    margin-bottom: 0.5rem;
+}}
+.cff-profile-header h2 {{
+    margin: 0 0 0.25rem; color: #1a1a1a; font-weight: 700; font-size: 1.5rem;
+}}
+.cff-profile-header .sub {{
+    color: #555; font-size: 0.95rem;
+}}
+.cff-success-flash {{
+    background: #dcfce7; color: #166534;
+    border: 1px solid #86efac; border-radius: 8px;
+    padding: 0.65rem 1rem; margin: 0.25rem 0 1rem;
+    font-weight: 500; font-size: 0.95rem;
+    animation: cff-flash-fade 0.5s ease-in 3s forwards;
+    overflow: hidden;
+}}
+@keyframes cff-flash-fade {{
+    0%   {{ opacity: 1; max-height: 60px; }}
+    99%  {{ opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0;
+            margin: 0; border-width: 0; }}
+    100% {{ display: none; }}
+}}
+
+/* ── My List — saved rows and compare table ────────────────────────── */
+.cff-saved-row-body {{
+    display: flex; flex-direction: column; justify-content: center; gap: 0.15rem;
+}}
+.cff-saved-row-fit {{
+    font-size: 2rem; font-weight: 700; color: {ACCENT};
+    line-height: 1; text-align: center;
+}}
+.cff-saved-row-fit-lbl {{
+    font-size: 0.7rem; color: #666; text-align: center; letter-spacing: 0.03em;
+}}
+.cff-compare-col {{
+    background: white; border: 1px solid #e5e7eb; border-radius: 8px;
+    padding: 0.5rem 0.6rem; margin-bottom: 0.35rem;
+    text-align: center;
+}}
+.cff-compare-col-initial {{
+    width: 32px; height: 32px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 0.95rem;
+    margin: 0 auto 0.35rem;
+}}
+.cff-compare-col-name {{
+    font-size: 0.85rem; font-weight: 600; color: #1a1a1a;
+    line-height: 1.2; min-height: 2.2em;
+}}
+.cff-compare-cell {{
+    padding: 0.35rem 0.5rem; text-align: center;
+    font-size: 0.88rem; color: #333;
+    border-radius: 6px;
+}}
+.cff-compare-cell.best {{
+    background: #e7f0fa; color: {ACCENT}; font-weight: 600;
+}}
+.cff-compare-label {{
+    padding: 0.35rem 0;
+    font-size: 0.82rem; color: #555; font-weight: 500;
+    letter-spacing: 0.02em;
+}}
 </style>
 """
 
@@ -383,12 +449,32 @@ def _init_session() -> None:
     ss.setdefault("filter_class", "All")
     ss.setdefault("filter_flags", [])         # list of stack-filter labels currently active
     ss.setdefault("saved_schools", [])        # list of school ids
+    ss.setdefault("compare_schools", [])      # list of school ids in the Compare table
     ss.setdefault("selected_school_id", None) # set when viewing a profile page
     ss.setdefault("display_limit", 50)        # how many filtered cards to show in list view
     ss.setdefault("map_selected_id", None)    # school id currently highlighted on the map
+    # Filter state for My List tab (independent from the Results page's filters)
+    ss.setdefault("my_list_filter_class", "All")
+    ss.setdefault("my_list_filter_flags", [])
+    ss.setdefault("pending_unsave_id", None)  # inline two-click unsave confirmation
+    # Snapshot of the survey that produced the current results — used by
+    # My Profile's change-detection to enable/disable Refresh Results.
+    ss.setdefault("baseline_survey", None)
+    ss.setdefault("profile_refreshed", False)
 
 
 _init_session()
+
+
+def _survey_for_compare(s: dict[str, Any]) -> dict[str, Any]:
+    """Stable representation of the survey for change detection.
+    Sorts multi-select chip lists so chip re-order isn't a false positive."""
+    out = dict(s or {})
+    for k in ("climates", "regions", "vibes"):
+        v = out.get(k)
+        if isinstance(v, list):
+            out[k] = sorted(v)
+    return out
 
 
 # -----------------------------------------------------------------------------
@@ -704,6 +790,13 @@ def render_running() -> None:
     st.session_state.phase = "results"
     st.session_state.main_tab = "results"
     st.session_state.display_limit = 50  # reset on every new search
+    # Freeze the survey that produced these results. My Profile uses this
+    # to decide whether "Refresh Results" should be enabled.
+    st.session_state.baseline_survey = copy.deepcopy(st.session_state.survey)
+    # If the user kicked this run from the My Profile tab, let the tab
+    # show the success banner on their next visit.
+    if st.session_state.pop("_refresh_source", None) == "profile":
+        st.session_state.profile_refreshed = True
     st.rerun()
 
 
@@ -715,9 +808,22 @@ def _school_size(card: ProfileCard) -> int | None:
     return info.get("size")
 
 
-def _apply_filters(cards: Iterable[ProfileCard]) -> list[ProfileCard]:
-    cls = st.session_state.filter_class
-    flag_keys = {STACK_FILTER_LABEL_TO_KEY[f] for f in st.session_state.filter_flags
+def _apply_filters(
+    cards: Iterable[ProfileCard],
+    *,
+    filter_class: str | None = None,
+    filter_flags: list[str] | None = None,
+) -> list[ProfileCard]:
+    """
+    Filter cards by classification + stackable pill filters.
+
+    By default reads the Results page's session state; pass `filter_class`
+    and `filter_flags` explicitly to use a different set of pills (e.g. the
+    My List tab has its own separate filter state).
+    """
+    cls = filter_class if filter_class is not None else st.session_state.filter_class
+    flags_src = filter_flags if filter_flags is not None else st.session_state.filter_flags
+    flag_keys = {STACK_FILTER_LABEL_TO_KEY[f] for f in flags_src
                  if f in STACK_FILTER_LABEL_TO_KEY}
 
     out: list[ProfileCard] = []
@@ -1218,70 +1324,472 @@ def _render_results_content() -> None:
         _render_card_grid(filtered)
 
 
-def _render_my_list_placeholder() -> None:
-    saved_count = len(st.session_state.saved_schools)
-    st.markdown(
-        f"""<div class='cff-map-placeholder'>
-  <h3>💾  My List coming soon</h3>
-  <p>You've saved <strong>{saved_count}</strong> school{'s' if saved_count != 1 else ''} so far.
-     A full comparison view with side-by-side stats is next.</p>
+COMPARE_LIMIT = 5
+
+
+def _add_to_compare(school_id: Any) -> None:
+    """Append a school to the comparison table, up to COMPARE_LIMIT."""
+    cmp_list = st.session_state.compare_schools
+    if school_id in cmp_list:
+        st.toast("Already in your comparison.", icon="ℹ️")
+        return
+    if len(cmp_list) >= COMPARE_LIMIT:
+        st.toast(f"You can compare up to {COMPARE_LIMIT} schools at a time.", icon="⚠️")
+        return
+    cmp_list.append(school_id)
+    st.toast("Added to comparison.", icon="✅")
+
+
+def _render_saved_row(card: ProfileCard) -> None:
+    """One full-width row in the Saved Schools section."""
+    initial = (card.name or "?")[0]
+    color = _initial_color(initial)
+    badge_cls = _class_css(card.classification)
+    tags_html = ""
+    if card.vibe_tags:
+        chips = "".join(f"<span class='cff-vibe-chip'>{t}</span>" for t in card.vibe_tags[:4])
+        tags_html = f"<div class='cff-vibe-chips' style='margin-top:0.25rem;'>{chips}</div>"
+
+    with st.container(border=True):
+        # Layout: initial | body (name+loc+tags+badge) | fit | buttons (3 side by side)
+        cols = st.columns([1, 6, 1.5, 5], gap="small")
+
+        with cols[0]:
+            st.markdown(
+                f"<div class='cff-initial' style='background:{color}; margin-top:0.25rem;'>"
+                f"{initial.upper()}</div>",
+                unsafe_allow_html=True,
+            )
+
+        with cols[1]:
+            st.markdown(
+                f"""<div class='cff-saved-row-body'>
+  <div class='cff-card-name'>{card.name}</div>
+  <div class='cff-card-sub'>{card.city}, {card.state}  ·  {card.climate.title()}</div>
+  {tags_html}
+  <div style='margin-top:0.35rem;'>
+    <span class='cff-class-badge {badge_cls}'>{card.classification}</span>
+  </div>
 </div>""",
+                unsafe_allow_html=True,
+            )
+
+        with cols[2]:
+            st.markdown(
+                f"""<div class='cff-saved-row-fit'>{int(card.overall_fit)}</div>
+<div class='cff-saved-row-fit-lbl'>FIT</div>""",
+                unsafe_allow_html=True,
+            )
+
+        with cols[3]:
+            btn_cols = st.columns(3, gap="small")
+            with btn_cols[0]:
+                if st.button("View profile", key=f"ml_view_{card.school_id}",
+                             type="primary", use_container_width=True):
+                    st.session_state.selected_school_id = card.school_id
+                    st.session_state.phase = "school_profile"
+                    st.rerun()
+            with btn_cols[1]:
+                in_compare = card.school_id in st.session_state.compare_schools
+                label = "In compare" if in_compare else "Add to compare"
+                if st.button(label, key=f"ml_add_{card.school_id}",
+                             use_container_width=True, disabled=in_compare):
+                    _add_to_compare(card.school_id)
+                    st.rerun()
+            with btn_cols[2]:
+                is_pending = st.session_state.pending_unsave_id == card.school_id
+                if is_pending:
+                    if st.button("Confirm?", key=f"ml_confirm_{card.school_id}",
+                                 type="primary", use_container_width=True):
+                        if card.school_id in st.session_state.saved_schools:
+                            st.session_state.saved_schools.remove(card.school_id)
+                        if card.school_id in st.session_state.compare_schools:
+                            st.session_state.compare_schools.remove(card.school_id)
+                        st.session_state.pending_unsave_id = None
+                        st.rerun()
+                else:
+                    if st.button("Unsave", key=f"ml_unsave_{card.school_id}",
+                                 use_container_width=True):
+                        st.session_state.pending_unsave_id = card.school_id
+                        st.rerun()
+
+
+# -----------------------------------------------------------------------------
+# Compare table
+# -----------------------------------------------------------------------------
+def _fmt_sat_range(card: ProfileCard) -> str:
+    if card.sat_range:
+        return f"{card.sat_range[0]}–{card.sat_range[1]}"
+    if card.act_range:
+        return f"ACT {card.act_range[0]}–{card.act_range[1]}"
+    return "—"
+
+
+def _fmt_temp(v: float | None) -> str:
+    return f"{v:.0f}°F" if v is not None else "—"
+
+
+def _fmt_score(v: float | None) -> str:
+    return f"{v:.0f}" if v is not None else "—"
+
+
+def _best_index(values: list[Any], direction: str | None) -> int | None:
+    """
+    `direction`:
+      - "high" → index of the largest non-None value
+      - "low"  → index of the smallest non-None value
+      - None   → no highlight
+    """
+    if direction not in ("high", "low"):
+        return None
+    candidates = [(i, v) for i, v in enumerate(values) if v is not None]
+    if not candidates:
+        return None
+    pick = max if direction == "high" else min
+    return pick(candidates, key=lambda kv: kv[1])[0]
+
+
+def _render_compare_table(cards: list[ProfileCard]) -> None:
+    if not cards:
+        st.markdown(
+            """<div class='cff-map-placeholder'>
+  <h3>Nothing in the comparison yet</h3>
+  <p>Add schools to compare using the <strong>Add to compare</strong> button above.</p>
+</div>""",
+            unsafe_allow_html=True,
+        )
+        return
+
+    n = len(cards)
+    col_widths = [1.7] + [1.4] * n   # label column a bit wider
+
+    # ── Header row: blank label cell + each school's initial/name/remove button.
+    hdr = st.columns(col_widths, gap="small")
+    hdr[0].markdown("")  # spacer
+    for i, card in enumerate(cards):
+        with hdr[i + 1]:
+            initial = (card.name or "?")[0]
+            color = _initial_color(initial)
+            st.markdown(
+                f"""<div class='cff-compare-col'>
+  <div class='cff-compare-col-initial' style='background:{color};'>{initial.upper()}</div>
+  <div class='cff-compare-col-name'>{card.name}</div>
+</div>""",
+                unsafe_allow_html=True,
+            )
+            if st.button("Remove", key=f"cmp_rm_{card.school_id}",
+                         use_container_width=True):
+                st.session_state.compare_schools.remove(card.school_id)
+                st.rerun()
+
+    # ── Metric rows. Each tuple: (label, extractor, direction, formatter).
+    metrics: list[tuple[str, Any, str | None, Any]] = [
+        ("Overall fit score",  lambda c: c.overall_fit,                   "high", _fmt_score),
+        ("Classification",     lambda c: c.classification,                None,   lambda v: v or "—"),
+        ("In-state tuition",   lambda c: c.tuition_in_state,              "low",  _fmt_currency),
+        ("Out-of-state tuition", lambda c: c.tuition_out_of_state,        "low",  _fmt_currency),
+        ("Acceptance rate",    lambda c: c.acceptance_rate,               "high", _fmt_pct),
+        ("SAT range (25–75%)", lambda c: c,                               None,   _fmt_sat_range),
+        ("Enrollment",         lambda c: _school_size(c),                 None,   _fmt_size),
+        ("Graduation rate",    lambda c: c.graduation_rate,               "high", _fmt_pct),
+        ("Median debt",        lambda c: c.median_debt,                   "low",  _fmt_currency),
+        ("Academic fit",       lambda c: c.category_scores.get("academic_fit"),   "high", _fmt_score),
+        ("Affordability",      lambda c: c.category_scores.get("affordability"),  "high", _fmt_score),
+        ("Location",           lambda c: c.category_scores.get("location_fit"),   "high", _fmt_score),
+        ("Weather",            lambda c: c.category_scores.get("weather_fit"),    "high", _fmt_score),
+        ("Vibe",               lambda c: c.category_scores.get("vibe_fit"),       "high", _fmt_score),
+        ("Winter temp",        lambda c: c.winter_temp_f,                 None,   _fmt_temp),
+        ("Summer temp",        lambda c: c.summer_temp_f,                 None,   _fmt_temp),
+    ]
+
+    for label, extractor, direction, fmt in metrics:
+        raw_values = [extractor(c) for c in cards]
+        # For SAT range the extractor returns the card itself (since the
+        # formatter needs both sat_range + act_range fallbacks) — skip
+        # best-highlighting on that row.
+        if label == "SAT range (25–75%)":
+            best = None
+        else:
+            best = _best_index(raw_values, direction)
+
+        row = st.columns(col_widths, gap="small")
+        row[0].markdown(f"<div class='cff-compare-label'>{label}</div>",
+                         unsafe_allow_html=True)
+        for i, v in enumerate(raw_values):
+            cell_cls = "cff-compare-cell best" if best is not None and i == best \
+                       else "cff-compare-cell"
+            row[i + 1].markdown(
+                f"<div class='{cell_cls}'>{fmt(v)}</div>",
+                unsafe_allow_html=True,
+            )
+
+
+# -----------------------------------------------------------------------------
+# My List tab — filter toolbar, saved rows, divider, compare table
+# -----------------------------------------------------------------------------
+def _render_my_list_tab() -> None:
+    all_cards: list[ProfileCard] = st.session_state.results or []
+    cards_by_id = {c.school_id: c for c in all_cards}
+    saved_ids = st.session_state.saved_schools
+    saved_cards = [cards_by_id[sid] for sid in saved_ids if sid in cards_by_id]
+
+    # ── Filter toolbar (My List–scoped state, independent from Results page).
+    c1, c2 = st.columns([1, 2])
+    with c1:
+        cls = st.pills(
+            "ml_class_filter", CLASSIFICATION_FILTERS, selection_mode="single",
+            default=st.session_state.my_list_filter_class,
+            label_visibility="collapsed", key="my_list_filter_class_pills",
+        )
+        st.session_state.my_list_filter_class = cls or "All"
+    with c2:
+        flags = st.pills(
+            "ml_stack_filters", STACK_FILTER_LABELS, selection_mode="multi",
+            default=st.session_state.my_list_filter_flags,
+            label_visibility="collapsed", key="my_list_filter_flags_pills",
+        )
+        st.session_state.my_list_filter_flags = list(flags or [])
+
+    filtered_saved = _apply_filters(
+        saved_cards,
+        filter_class=st.session_state.my_list_filter_class,
+        filter_flags=st.session_state.my_list_filter_flags,
+    )
+
+    # ── Saved Schools section.
+    st.markdown(
+        f"<div class='cff-section-title'>Saved schools "
+        f"<span style='color:#888; font-weight:400;'>"
+        f"({len(filtered_saved)} of {len(saved_cards)})</span></div>",
         unsafe_allow_html=True,
     )
+
+    if not saved_cards:
+        st.markdown(
+            """<div class='cff-map-placeholder'>
+  <h3>You haven't saved any schools yet</h3>
+  <p>Browse your results and click <strong>Save</strong> on any school to add it here.</p>
+</div>""",
+            unsafe_allow_html=True,
+        )
+    elif not filtered_saved:
+        st.info("No saved schools match the current filters. Try clearing some.")
+    else:
+        for card in filtered_saved:
+            _render_saved_row(card)
+
+    st.divider()
+
+    # ── Compare Schools section.
+    compare_cards = [cards_by_id[sid] for sid in st.session_state.compare_schools
+                      if sid in cards_by_id]
+    st.markdown(
+        f"<div class='cff-section-title'>Compare schools "
+        f"<span style='color:#888; font-weight:400;'>"
+        f"(comparing {len(compare_cards)} "
+        f"school{'s' if len(compare_cards) != 1 else ''})</span></div>",
+        unsafe_allow_html=True,
+    )
+    _render_compare_table(compare_cards)
 
 
 def _render_profile_tab() -> None:
     s = st.session_state.survey
-    st.markdown("Edit any field, then click **Re-run search** to refresh your list.")
+    baseline = st.session_state.get("baseline_survey") or _default_survey()
 
-    s["gpa"] = st.number_input("GPA", min_value=0.0, max_value=4.0, step=0.01,
-                                value=float(s["gpa"]) if s["gpa"] is not None else 3.5, key="prof_gpa")
-
-    c1, c2 = st.columns(2)
-    with c1:
-        sat_in = st.number_input("SAT", min_value=0, max_value=1600, step=10,
-                                  value=int(s["sat"]) if s["sat"] else 0, key="prof_sat")
-        s["sat"] = int(sat_in) if sat_in >= 400 else None
-    with c2:
-        act_in = st.number_input("ACT", min_value=0, max_value=36, step=1,
-                                  value=int(s["act"]) if s["act"] else 0, key="prof_act")
-        s["act"] = int(act_in) if act_in >= 1 else None
-
-    s["major"] = st.text_input("Intended major", value=s["major"], key="prof_major")
-    s["budget"] = st.slider(f"Budget: ${int(s['budget']):,}", 0, 100_000, int(s["budget"]),
-                             step=1_000, key="prof_budget")
-
-    names = [n for n, _ in US_STATES_FULL]
-    s["home_state_name"] = st.selectbox(
-        "Home state", names,
-        index=names.index(s["home_state_name"]) if s["home_state_name"] in names else 0,
-        key="prof_state",
+    # ── Header ───────────────────────────────────────────────────────────
+    st.markdown(
+        """<div class='cff-profile-header'>
+  <h2>My Profile</h2>
+  <div class='sub'>Update your preferences below and click
+    <strong>Refresh Results</strong> to update your matches.</div>
+</div>""",
+        unsafe_allow_html=True,
     )
 
-    st.markdown("**Climate**")
-    climates = st.pills("climate2", CLIMATE_OPTIONS, selection_mode="multi",
-                         default=s["climates"], label_visibility="collapsed", key="prof_climates")
-    s["climates"] = list(climates or [])
+    # ── Success banner — auto-fades after 3s via CSS animation ───────────
+    if st.session_state.get("profile_refreshed"):
+        st.markdown(
+            "<div class='cff-success-flash'>✓ Your results have been updated</div>",
+            unsafe_allow_html=True,
+        )
+        # Clear so it only appears once per refresh.
+        st.session_state.profile_refreshed = False
 
-    st.markdown("**Regions**")
-    regions = st.pills("regions2", REGION_OPTIONS, selection_mode="multi",
-                        default=s["regions"], label_visibility="collapsed", key="prof_regions")
-    s["regions"] = list(regions or [])
+    # ── Academic Profile card ────────────────────────────────────────────
+    with st.container(border=True):
+        st.markdown(
+            "<div class='cff-section-title' style='margin-top:0;'>Academic Profile</div>",
+            unsafe_allow_html=True,
+        )
 
-    st.markdown("**Campus vibe**")
-    vibes = st.pills("vibes2", VIBE_OPTIONS, selection_mode="multi",
-                      default=s["vibes"], label_visibility="collapsed", key="prof_vibes")
-    s["vibes"] = list(vibes or [])
+        st.markdown("**Student status**")
+        status_label = STATUS_KEY_TO_LABEL.get(
+            s.get("student_status", "domestic"), "Domestic"
+        )
+        status_choice = st.pills(
+            "prof_status", STATUS_OPTIONS, selection_mode="single",
+            default=status_label,
+            label_visibility="collapsed", key="pills_prof_status",
+        )
+        s["student_status"] = STATUS_LABEL_TO_KEY.get(
+            status_choice or "Domestic", "domestic"
+        )
 
-    st.markdown("**Weights**")
-    for key, label in [("academic_fit", "Academic"), ("affordability", "Affordability"),
-                        ("location_fit", "Location"), ("weather_fit", "Weather"),
-                        ("vibe_fit", "Vibe")]:
-        s["weights"][key] = st.slider(f"{label}", 1, 5,
-                                       int(s["weights"].get(key, 3)), key=f"prof_w_{key}")
+        c1, c2 = st.columns(2)
+        with c1:
+            s["gpa"] = st.number_input(
+                "Unweighted GPA", min_value=0.0, max_value=4.0, step=0.01,
+                value=float(s["gpa"]) if s["gpa"] is not None else 3.5,
+                key="prof_gpa",
+            )
+        with c2:
+            s["major"] = st.text_input(
+                "Intended major", value=s["major"], key="prof_major",
+                placeholder="e.g. Computer Science",
+            )
 
-    if st.button("Re-run search", type="primary", use_container_width=True):
-        st.session_state.phase = "running"; st.rerun()
+        c1, c2 = st.columns(2)
+        with c1:
+            sat_in = st.number_input(
+                "SAT (optional)", min_value=0, max_value=1600, step=10,
+                value=int(s["sat"]) if s["sat"] else 0, key="prof_sat",
+            )
+            s["sat"] = int(sat_in) if sat_in >= 400 else None
+        with c2:
+            act_in = st.number_input(
+                "ACT (optional)", min_value=0, max_value=36, step=1,
+                value=int(s["act"]) if s["act"] else 0, key="prof_act",
+            )
+            s["act"] = int(act_in) if act_in >= 1 else None
+
+    # ── Location and Weather card ────────────────────────────────────────
+    with st.container(border=True):
+        st.markdown(
+            "<div class='cff-section-title' style='margin-top:0;'>Location & Weather</div>",
+            unsafe_allow_html=True,
+        )
+
+        c1, c2 = st.columns(2)
+        with c1:
+            names = [n for n, _ in US_STATES_FULL]
+            s["home_state_name"] = st.selectbox(
+                "Home state", names,
+                index=names.index(s["home_state_name"]) if s["home_state_name"] in names else 0,
+                key="prof_state",
+            )
+        with c2:
+            s["max_distance"] = st.selectbox(
+                "Max distance from home", DISTANCE_OPTIONS,
+                index=DISTANCE_OPTIONS.index(s["max_distance"])
+                      if s["max_distance"] in DISTANCE_OPTIONS else 0,
+                key="prof_dist",
+            )
+
+        # Tuition preference — hidden for international / permanent-resident.
+        if s.get("student_status") in INTERNATIONAL_LIKE:
+            st.caption(
+                "_Tuition preference doesn't apply — you'll pay out-of-state "
+                "tuition at every US school._"
+            )
+            s["tuition_preference"] = "no_preference"
+        else:
+            st.markdown("**Tuition preference**")
+            tlabel = TUITION_KEY_TO_LABEL.get(
+                s.get("tuition_preference") or "no_preference", "No preference"
+            )
+            tchoice = st.pills(
+                "prof_tuition", TUITION_OPTIONS, selection_mode="single",
+                default=tlabel, label_visibility="collapsed", key="pills_prof_tuition",
+            )
+            s["tuition_preference"] = TUITION_LABEL_TO_KEY.get(
+                tchoice or "No preference", "no_preference"
+            )
+
+        st.markdown("**Preferred climate**")
+        climates = st.pills(
+            "prof_climate", CLIMATE_OPTIONS, selection_mode="multi",
+            default=s["climates"], label_visibility="collapsed", key="pills_prof_climate",
+        )
+        s["climates"] = list(climates or [])
+
+        st.markdown("**Preferred region**")
+        regions = st.pills(
+            "prof_region", REGION_OPTIONS, selection_mode="multi",
+            default=s["regions"], label_visibility="collapsed", key="pills_prof_region",
+        )
+        s["regions"] = list(regions or [])
+
+    # ── Budget & Campus Vibe card ────────────────────────────────────────
+    with st.container(border=True):
+        st.markdown(
+            "<div class='cff-section-title' style='margin-top:0;'>Budget & Campus Vibe</div>",
+            unsafe_allow_html=True,
+        )
+
+        s["budget"] = st.slider(
+            f"Max annual tuition: ${int(s['budget']):,}",
+            min_value=0, max_value=100_000, step=1_000,
+            value=int(s["budget"]),
+            key="prof_budget",
+        )
+
+        st.markdown("**Campus size**")
+        size = st.pills(
+            "prof_size", CAMPUS_SIZE_OPTIONS, selection_mode="single",
+            default=s["campus_size"] if s["campus_size"] in CAMPUS_SIZE_OPTIONS else "No preference",
+            label_visibility="collapsed", key="pills_prof_size",
+        )
+        s["campus_size"] = size or "No preference"
+
+        st.markdown("**Campus vibe**")
+        vibes = st.pills(
+            "prof_vibes", VIBE_OPTIONS, selection_mode="multi",
+            default=s["vibes"], label_visibility="collapsed", key="pills_prof_vibes",
+        )
+        s["vibes"] = list(vibes or [])
+
+    # ── Priority Weights card ────────────────────────────────────────────
+    with st.container(border=True):
+        st.markdown(
+            "<div class='cff-section-title' style='margin-top:0;'>Priority Weights</div>",
+            unsafe_allow_html=True,
+        )
+        for key, label in [
+            ("academic_fit",  "Academic quality"),
+            ("affordability", "Affordability"),
+            ("location_fit",  "Location"),
+            ("weather_fit",   "Weather"),
+            ("vibe_fit",      "Campus vibe"),
+        ]:
+            current = int(s["weights"].get(key, 3))
+            s["weights"][key] = st.slider(
+                f"{label} — **{current}**",
+                min_value=1, max_value=5, value=current, step=1,
+                key=f"prof_w_{key}",
+            )
+
+    # ── Refresh button ───────────────────────────────────────────────────
+    has_changes = _survey_for_compare(s) != _survey_for_compare(baseline)
+
+    st.write("")
+    _, mid, _ = st.columns([1, 2, 1])
+    with mid:
+        if st.button(
+            "Refresh Results",
+            type="primary",
+            use_container_width=True,
+            disabled=(not has_changes),
+            help="No changes to apply" if not has_changes else None,
+            key="profile_refresh_btn",
+        ):
+            # New results may have a different pool — saved / compare lists
+            # pointing at the old pool aren't meaningful any more.
+            st.session_state.saved_schools = []
+            st.session_state.compare_schools = []
+            st.session_state._refresh_source = "profile"
+            st.session_state.phase = "running"
+            st.rerun()
 
 
 def render_results_phase() -> None:
@@ -1292,7 +1800,7 @@ def render_results_phase() -> None:
     if st.session_state.main_tab == "profile":
         _render_profile_tab()
     elif st.session_state.main_tab == "list":
-        _render_my_list_placeholder()
+        _render_my_list_tab()
     else:
         _render_results_content()
 
