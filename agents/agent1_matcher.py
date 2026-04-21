@@ -23,6 +23,11 @@ load_dotenv()
 
 SCORECARD_URL = "https://api.data.gov/ed/collegescorecard/v1/schools"
 
+# Hard ceilings to keep pipeline latency bounded.
+MIN_RESULTS_CAP = 150   # even if a caller asks for more, we stop at this
+MAX_PAGES       = 3     # three 100-result pages = 300 raw rows max per query
+REQUEST_TIMEOUT = 30    # seconds per Scorecard call
+
 FIELDS = ",".join([
     "id",
     "school.name",
@@ -63,10 +68,17 @@ class StudentProfile:
     sat: int | None = None
     act: int | None = None
     intended_major: str | None = None
-    budget: int | None = None           # max annual cost of attendance (USD)
-    state: str | None = None            # 2-letter code, e.g. "CA"
+    budget: int | None = None           # max annual tuition (USD)
+    state: str | None = None            # 2-letter code used for the Scorecard
+                                        # query (may be comma-separated for
+                                        # region-level multi-state filters)
     weather_pref: str | None = None     # passthrough for later agents
-    vibe_prefs: list[str] = field(default_factory=list)  # passthrough
+    vibe_prefs: list[str] = field(default_factory=list)
+    home_state: str | None = None       # 2-letter code of the student's own
+                                        # home state (distinct from `state`);
+                                        # used to pick in- vs out-of-state
+                                        # tuition for the budget filter.
+    tuition_preference: str | None = None  # "in_state" | "out_of_state" | None
 
     def effective_sat(self) -> int | None:
         if self.sat:
@@ -103,17 +115,62 @@ def _build_params(profile: StudentProfile) -> dict[str, Any]:
     return params
 
 
+def _relevant_tuition(school: dict[str, Any], profile: StudentProfile) -> int | None:
+    """
+    Pick the tuition amount that would apply to this student at this school.
+      - tuition_preference="in_state"     → always the school's in-state rate
+      - tuition_preference="out_of_state" → always the out-of-state rate
+      - None / anything else              → in-state if the school is in the
+                                            student's home state, else OOS
+    """
+    pref = profile.tuition_preference
+    if pref == "in_state":
+        return school.get("in_state_tuition")
+    if pref == "out_of_state":
+        return school.get("out_of_state_tuition")
+
+    home = (profile.home_state or "").upper()
+    sch_state = (school.get("state") or "").upper()
+    if home and sch_state and home == sch_state:
+        return school.get("in_state_tuition")
+    # Attending out of state — fall back to in-state if OOS is unpublished.
+    return school.get("out_of_state_tuition") or school.get("in_state_tuition")
+
+
+def _passes_budget(school: dict[str, Any], profile: StudentProfile) -> bool:
+    """
+    Budget filter. An "in_state only" or "out_of_state only" preference also
+    scopes the school pool to schools that match that status relative to the
+    student's home state, so the displayed tuition is always the rate the
+    student would actually pay.
+    """
+    if profile.budget is None:
+        return True
+
+    pref = profile.tuition_preference
+    home = (profile.home_state or "").upper()
+    sch_state = (school.get("state") or "").upper()
+
+    if pref == "in_state" and home and sch_state and home != sch_state:
+        return False
+    if pref == "out_of_state" and home and sch_state and home == sch_state:
+        return False
+
+    tuition = _relevant_tuition(school, profile)
+    if tuition is None:
+        # Keep schools whose tuition isn't published rather than silently drop.
+        return True
+    return tuition <= profile.budget
+
+
 def _apply_local_filters(
     schools: list[dict[str, Any]], profile: StudentProfile
 ) -> list[dict[str, Any]]:
     """Post-filters for columns the Scorecard API doesn't let us filter on."""
     out = schools
 
-    if profile.budget:
-        out = [
-            s for s in out
-            if s["cost_of_attendance"] is None or s["cost_of_attendance"] <= profile.budget
-        ]
+    if profile.budget is not None:
+        out = [s for s in out if _passes_budget(s, profile)]
 
     if profile.intended_major:
         out = [s for s in out if _matches_major(s, profile.intended_major)]
@@ -149,8 +206,8 @@ def _flatten(raw: dict[str, Any]) -> dict[str, Any]:
         "act_25": raw.get("latest.admissions.act_scores.25th_percentile.cumulative"),
         "act_75": raw.get("latest.admissions.act_scores.75th_percentile.cumulative"),
         "cost_of_attendance": raw.get("latest.cost.attendance.academic_year"),
-        "tuition_in_state": raw.get("latest.cost.tuition.in_state"),
-        "tuition_out_of_state": raw.get("latest.cost.tuition.out_of_state"),
+        "in_state_tuition": raw.get("latest.cost.tuition.in_state"),
+        "out_of_state_tuition": raw.get("latest.cost.tuition.out_of_state"),
         "graduation_rate": raw.get("latest.completion.completion_rate_4yr_150nt"),
         "median_debt": raw.get("latest.aid.median_debt.completers.overall"),
         "programs": programs,
@@ -181,19 +238,38 @@ def find_matching_schools(
 
     `limit` optionally caps the returned list.
     """
+    # Global cap so callers can't make the pipeline hang by asking for a huge
+    # pool — 150 has always been plenty for Agent 2 to rank from.
+    effective_min = min(min_results, MIN_RESULTS_CAP)
+
     params = _build_params(profile)
-    params["per_page"] = per_page
+    params["per_page"] = per_page   # defaults to 100 (the Scorecard max)
 
     collected: list[dict[str, Any]] = []
     fetched = 0
     page = 0
 
-    while fetched < max_fetched and len(collected) < min_results:
+    while (
+        page < MAX_PAGES
+        and fetched < max_fetched
+        and len(collected) < effective_min
+    ):
         params["page"] = page
 
+        # Print the outgoing URL (with the API key redacted) so the
+        # exact query is visible in the server log for debugging.
+        prep = requests.Request("GET", SCORECARD_URL, params=params).prepare()
+        safe_url = prep.url.replace(params["api_key"], "***") if prep.url else ""
+        print(f"[Agent 1 page {page}] {safe_url}", flush=True)
+
         try:
-            resp = requests.get(SCORECARD_URL, params=params, timeout=20)
+            resp = requests.get(SCORECARD_URL, params=params, timeout=REQUEST_TIMEOUT)
             resp.raise_for_status()
+        except requests.Timeout:
+            # Don't hang the pipeline — return whatever we've collected so far.
+            print(f"[Agent 1] Scorecard timeout on page {page}; "
+                  f"returning {len(collected)} collected so far.", flush=True)
+            break
         except requests.RequestException as e:
             raise ScorecardError(f"Scorecard request failed: {e}") from e
 

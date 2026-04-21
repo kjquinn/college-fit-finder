@@ -42,12 +42,15 @@ US_STATES_FULL = [
 STATE_NAME_TO_CODE = {n: c for n, c in US_STATES_FULL}
 
 REGION_TO_STATES: dict[str, set[str]] = {
-    "Northeast": {"CT", "ME", "MA", "NH", "NJ", "NY", "PA", "RI", "VT"},
-    "Southeast": {"AL", "AR", "DE", "FL", "GA", "KY", "LA", "MD", "MS", "NC",
-                  "SC", "TN", "VA", "WV", "DC"},
-    "Midwest":   {"IL", "IN", "IA", "KS", "MI", "MN", "MO", "NE", "ND", "OH", "SD", "WI"},
-    "Southwest": {"AZ", "NM", "OK", "TX"},
-    "West Coast": {"CA", "OR", "WA", "AK", "HI", "NV"},
+    "Northeast":     {"ME", "NH", "VT", "MA", "RI", "CT", "NY", "NJ", "PA"},
+    "Mid-Atlantic":  {"NY", "NJ", "PA", "MD", "DE"},
+    "Southeast":     {"VA", "WV", "NC", "SC", "GA", "FL", "AL", "MS", "TN",
+                      "KY", "AR", "LA"},
+    "Midwest":       {"OH", "IN", "IL", "MI", "WI", "MN", "IA", "MO",
+                      "ND", "SD", "NE", "KS"},
+    "Southwest":     {"TX", "OK", "NM", "AZ"},
+    "West Coast":    {"CA", "OR", "WA"},
+    "Mountain West": {"CO", "UT", "NV", "ID", "MT", "WY"},
 }
 
 CLIMATE_OPTIONS = ["Warm and sunny", "Mild and seasonal", "Cold and snowy", "No preference"]
@@ -57,8 +60,19 @@ CLIMATE_TO_BACKEND = {
     "Cold and snowy": "Cold",
 }
 
-REGION_OPTIONS = ["Northeast", "Southeast", "Midwest", "Southwest", "West Coast", "No preference"]
+REGION_OPTIONS = [
+    "Northeast", "Mid-Atlantic", "Southeast", "Midwest",
+    "Southwest", "West Coast", "Mountain West", "No preference",
+]
 DISTANCE_OPTIONS = ["No preference", "Within 500 miles", "Within 1000 miles", "Anywhere"]
+
+TUITION_OPTIONS = ["In-state only", "Out-of-state only", "No preference"]
+TUITION_LABEL_TO_KEY = {
+    "In-state only": "in_state",
+    "Out-of-state only": "out_of_state",
+    "No preference": "no_preference",
+}
+TUITION_KEY_TO_LABEL = {v: k for k, v in TUITION_LABEL_TO_KEY.items()}
 
 CAMPUS_SIZE_OPTIONS = [
     "Small (under 5,000 students)",
@@ -266,6 +280,7 @@ footer {{ visibility: hidden; }}
 }}
 .cff-mini-cell .label {{ font-size: 0.7rem; color: #666; letter-spacing: 0.03em; }}
 .cff-mini-cell .value {{ font-size: 0.95rem; font-weight: 600; color: #1a1a1a; margin-top: 2px; }}
+.cff-mini-cell .qual  {{ font-size: 0.7rem; color: #888; font-weight: 400; margin-left: 4px; }}
 
 .cff-vibe-chips {{
     display: flex; flex-wrap: wrap; gap: 4px; margin-top: auto; padding-top: 0.4rem;
@@ -293,9 +308,10 @@ footer {{ visibility: hidden; }}
     margin: 1rem 0 0.5rem;
 }}
 .cff-stat-grid {{
-    display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0.5rem;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;
 }}
 .cff-stat-grid.two {{ grid-template-columns: 1fr 1fr; }}
+.cff-stat-grid.four {{ grid-template-columns: repeat(4, 1fr); }}
 .cff-stat-cell {{
     background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0.6rem 0.75rem;
 }}
@@ -332,6 +348,7 @@ def _default_survey() -> dict[str, Any]:
     return {
         "gpa": 3.5, "sat": None, "act": None, "major": "",
         "home_state_name": "", "max_distance": "No preference",
+        "tuition_preference": "no_preference",
         "climates": [], "regions": [],
         "budget": 40_000, "campus_size": "No preference", "vibes": [],
         "weights": {
@@ -384,6 +401,9 @@ def _survey_to_profile_and_backend(survey: dict[str, Any]) -> tuple[StudentProfi
     if size_vibe:
         vibes.append(size_vibe)
 
+    tuition_pref_raw = survey.get("tuition_preference") or "no_preference"
+    tuition_pref = tuition_pref_raw if tuition_pref_raw in ("in_state", "out_of_state") else None
+
     profile = StudentProfile(
         gpa=survey["gpa"] or None,
         sat=survey["sat"], act=survey["act"],
@@ -392,6 +412,8 @@ def _survey_to_profile_and_backend(survey: dict[str, Any]) -> tuple[StudentProfi
         state=home_code,
         weather_pref=weather_pref,
         vibe_prefs=vibes,
+        home_state=home_code,
+        tuition_preference=tuition_pref,
     )
     return profile, _allowed_state_codes(survey), home_code
 
@@ -471,6 +493,15 @@ def render_step_2() -> None:
         "Max distance from home", DISTANCE_OPTIONS,
         index=DISTANCE_OPTIONS.index(s["max_distance"]) if s["max_distance"] in DISTANCE_OPTIONS else 0,
     )
+
+    st.markdown("**Tuition preference**")
+    current_label = TUITION_KEY_TO_LABEL.get(s.get("tuition_preference", "no_preference"), "No preference")
+    tuition_choice = st.pills(
+        "tuition", TUITION_OPTIONS, selection_mode="single",
+        default=current_label,
+        label_visibility="collapsed", key="pills_tuition",
+    )
+    s["tuition_preference"] = TUITION_LABEL_TO_KEY.get(tuition_choice or "No preference", "no_preference")
 
     st.markdown("**Preferred climate**")
     climates = st.pills("climate", CLIMATE_OPTIONS, selection_mode="multi",
@@ -583,13 +614,26 @@ def render_running() -> None:
     survey = st.session_state.survey
     profile, allowed_states, home_code = _survey_to_profile_and_backend(survey)
 
-    matcher_profile = profile
-    if survey["max_distance"] != "Within 500 miles":
-        matcher_profile = StudentProfile(
-            gpa=profile.gpa, sat=profile.sat, act=profile.act,
-            intended_major=profile.intended_major, budget=profile.budget,
-            state=None, weather_pref=profile.weather_pref, vibe_prefs=profile.vibe_prefs,
-        )
+    # Build the matcher's state filter from the user's choices. Priority:
+    #   1. If specific regions are selected → Agent 1 queries all states
+    #      in those regions (server-side filtering).
+    #   2. Else if distance is "Within 500 miles" → narrow to home state.
+    #   3. Else → no state filter (all 50 states).
+    if allowed_states:
+        matcher_state: str | None = ",".join(allowed_states)
+    elif survey["max_distance"] == "Within 500 miles" and home_code:
+        matcher_state = home_code
+    else:
+        matcher_state = None
+
+    matcher_profile = StudentProfile(
+        gpa=profile.gpa, sat=profile.sat, act=profile.act,
+        intended_major=profile.intended_major, budget=profile.budget,
+        state=matcher_state,
+        weather_pref=profile.weather_pref, vibe_prefs=profile.vibe_prefs,
+        home_state=profile.home_state,
+        tuition_preference=profile.tuition_preference,
+    )
 
     try:
         schools = find_matching_schools(matcher_profile)
@@ -597,8 +641,8 @@ def render_running() -> None:
         st.session_state.last_error = f"Scorecard API error: {e}"
         st.session_state.phase = "survey"; st.rerun(); return
 
-    if allowed_states:
-        schools = [s for s in schools if (s.get("state") or "").upper() in allowed_states]
+    # (Server-side filter already restricted to the selected regions;
+    # no post-filter needed.)
     if not schools:
         st.session_state.last_error = (
             "No schools matched those filters. Try widening your budget, "
@@ -755,9 +799,33 @@ def _fmt_size(v: int | None) -> str:
     return f"{v}"
 
 
-def _card_tuition(card: ProfileCard) -> int | None:
-    # Prefer out-of-state tuition for "tuition" summary; fall back to in-state or COA.
-    return card.tuition_out_of_state or card.tuition_in_state or card.cost_of_attendance
+def _card_tuition(card: ProfileCard) -> tuple[int | None, str]:
+    """
+    Returns (amount, short_label) for the tuition rate the student would
+    actually pay at this school, per the display rules:
+      - "in_state only"     → in-state rate
+      - "out_of_state only" → out-of-state rate
+      - "no preference"     → in-state if school is in the student's home
+                              state, else out-of-state
+    The short_label ("in-state" / "out-of-state") is shown as muted text
+    next to the amount on cards.
+    """
+    survey = st.session_state.survey
+    pref = survey.get("tuition_preference") or "no_preference"
+    home = STATE_NAME_TO_CODE.get(survey.get("home_state_name") or "") or ""
+    sch_state = (card.state or "").upper()
+    is_home = bool(home) and home == sch_state
+
+    if pref == "in_state":
+        return card.tuition_in_state, "in-state"
+    if pref == "out_of_state":
+        return card.tuition_out_of_state, "out-of-state"
+
+    if is_home:
+        return card.tuition_in_state, "in-state"
+    if card.tuition_out_of_state is not None:
+        return card.tuition_out_of_state, "out-of-state"
+    return card.tuition_in_state, "in-state"
 
 
 def _render_card(card: ProfileCard) -> None:
@@ -766,7 +834,7 @@ def _render_card(card: ProfileCard) -> None:
     badge_cls = _class_css(card.classification)
     fit_pct = max(0, min(100, int(card.overall_fit)))
     size = _school_size(card)
-    tuition = _card_tuition(card)
+    tuition, tuition_label = _card_tuition(card)
 
     # Top HTML block — card header through vibe chips.
     tags_html = ""
@@ -792,7 +860,7 @@ def _render_card(card: ProfileCard) -> None:
   <div class='cff-mini-grid'>
     <div class='cff-mini-cell'>
       <div class='label'>TUITION</div>
-      <div class='value'>{_fmt_currency(tuition)}</div>
+      <div class='value'>{_fmt_currency(tuition)}<span class='qual'>{tuition_label}</span></div>
     </div>
     <div class='cff-mini-cell'>
       <div class='label'>SIZE</div>
@@ -951,7 +1019,7 @@ def _render_map_detail_panel(card: ProfileCard) -> None:
     badge_cls = _class_css(card.classification)
 
     size = _school_size(card)
-    tuition = _card_tuition(card)
+    tuition, tuition_label = _card_tuition(card)
     tags_html = ""
     if card.vibe_tags:
         chips = "".join(f"<span class='cff-vibe-chip'>{t}</span>" for t in card.vibe_tags[:5])
@@ -987,7 +1055,7 @@ def _render_map_detail_panel(card: ProfileCard) -> None:
     mini_html = f"""
 <div class='cff-mini-grid' style='margin-top:0.5rem;'>
   <div class='cff-mini-cell'><div class='label'>TUITION</div>
-    <div class='value'>{_fmt_currency(tuition)}</div></div>
+    <div class='value'>{_fmt_currency(tuition)}<span class='qual'>{tuition_label}</span></div></div>
   <div class='cff-mini-cell'><div class='label'>ACCEPTANCE</div>
     <div class='value'>{_fmt_pct(card.acceptance_rate)}</div></div>
   <div class='cff-mini-cell'><div class='label'>ENROLLMENT</div>
@@ -1246,23 +1314,24 @@ def render_school_profile() -> None:
     for cat, score in card.category_scores.items():
         _bar_row(card.category_labels[cat], score)
 
-    # Key stats grid
+    # Key stats grid — always show both tuition rates on the profile page,
+    # regardless of the survey's tuition preference.
     size = _school_size(card)
-    tuition = _card_tuition(card)
     sat = f"{card.sat_range[0]}–{card.sat_range[1]}" if card.sat_range else "—"
     winter = f"{card.winter_temp_f:.0f}°F" if card.winter_temp_f is not None else "—"
     summer = f"{card.summer_temp_f:.0f}°F" if card.summer_temp_f is not None else "—"
 
     st.markdown("<div class='cff-section-title'>Key stats</div>", unsafe_allow_html=True)
     stat_html = "<div class='cff-stat-grid'>" + "".join([
-        _stat_cell("TUITION", _fmt_currency(tuition)),
-        _stat_cell("ACCEPTANCE RATE", _fmt_pct(card.acceptance_rate)),
-        _stat_cell("SAT RANGE (25–75%)", sat),
-        _stat_cell("MEDIAN DEBT", _fmt_currency(card.median_debt)),
-        _stat_cell("ENROLLMENT", _fmt_size(size)),
-        _stat_cell("GRADUATION RATE", _fmt_pct(card.graduation_rate)),
-        _stat_cell("WINTER TEMP", winter),
-        _stat_cell("SUMMER TEMP", summer),
+        _stat_cell("IN-STATE TUITION",     _fmt_currency(card.tuition_in_state)),
+        _stat_cell("OUT-OF-STATE TUITION", _fmt_currency(card.tuition_out_of_state)),
+        _stat_cell("ACCEPTANCE RATE",      _fmt_pct(card.acceptance_rate)),
+        _stat_cell("SAT RANGE (25–75%)",   sat),
+        _stat_cell("MEDIAN DEBT",          _fmt_currency(card.median_debt)),
+        _stat_cell("ENROLLMENT",           _fmt_size(size)),
+        _stat_cell("GRADUATION RATE",      _fmt_pct(card.graduation_rate)),
+        _stat_cell("WINTER TEMP",          winter),
+        _stat_cell("SUMMER TEMP",          summer),
     ]) + "</div>"
     st.markdown(stat_html, unsafe_allow_html=True)
 
