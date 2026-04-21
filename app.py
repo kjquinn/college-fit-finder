@@ -221,9 +221,6 @@ footer {{ visibility: hidden; }}
 }}
 .cff-count {{ color: #555; font-weight: 500; font-size: 0.95rem; }}
 .cff-count strong {{ color: #1a1a1a; }}
-.cff-suggest-label {{
-    font-size: 0.8rem; color: #666; margin: 0.25rem 0 0.3rem; font-weight: 500;
-}}
 
 /* ── Cards (grid view) ──────────────────────────────────────────────── */
 .cff-card-body {{
@@ -355,7 +352,6 @@ def _init_session() -> None:
     ss.setdefault("sub_view", "List view")    # List view | Map view
     ss.setdefault("filter_class", "All")
     ss.setdefault("filter_flags", [])         # list of stack-filter labels currently active
-    ss.setdefault("search_query", "")
     ss.setdefault("saved_schools", [])        # list of school ids
     ss.setdefault("selected_school_id", None) # set when viewing a profile page
     ss.setdefault("display_limit", 50)        # how many filtered cards to show in list view
@@ -637,15 +633,12 @@ def _school_size(card: ProfileCard) -> int | None:
 
 
 def _apply_filters(cards: Iterable[ProfileCard]) -> list[ProfileCard]:
-    q = (st.session_state.search_query or "").strip().lower()
     cls = st.session_state.filter_class
     flag_keys = {STACK_FILTER_LABEL_TO_KEY[f] for f in st.session_state.filter_flags
                  if f in STACK_FILTER_LABEL_TO_KEY}
 
     out: list[ProfileCard] = []
     for c in cards:
-        if q and q not in (c.name or "").lower():
-            continue
         if cls != "All" and c.classification != cls:
             continue
         if "under_30k" in flag_keys:
@@ -688,45 +681,35 @@ def _render_main_nav() -> None:
 
 
 def _render_toolbar(all_cards: list[ProfileCard], filtered: list[ProfileCard]) -> None:
-    # Row 1: search + count
+    # Row 1: searchable selectbox + count
     left, right = st.columns([4, 1])
     with left:
-        st.session_state.search_query = st.text_input(
-            "Search schools by name",
-            value=st.session_state.search_query,
-            placeholder="Search by school name — pick a match to open its profile…",
+        chosen = st.selectbox(
+            "school_search",
+            options=[c.name for c in all_cards],
+            index=None,
+            placeholder="Search for a school...",
             label_visibility="collapsed",
-            key="search_query_input",
+            key="school_search_select",
         )
+        if chosen:
+            # Find the matching card and navigate to its profile.
+            for c in all_cards:
+                if c.name == chosen:
+                    st.session_state.selected_school_id = c.school_id
+                    st.session_state.phase = "school_profile"
+                    # Clear the selectbox state so a "back" return to the
+                    # results page doesn't re-trigger navigation.
+                    if "school_search_select" in st.session_state:
+                        del st.session_state["school_search_select"]
+                    st.rerun()
+                    break
     with right:
         st.markdown(
             f"<div style='text-align:right; padding-top: 0.5rem;' class='cff-count'>"
             f"<strong>{len(filtered)}</strong> of {len(all_cards)} schools</div>",
             unsafe_allow_html=True,
         )
-
-    # Suggestion row — up to 5 matches shown as clickable buttons that jump
-    # straight to the school's profile page.
-    q = (st.session_state.search_query or "").strip().lower()
-    if q:
-        suggestions = [c for c in all_cards if q in (c.name or "").lower()][:5]
-        if suggestions:
-            st.markdown(
-                "<div class='cff-suggest-label'>Jump to a school:</div>",
-                unsafe_allow_html=True,
-            )
-            sug_cols = st.columns(min(len(suggestions), 5))
-            for i, s in enumerate(suggestions):
-                with sug_cols[i]:
-                    if st.button(
-                        f"🎓 {s.name}",
-                        key=f"sug_{s.school_id}",
-                        use_container_width=True,
-                        help=f"{s.classification} · {int(s.overall_fit)} fit",
-                    ):
-                        st.session_state.selected_school_id = s.school_id
-                        st.session_state.phase = "school_profile"
-                        st.rerun()
 
     # Row 2: classification pills + stackable filter pills
     c1, c2 = st.columns([1, 2])
