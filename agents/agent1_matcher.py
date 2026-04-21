@@ -43,6 +43,8 @@ FIELDS = ",".join([
     "latest.cost.attendance.academic_year",
     "latest.cost.tuition.in_state",
     "latest.cost.tuition.out_of_state",
+    "latest.completion.completion_rate_4yr_150nt",   # C150_4 — grad rate
+    "latest.aid.median_debt.completers.overall",     # DEBT_MDN — median debt at graduation
     "latest.programs.cip_4_digit.title",
 ])
 
@@ -149,6 +151,8 @@ def _flatten(raw: dict[str, Any]) -> dict[str, Any]:
         "cost_of_attendance": raw.get("latest.cost.attendance.academic_year"),
         "tuition_in_state": raw.get("latest.cost.tuition.in_state"),
         "tuition_out_of_state": raw.get("latest.cost.tuition.out_of_state"),
+        "graduation_rate": raw.get("latest.completion.completion_rate_4yr_150nt"),
+        "median_debt": raw.get("latest.aid.median_debt.completers.overall"),
         "programs": programs,
     }
 
