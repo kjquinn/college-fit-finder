@@ -50,6 +50,7 @@ FIELDS = ",".join([
     "latest.cost.tuition.out_of_state",
     "latest.completion.completion_rate_4yr_150nt",   # C150_4 — grad rate
     "latest.aid.median_debt.completers.overall",     # DEBT_MDN — median debt at graduation
+    "latest.student.demographics.race_ethnicity.non_resident_alien",  # % international
     "latest.programs.cip_4_digit.title",
 ])
 
@@ -79,6 +80,7 @@ class StudentProfile:
                                         # used to pick in- vs out-of-state
                                         # tuition for the budget filter.
     tuition_preference: str | None = None  # "in_state" | "out_of_state" | None
+    student_status: str | None = None   # "domestic" | "international" | "permanent_resident"
 
     def effective_sat(self) -> int | None:
         if self.sat:
@@ -118,11 +120,16 @@ def _build_params(profile: StudentProfile) -> dict[str, Any]:
 def _relevant_tuition(school: dict[str, Any], profile: StudentProfile) -> int | None:
     """
     Pick the tuition amount that would apply to this student at this school.
-      - tuition_preference="in_state"     → always the school's in-state rate
-      - tuition_preference="out_of_state" → always the out-of-state rate
-      - None / anything else              → in-state if the school is in the
-                                            student's home state, else OOS
+      - International / permanent resident → always out-of-state (they pay
+        OOS rates at every US school, home-state logic doesn't apply)
+      - tuition_preference="in_state"      → in-state rate
+      - tuition_preference="out_of_state"  → out-of-state rate
+      - None / anything else (domestic)    → in-state if the school is in
+                                             the student's home state, else OOS
     """
+    if profile.student_status in ("international", "permanent_resident"):
+        return school.get("out_of_state_tuition") or school.get("in_state_tuition")
+
     pref = profile.tuition_preference
     if pref == "in_state":
         return school.get("in_state_tuition")
@@ -139,13 +146,21 @@ def _relevant_tuition(school: dict[str, Any], profile: StudentProfile) -> int | 
 
 def _passes_budget(school: dict[str, Any], profile: StudentProfile) -> bool:
     """
-    Budget filter. An "in_state only" or "out_of_state only" preference also
-    scopes the school pool to schools that match that status relative to the
-    student's home state, so the displayed tuition is always the rate the
-    student would actually pay.
+    Budget filter. Rules:
+      - International / permanent resident: compare OOS tuition; do not
+        scope by state (no "home" state applies).
+      - Domestic + "in_state only":     restrict pool to home-state schools,
+                                        compare in-state tuition.
+      - Domestic + "out_of_state only": exclude home-state schools,
+                                        compare out-of-state tuition.
+      - Otherwise:                      compare the relevant tuition only.
     """
     if profile.budget is None:
         return True
+
+    if profile.student_status in ("international", "permanent_resident"):
+        tuition = _relevant_tuition(school, profile)
+        return True if tuition is None else tuition <= profile.budget
 
     pref = profile.tuition_preference
     home = (profile.home_state or "").upper()
@@ -210,6 +225,9 @@ def _flatten(raw: dict[str, Any]) -> dict[str, Any]:
         "out_of_state_tuition": raw.get("latest.cost.tuition.out_of_state"),
         "graduation_rate": raw.get("latest.completion.completion_rate_4yr_150nt"),
         "median_debt": raw.get("latest.aid.median_debt.completers.overall"),
+        "international_pct": raw.get(
+            "latest.student.demographics.race_ethnicity.non_resident_alien"
+        ),
         "programs": programs,
     }
 

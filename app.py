@@ -74,6 +74,15 @@ TUITION_LABEL_TO_KEY = {
 }
 TUITION_KEY_TO_LABEL = {v: k for k, v in TUITION_LABEL_TO_KEY.items()}
 
+STATUS_OPTIONS = ["Domestic", "International", "Permanent Resident"]
+STATUS_LABEL_TO_KEY = {
+    "Domestic": "domestic",
+    "International": "international",
+    "Permanent Resident": "permanent_resident",
+}
+STATUS_KEY_TO_LABEL = {v: k for k, v in STATUS_LABEL_TO_KEY.items()}
+INTERNATIONAL_LIKE = ("international", "permanent_resident")
+
 CAMPUS_SIZE_OPTIONS = [
     "Small (under 5,000 students)",
     "Medium (5,000–15,000)",
@@ -281,6 +290,7 @@ footer {{ visibility: hidden; }}
 .cff-mini-cell .label {{ font-size: 0.7rem; color: #666; letter-spacing: 0.03em; }}
 .cff-mini-cell .value {{ font-size: 0.95rem; font-weight: 600; color: #1a1a1a; margin-top: 2px; }}
 .cff-mini-cell .qual  {{ font-size: 0.7rem; color: #888; font-weight: 400; margin-left: 4px; }}
+.cff-mini-cell.full   {{ grid-column: 1 / -1; }}
 
 .cff-vibe-chips {{
     display: flex; flex-wrap: wrap; gap: 4px; margin-top: auto; padding-top: 0.4rem;
@@ -308,10 +318,10 @@ footer {{ visibility: hidden; }}
     margin: 1rem 0 0.5rem;
 }}
 .cff-stat-grid {{
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;
 }}
-.cff-stat-grid.two {{ grid-template-columns: 1fr 1fr; }}
-.cff-stat-grid.four {{ grid-template-columns: repeat(4, 1fr); }}
+.cff-stat-grid.two   {{ grid-template-columns: 1fr 1fr; }}
+.cff-stat-grid.three {{ grid-template-columns: repeat(3, 1fr); }}
 .cff-stat-cell {{
     background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0.6rem 0.75rem;
 }}
@@ -347,6 +357,7 @@ st.markdown(CSS, unsafe_allow_html=True)
 def _default_survey() -> dict[str, Any]:
     return {
         "gpa": 3.5, "sat": None, "act": None, "major": "",
+        "student_status": "domestic",
         "home_state_name": "", "max_distance": "No preference",
         "tuition_preference": "no_preference",
         "climates": [], "regions": [],
@@ -403,6 +414,7 @@ def _survey_to_profile_and_backend(survey: dict[str, Any]) -> tuple[StudentProfi
 
     tuition_pref_raw = survey.get("tuition_preference") or "no_preference"
     tuition_pref = tuition_pref_raw if tuition_pref_raw in ("in_state", "out_of_state") else None
+    student_status = survey.get("student_status") or "domestic"
 
     profile = StudentProfile(
         gpa=survey["gpa"] or None,
@@ -414,6 +426,7 @@ def _survey_to_profile_and_backend(survey: dict[str, Any]) -> tuple[StudentProfi
         vibe_prefs=vibes,
         home_state=home_code,
         tuition_preference=tuition_pref,
+        student_status=student_status,
     )
     return profile, _allowed_state_codes(survey), home_code
 
@@ -450,6 +463,15 @@ def render_step_1() -> None:
     st.markdown("<div class='cff-step-title'>Step 1 · Academic profile</div>", unsafe_allow_html=True)
     st.markdown("<div class='cff-step-hint'>We'll use these to gauge academic fit. Test scores are optional.</div>",
                 unsafe_allow_html=True)
+
+    st.markdown("**Student status**")
+    current_status_label = STATUS_KEY_TO_LABEL.get(s.get("student_status", "domestic"), "Domestic")
+    status_choice = st.pills(
+        "student_status", STATUS_OPTIONS, selection_mode="single",
+        default=current_status_label,
+        label_visibility="collapsed", key="pills_status",
+    )
+    s["student_status"] = STATUS_LABEL_TO_KEY.get(status_choice or "Domestic", "domestic")
 
     s["gpa"] = st.number_input(
         "Unweighted GPA *", min_value=0.0, max_value=4.0, step=0.01,
@@ -494,14 +516,27 @@ def render_step_2() -> None:
         index=DISTANCE_OPTIONS.index(s["max_distance"]) if s["max_distance"] in DISTANCE_OPTIONS else 0,
     )
 
-    st.markdown("**Tuition preference**")
-    current_label = TUITION_KEY_TO_LABEL.get(s.get("tuition_preference", "no_preference"), "No preference")
-    tuition_choice = st.pills(
-        "tuition", TUITION_OPTIONS, selection_mode="single",
-        default=current_label,
-        label_visibility="collapsed", key="pills_tuition",
-    )
-    s["tuition_preference"] = TUITION_LABEL_TO_KEY.get(tuition_choice or "No preference", "no_preference")
+    # Tuition preference doesn't apply to international / permanent-resident
+    # students — they always pay out-of-state tuition.
+    if s.get("student_status") in INTERNATIONAL_LIKE:
+        st.caption(
+            "_Tuition preference doesn't apply — you'll pay out-of-state "
+            "tuition at every US school._"
+        )
+        s["tuition_preference"] = "no_preference"
+    else:
+        st.markdown("**Tuition preference**")
+        current_label = TUITION_KEY_TO_LABEL.get(
+            s.get("tuition_preference", "no_preference"), "No preference"
+        )
+        tuition_choice = st.pills(
+            "tuition", TUITION_OPTIONS, selection_mode="single",
+            default=current_label,
+            label_visibility="collapsed", key="pills_tuition",
+        )
+        s["tuition_preference"] = TUITION_LABEL_TO_KEY.get(
+            tuition_choice or "No preference", "no_preference"
+        )
 
     st.markdown("**Preferred climate**")
     climates = st.pills("climate", CLIMATE_OPTIONS, selection_mode="multi",
@@ -633,6 +668,7 @@ def render_running() -> None:
         weather_pref=profile.weather_pref, vibe_prefs=profile.vibe_prefs,
         home_state=profile.home_state,
         tuition_preference=profile.tuition_preference,
+        student_status=profile.student_status,
     )
 
     try:
@@ -811,10 +847,15 @@ def _card_tuition(card: ProfileCard) -> tuple[int | None, str]:
     next to the amount on cards.
     """
     survey = st.session_state.survey
+    status = survey.get("student_status") or "domestic"
     pref = survey.get("tuition_preference") or "no_preference"
     home = STATE_NAME_TO_CODE.get(survey.get("home_state_name") or "") or ""
     sch_state = (card.state or "").upper()
     is_home = bool(home) and home == sch_state
+
+    # International / permanent resident → always out-of-state tuition.
+    if status in INTERNATIONAL_LIKE:
+        return (card.tuition_out_of_state or card.tuition_in_state), "out-of-state"
 
     if pref == "in_state":
         return card.tuition_in_state, "in-state"
@@ -873,6 +914,10 @@ def _render_card(card: ProfileCard) -> None:
     <div class='cff-mini-cell'>
       <div class='label'>MEDIAN DEBT</div>
       <div class='value'>{_fmt_currency(card.median_debt)}</div>
+    </div>
+    <div class='cff-mini-cell full'>
+      <div class='label'>INTERNATIONAL</div>
+      <div class='value'>{_fmt_pct(card.international_pct)}</div>
     </div>
   </div>
 
@@ -1062,6 +1107,8 @@ def _render_map_detail_panel(card: ProfileCard) -> None:
     <div class='value'>{_fmt_size(size)}</div></div>
   <div class='cff-mini-cell'><div class='label'>MEDIAN DEBT</div>
     <div class='value'>{_fmt_currency(card.median_debt)}</div></div>
+  <div class='cff-mini-cell full'><div class='label'>INTERNATIONAL</div>
+    <div class='value'>{_fmt_pct(card.international_pct)}</div></div>
 </div>
 {tags_html}
 """
@@ -1330,10 +1377,19 @@ def render_school_profile() -> None:
         _stat_cell("MEDIAN DEBT",          _fmt_currency(card.median_debt)),
         _stat_cell("ENROLLMENT",           _fmt_size(size)),
         _stat_cell("GRADUATION RATE",      _fmt_pct(card.graduation_rate)),
+        _stat_cell("INTERNATIONAL STUDENTS", _fmt_pct(card.international_pct)),
         _stat_cell("WINTER TEMP",          winter),
         _stat_cell("SUMMER TEMP",          summer),
     ]) + "</div>"
     st.markdown(stat_html, unsafe_allow_html=True)
+
+    # Extra context for international / permanent-resident applicants.
+    student_status = st.session_state.survey.get("student_status") or "domestic"
+    if student_status in INTERNATIONAL_LIKE and card.international_pct is not None:
+        st.caption(
+            f"_This school enrolls {card.international_pct*100:.0f}% "
+            f"international students._"
+        )
 
     # Strengths + weaknesses
     sw = st.columns(2)

@@ -69,6 +69,7 @@ class ProfileCard:
     precip_level: str | None = None
     graduation_rate: float | None = None   # 0-1, 4yr 150% completion (Scorecard C150_4)
     median_debt: int | None = None         # median debt of completers (Scorecard DEBT_MDN)
+    international_pct: float | None = None # 0-1, non-resident-alien undergrad share
     vibe_tags: list[str] = field(default_factory=list)
     vibe_campus_setting: str | None = None
     vibe_political_leaning: str | None = None
@@ -295,6 +296,13 @@ def build_profile_cards(
         gpa_range, gpa_note = _gpa_range(school.get("admission_rate"))
         strengths, weaknesses = _strengths_weaknesses(fs, profile, weights)
 
+        # Compose vibe tags from the vibe dataset, plus auto-inject
+        # "international friendly" for schools with >10% international.
+        vibe_tags = list((school.get("vibe") or {}).get("vibe_tags") or [])
+        intl_pct = school.get("international_pct")
+        if intl_pct is not None and intl_pct > 0.10 and "international friendly" not in vibe_tags:
+            vibe_tags.append("international friendly")
+
         url = school.get("url")
         if url and not url.startswith("http"):
             url = f"https://{url}"
@@ -329,7 +337,8 @@ def build_profile_cards(
             precip_level=school.get("precip_level"),
             graduation_rate=school.get("graduation_rate"),
             median_debt=school.get("median_debt"),
-            vibe_tags=list((school.get("vibe") or {}).get("vibe_tags") or []),
+            international_pct=school.get("international_pct"),
+            vibe_tags=vibe_tags,
             vibe_campus_setting=(school.get("vibe") or {}).get("campus_setting"),
             vibe_political_leaning=(school.get("vibe") or {}).get("political_leaning"),
             vibe_athletics_culture=(school.get("vibe") or {}).get("athletics_culture"),
