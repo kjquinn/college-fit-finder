@@ -2248,18 +2248,27 @@ def render_school_profile() -> None:
         if c.school_id == st.session_state.selected_school_id:
             card = c
             break
+
+    # Fix 1 — add explicit top padding so the Back button is never clipped
+    # by the browser chrome / Streamlit header area.
+    st.markdown(
+        "<div style='padding-top: 1.25rem;'></div>",
+        unsafe_allow_html=True,
+    )
+
     if not card:
         st.error("School not found. It may have been filtered out or a new search was run.")
-        if st.button("← Back to results"):
+        if st.button("Back to results", key="school_back_missing"):
             st.session_state.phase = "results"; st.rerun()
         return
 
-    if st.button("← Back to results", key="school_back"):
+    if st.button("Back to results", key="school_back"):
         st.session_state.phase = "results"
         st.session_state.selected_school_id = None
         st.rerun()
 
     badge_cls = _class_css(card.classification)
+    # Fix 2 — append "%" to the top-right overall fit score.
     header_html = f"""
 <div class='cff-profile-header'>
   <div>
@@ -2269,7 +2278,7 @@ def render_school_profile() -> None:
     </div>
   </div>
   <div>
-    <div class='cff-profile-fit'>{int(card.overall_fit)}</div>
+    <div class='cff-profile-fit'>{int(card.overall_fit)}%</div>
     <div class='cff-profile-fit-lbl'>OVERALL FIT</div>
   </div>
 </div>
@@ -2278,10 +2287,15 @@ def render_school_profile() -> None:
 
     st.write(card.description)
 
-    # Fit breakdown
+    # Fix 5 — website link rendered right below the description, labeled.
+    if card.url:
+        st.markdown(f"**Website:** [{card.url}]({card.url})")
+
+    # Fit breakdown — Fix 3: append "%" to each category score via _bar_row's
+    # fmt parameter.
     st.markdown("<div class='cff-section-title'>Fit breakdown</div>", unsafe_allow_html=True)
     for cat, score in card.category_scores.items():
-        _bar_row(card.category_labels[cat], score)
+        _bar_row(card.category_labels[cat], score, fmt="{:.0f}%")
 
     # Key stats grid — always show both tuition rates on the profile page,
     # regardless of the survey's tuition preference.
@@ -2327,26 +2341,30 @@ def render_school_profile() -> None:
         else:
             st.markdown("- _No major concerns given your priorities._")
 
-    # Campus vibe
+    # Campus vibe — Fix 4: append "%" to each vibe score.
     st.markdown("<div class='cff-section-title'>Campus vibe</div>", unsafe_allow_html=True)
     ath_score_map = {"dominant": 100, "high": 80, "medium": 55, "low": 25}
-    _bar_row("Academic intensity", float(card.vibe_academic_intensity or 0))
-    _bar_row("Party scene",        float(card.vibe_party_scene or 0))
-    _bar_row("Diversity",          float(card.vibe_diversity_score or 0))
-    _bar_row("Athletics",          float(ath_score_map.get(card.vibe_athletics_culture or "", 0)))
+    _bar_row("Academic intensity", float(card.vibe_academic_intensity or 0), fmt="{:.0f}%")
+    _bar_row("Party scene",        float(card.vibe_party_scene or 0),        fmt="{:.0f}%")
+    _bar_row("Diversity",          float(card.vibe_diversity_score or 0),    fmt="{:.0f}%")
+    _bar_row("Athletics",
+             float(ath_score_map.get(card.vibe_athletics_culture or "", 0)),
+             fmt="{:.0f}%")
 
     if card.vibe_tags:
         chips = "".join(f"<span class='cff-vibe-chip'>{t}</span>" for t in card.vibe_tags)
         st.markdown(f"<div class='cff-vibe-chips'>{chips}</div>", unsafe_allow_html=True)
 
-    if card.url:
-        st.write("")
-        st.markdown(f"[{card.url}]({card.url})")
+    # Fix 5 — the bare URL that used to live here has moved up under the
+    # description as a labeled "Website:" line, so nothing renders here.
 
     st.write("")
 
-    # Action buttons
+    # ── Action buttons ──────────────────────────────────────────────────
+    # Fix 6 — Add-to-compare is fully functional and independent of saved state.
     saved = card.school_id in st.session_state.saved_schools
+    in_compare = card.school_id in st.session_state.compare_schools
+
     c1, c2 = st.columns(2)
     with c1:
         if saved:
@@ -2357,9 +2375,17 @@ def render_school_profile() -> None:
                          type="primary", use_container_width=True):
                 st.session_state.saved_schools.append(card.school_id); st.rerun()
     with c2:
-        st.button("Add to compare", key="profile_compare",
-                  use_container_width=True, disabled=True,
-                  help="Compare view is coming soon.")
+        if in_compare:
+            st.button("In compare", key="profile_compare",
+                      use_container_width=True, disabled=True)
+        else:
+            if st.button("Add to compare", key="profile_compare",
+                         use_container_width=True):
+                if len(st.session_state.compare_schools) >= 5:
+                    st.warning("You can compare up to 5 schools at a time.")
+                else:
+                    st.session_state.compare_schools.append(card.school_id)
+                    st.rerun()
 
 
 # -----------------------------------------------------------------------------
