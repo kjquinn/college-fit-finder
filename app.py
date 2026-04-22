@@ -54,11 +54,14 @@ REGION_TO_STATES: dict[str, set[str]] = {
     "Mountain West": {"CO", "UT", "NV", "ID", "MT", "WY"},
 }
 
-CLIMATE_OPTIONS = ["Warm and sunny", "Mild and seasonal", "Cold and snowy", "No preference"]
+CLIMATE_OPTIONS = ["Hot", "Warm", "Mild", "Seasonal", "Chilly", "Cold"]
 CLIMATE_TO_BACKEND = {
-    "Warm and sunny": "Warm",
-    "Mild and seasonal": "Mild",
-    "Cold and snowy": "Cold",
+    "Hot":      "Warm",
+    "Warm":     "Warm",
+    "Mild":     "Mild",
+    "Seasonal": "Seasonal",
+    "Chilly":   "Cold",
+    "Cold":     "Cold",
 }
 
 REGION_OPTIONS = [
@@ -101,15 +104,39 @@ VIBE_OPTIONS = [
     "Balanced",
     "Social & party",
     "Strong athletics",
+    "Greek life",
     "Artsy & creative",
     "Pre-professional",
 ]
 VIBE_TO_BACKEND = {
     "Academic & research focused": "academic",
     "Strong athletics": "sporty",
+    "Greek life": "greek",
     "Artsy & creative": "artsy",
     "Social & party": "greek",
 }
+
+MAJOR_OPTIONS = [
+    "Undecided",
+    "Business",
+    "Computer Science",
+    "Engineering",
+    "Biology and Life Sciences",
+    "Psychology",
+    "Communications",
+    "Nursing and Health",
+    "Economics",
+    "Political Science",
+    "Mathematics",
+    "Education",
+    "Art and Design",
+    "History",
+    "English and Literature",
+    "Sociology",
+    "Environmental Science",
+    "Criminal Justice",
+    "Philosophy",
+]
 
 CLASSIFICATION_FILTERS = ["All", "Reach", "Match", "Safety"]
 STACK_FILTERS = [
@@ -176,6 +203,37 @@ CSS = f"""
     flex: 1; height: 2px; background: #d8d8d8; margin: 0 6px; max-width: 90px;
 }}
 .cff-progress .line.completed {{ background: {ACCENT}; }}
+
+/* Clickable progress dots: scope button styling to the progress container
+   so we don't bleed into Back/Next/etc. in the rest of the survey. */
+.st-key-cff_progress_dots div[data-testid="stButton"] button {{
+    border-radius: 50% !important;
+    width: 42px; height: 42px;
+    padding: 0 !important;
+    font-weight: 600;
+    min-width: 0;
+}}
+.st-key-cff_progress_dots div[data-testid="stButton"] button[kind="primary"] {{
+    background: {ACCENT}; border: 2px solid {ACCENT}; color: white;
+}}
+.st-key-cff_progress_dots div[data-testid="stButton"] button[kind="secondary"] {{
+    background: {ACCENT}; border: 2px solid {ACCENT}; color: white;
+}}
+.st-key-cff_progress_dots div[data-testid="stButton"] button[disabled] {{
+    background: white !important;
+    color: #b0b0b0 !important;
+    border: 2px solid #d8d8d8 !important;
+    opacity: 1 !important;
+    cursor: not-allowed !important;
+}}
+.cff-progress-dot-current {{
+    width: 42px; height: 42px; border-radius: 50%;
+    background: white; color: {ACCENT}; border: 2px solid {ACCENT};
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 0.95rem;
+    margin: 0 auto;
+}}
+.cff-step-line {{ height: 2px; width: 100%; border-radius: 1px; }}
 
 /* ── Buttons / inputs ───────────────────────────────────────────────── */
 .stButton > button {{
@@ -422,12 +480,13 @@ st.markdown(CSS, unsafe_allow_html=True)
 # -----------------------------------------------------------------------------
 def _default_survey() -> dict[str, Any]:
     return {
-        "gpa": 3.5, "sat": None, "act": None, "major": "",
+        "gpa": 3.00, "sat": None, "act": None, "major": "Undecided",
         "student_status": "domestic",
-        "home_state_name": "", "max_distance": "No preference",
+        "home_state_name": "", "max_distance": 0,           # 0 miles = "No preference"
         "tuition_preference": "no_preference",
-        "climates": [], "regions": [],
-        "budget": 40_000, "campus_size": "No preference", "vibes": [],
+        "climates": [], "regions": ["No preference"],
+        "budget": 0,                                         # 0 = "No preference"
+        "campus_size": "No preference", "vibes": [],
         "weights": {
             "academic_fit": 3, "affordability": 3,
             "location_fit": 3, "weather_fit": 3, "vibe_fit": 3,
@@ -439,6 +498,7 @@ def _init_session() -> None:
     ss = st.session_state
     ss.setdefault("phase", "survey")          # survey | running | results | school_profile
     ss.setdefault("step", 1)
+    ss.setdefault("max_step_reached", 1)      # highest step the user has visited
     ss.setdefault("survey", _default_survey())
     ss.setdefault("results", None)            # list[ProfileCard]
     ss.setdefault("schools_by_id", {})        # id -> raw enriched school dict
@@ -464,6 +524,20 @@ def _init_session() -> None:
 
 
 _init_session()
+
+
+def _wants_home_state_only(survey: dict[str, Any]) -> bool:
+    """
+    True if the user wants to narrow the Scorecard query to their home state.
+    Handles both the new slider (int miles, > 0 and <= 500) and the legacy
+    string form still used by the untouched My Profile tab.
+    """
+    md = survey.get("max_distance")
+    if isinstance(md, int):
+        return 0 < md <= 500
+    if isinstance(md, str):
+        return md == "Within 500 miles"
+    return False
 
 
 def _survey_for_compare(s: dict[str, Any]) -> dict[str, Any]:
@@ -531,14 +605,61 @@ def _allowed_state_codes(survey: dict[str, Any]) -> list[str] | None:
 # Progress indicator (survey)
 # -----------------------------------------------------------------------------
 def render_progress(current: int, total: int = 4) -> None:
-    parts: list[str] = ['<div class="cff-progress">']
-    for i in range(1, total + 1):
-        cls = "step completed" if i < current else "step current" if i == current else "step future"
-        parts.append(f'<div class="{cls}">{i}</div>')
-        if i < total:
-            parts.append(f'<div class="{"line completed" if i < current else "line"}"></div>')
-    parts.append("</div>")
-    st.markdown("".join(parts), unsafe_allow_html=True)
+    """
+    Clickable progress dots at the top of the survey.
+    Visited steps (<= max_step_reached) are clickable; future steps are
+    visible but disabled. Clicking the current step is a no-op.
+    """
+    max_reached = int(st.session_state.get("max_step_reached", 1))
+
+    with st.container(key="cff_progress_dots"):
+        # Alternating dot / connector columns: 4 dots + 3 lines = 7 cells.
+        widths: list[float] = []
+        for i in range(total):
+            widths.append(1)        # dot column (narrow)
+            if i < total - 1:
+                widths.append(2)    # connector column
+        cols = st.columns(widths, gap="small")
+
+        for i in range(total):
+            step_num = i + 1
+            col = cols[i * 2]
+            with col:
+                if step_num == current:
+                    # Non-clickable visual marker for the current step —
+                    # looks the same as visited primary buttons.
+                    st.markdown(
+                        f"<div class='cff-progress-dot-current'>{step_num}</div>",
+                        unsafe_allow_html=True,
+                    )
+                elif step_num <= max_reached:
+                    if st.button(
+                        str(step_num),
+                        key=f"progress_dot_{step_num}",
+                        type="secondary",
+                        use_container_width=False,
+                    ):
+                        st.session_state.step = step_num
+                        st.rerun()
+                else:
+                    # Disabled future step.
+                    st.button(
+                        str(step_num),
+                        key=f"progress_dot_{step_num}",
+                        disabled=True,
+                        use_container_width=False,
+                    )
+
+            if i < total - 1:
+                line_col = cols[i * 2 + 1]
+                # Line is completed up to (but not including) the current step.
+                completed = (step_num < current)
+                bg = ACCENT if completed else "#d8d8d8"
+                line_col.markdown(
+                    f"<div class='cff-step-line' "
+                    f"style='background:{bg}; margin-top:1.35rem;'></div>",
+                    unsafe_allow_html=True,
+                )
 
 
 # -----------------------------------------------------------------------------
@@ -550,32 +671,39 @@ def render_step_1() -> None:
     st.markdown("<div class='cff-step-hint'>We'll use these to gauge academic fit. Test scores are optional.</div>",
                 unsafe_allow_html=True)
 
-    st.markdown("**Student status**")
-    current_status_label = STATUS_KEY_TO_LABEL.get(s.get("student_status", "domestic"), "Domestic")
-    status_choice = st.pills(
-        "student_status", STATUS_OPTIONS, selection_mode="single",
-        default=current_status_label,
-        label_visibility="collapsed", key="pills_status",
-    )
-    s["student_status"] = STATUS_LABEL_TO_KEY.get(status_choice or "Domestic", "domestic")
-
     s["gpa"] = st.number_input(
         "Unweighted GPA *", min_value=0.0, max_value=4.0, step=0.01,
-        value=float(s["gpa"]) if s["gpa"] is not None else 3.5,
+        value=float(s["gpa"]) if s["gpa"] is not None else 3.00,
         help="Required. Enter on a 0.0–4.0 scale.",
     )
 
     c1, c2 = st.columns(2)
     with c1:
-        sat_in = st.number_input("SAT score (optional)", min_value=0, max_value=1600, step=10,
-                                 value=int(s["sat"]) if s["sat"] else 0)
-        s["sat"] = int(sat_in) if sat_in >= 400 else None
+        # SAT floor raised to 400 (Scorecard's practical minimum); step is 10.
+        sat_default = int(s["sat"]) if s["sat"] else 400
+        if sat_default < 400:
+            sat_default = 400
+        sat_in = st.number_input(
+            "SAT score (optional)",
+            min_value=400, max_value=1600, step=10,
+            value=sat_default,
+        )
+        # Treat the minimum (400) as "no score entered" so the field stays
+        # effectively optional — the +/- buttons still step by 10.
+        s["sat"] = int(sat_in) if sat_in > 400 else None
     with c2:
-        act_in = st.number_input("ACT score (optional)", min_value=0, max_value=36, step=1,
-                                 value=int(s["act"]) if s["act"] else 0)
+        # ACT can't support min=400 or step=10 (scale is 1–36); keep step=1.
+        act_in = st.number_input(
+            "ACT score (optional)",
+            min_value=0, max_value=36, step=1,
+            value=int(s["act"]) if s["act"] else 0,
+        )
         s["act"] = int(act_in) if act_in >= 1 else None
 
-    s["major"] = st.text_input("Intended major", value=s["major"], placeholder="e.g. Computer Science")
+    # Major is now a fixed-list selectbox.
+    major_val = s.get("major") or "Undecided"
+    major_idx = MAJOR_OPTIONS.index(major_val) if major_val in MAJOR_OPTIONS else 0
+    s["major"] = st.selectbox("Intended major", MAJOR_OPTIONS, index=major_idx, key="major_select")
 
     st.write("")
     _, right = st.columns([3, 1])
@@ -583,6 +711,9 @@ def render_step_1() -> None:
         disabled = s["gpa"] is None or s["gpa"] <= 0.0
         if st.button("Next →", type="primary", use_container_width=True, disabled=disabled):
             st.session_state.step = 2
+            st.session_state.max_step_reached = max(
+                st.session_state.max_step_reached, 2
+            )
             st.rerun()
 
 
@@ -592,38 +723,62 @@ def render_step_2() -> None:
     st.markdown("<div class='cff-step-hint'>Where do you want to be? Pick as many climates or regions as feel right.</div>",
                 unsafe_allow_html=True)
 
-    names = [n for n, _ in US_STATES_FULL]
-    s["home_state_name"] = st.selectbox(
-        "Home state", names,
-        index=names.index(s["home_state_name"]) if s["home_state_name"] in names else 0,
+    # ── Student status (moved here from Step 1) ─────────────────────────
+    st.markdown("**Student status**")
+    current_status_label = STATUS_KEY_TO_LABEL.get(s.get("student_status", "domestic"), "Domestic")
+    status_choice = st.pills(
+        "student_status", STATUS_OPTIONS, selection_mode="single",
+        default=current_status_label,
+        label_visibility="collapsed", key="pills_status",
     )
-    s["max_distance"] = st.selectbox(
-        "Max distance from home", DISTANCE_OPTIONS,
-        index=DISTANCE_OPTIONS.index(s["max_distance"]) if s["max_distance"] in DISTANCE_OPTIONS else 0,
-    )
+    s["student_status"] = STATUS_LABEL_TO_KEY.get(status_choice or "Domestic", "domestic")
 
-    # Tuition preference doesn't apply to international / permanent-resident
-    # students — they always pay out-of-state tuition.
-    if s.get("student_status") in INTERNATIONAL_LIKE:
-        st.caption(
-            "_Tuition preference doesn't apply — you'll pay out-of-state "
-            "tuition at every US school._"
+    is_intl = s.get("student_status") in INTERNATIONAL_LIKE
+
+    # ── Home state + distance + location preference (domestic only) ─────
+    if is_intl:
+        st.markdown(
+            "<div style='font-style: italic; color: #555; margin: 0.5rem 0 0.75rem;'>"
+            "International and permanent resident students are shown "
+            "out-of-state tuition for all schools.</div>",
+            unsafe_allow_html=True,
         )
         s["tuition_preference"] = "no_preference"
     else:
-        st.markdown("**Tuition preference**")
+        names = [n for n, _ in US_STATES_FULL]
+        s["home_state_name"] = st.selectbox(
+            "Home state", names,
+            index=names.index(s["home_state_name"]) if s["home_state_name"] in names else 0,
+        )
+
+        # Max distance: slider 0..3000 step 100; 0 displays as "No preference".
+        raw_dist = s.get("max_distance", 0)
+        if not isinstance(raw_dist, int):
+            raw_dist = 0  # old "No preference" string → 0
+        dist_label = (
+            f"Max distance from home: **No preference**"
+            if raw_dist == 0
+            else f"Max distance from home: **{raw_dist:,} miles**"
+        )
+        s["max_distance"] = st.slider(
+            dist_label,
+            min_value=0, max_value=3000, step=100, value=int(raw_dist),
+        )
+
+        st.markdown("**Location preference**")
         current_label = TUITION_KEY_TO_LABEL.get(
             s.get("tuition_preference", "no_preference"), "No preference"
         )
-        tuition_choice = st.pills(
-            "tuition", TUITION_OPTIONS, selection_mode="single",
+        loc_choice = st.pills(
+            "location_pref", TUITION_OPTIONS, selection_mode="single",
             default=current_label,
-            label_visibility="collapsed", key="pills_tuition",
+            label_visibility="collapsed", key="pills_location_pref",
         )
         s["tuition_preference"] = TUITION_LABEL_TO_KEY.get(
-            tuition_choice or "No preference", "no_preference"
+            loc_choice or "No preference", "no_preference"
         )
 
+    # ── Climate + region chips (shown for everyone) ─────────────────────
     st.markdown("**Preferred climate**")
     climates = st.pills("climate", CLIMATE_OPTIONS, selection_mode="multi",
                         default=s["climates"], label_visibility="collapsed", key="pills_climate")
@@ -641,17 +796,29 @@ def render_step_2() -> None:
             st.session_state.step = 1; st.rerun()
     with right:
         if st.button("Next →", type="primary", use_container_width=True):
-            st.session_state.step = 3; st.rerun()
+            st.session_state.step = 3
+            st.session_state.max_step_reached = max(
+                st.session_state.max_step_reached, 3
+            )
+            st.rerun()
 
 
 def render_step_3() -> None:
     s = st.session_state.survey
     st.markdown("<div class='cff-step-title'>Step 3 · Budget & campus vibe</div>", unsafe_allow_html=True)
-    st.markdown("<div class='cff-step-hint'>Cost is the annual all-in figure (tuition plus room, board, and fees).</div>",
+    st.markdown("<div class='cff-step-hint'>Cost is the annual tuition figure. Leave at $0 for no budget cap.</div>",
                 unsafe_allow_html=True)
 
-    s["budget"] = st.slider(f"Max annual cost: ${int(s['budget']):,}",
-                            min_value=0, max_value=100_000, step=1_000, value=int(s["budget"]))
+    budget_val = int(s.get("budget") or 0)
+    budget_label = (
+        "Max annual tuition: **No preference**"
+        if budget_val == 0
+        else f"Max annual tuition: **${budget_val:,}**"
+    )
+    s["budget"] = st.slider(
+        budget_label,
+        min_value=0, max_value=100_000, step=5_000, value=budget_val,
+    )
 
     st.markdown("**Campus size**")
     size = st.pills("size", CAMPUS_SIZE_OPTIONS, selection_mode="single",
@@ -671,7 +838,11 @@ def render_step_3() -> None:
             st.session_state.step = 2; st.rerun()
     with right:
         if st.button("Next →", type="primary", use_container_width=True):
-            st.session_state.step = 4; st.rerun()
+            st.session_state.step = 4
+            st.session_state.max_step_reached = max(
+                st.session_state.max_step_reached, 4
+            )
+            st.rerun()
 
 
 def render_step_4() -> None:
@@ -742,7 +913,7 @@ def render_running() -> None:
     #   3. Else → no state filter (all 50 states).
     if allowed_states:
         matcher_state: str | None = ",".join(allowed_states)
-    elif survey["max_distance"] == "Within 500 miles" and home_code:
+    elif _wants_home_state_only(survey) and home_code:
         matcher_state = home_code
     else:
         matcher_state = None
@@ -1299,7 +1470,10 @@ def _render_results_content() -> None:
     if not all_cards:
         st.info("No results yet. Go back and run the survey.")
         if st.button("← Back to survey"):
-            st.session_state.phase = "survey"; st.session_state.step = 1; st.rerun()
+            st.session_state.phase = "survey"
+            st.session_state.step = 1
+            st.session_state.max_step_reached = 1
+            st.rerun()
         return
 
     # Compute filtered list once for the toolbar count and the render path.
