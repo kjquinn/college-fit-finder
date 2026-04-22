@@ -308,7 +308,7 @@ footer {{ visibility: hidden; }}
 
 /* ── Cards (grid view) ──────────────────────────────────────────────── */
 .cff-card-body {{
-    min-height: 340px;
+    min-height: 400px;
     display: flex; flex-direction: column;
 }}
 .cff-card-header {{
@@ -329,7 +329,21 @@ footer {{ visibility: hidden; }}
 .cff-class-badge.match  {{ background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }}
 .cff-class-badge.safety {{ background: #dcfce7; color: #166534; border: 1px solid #86efac; }}
 
-.cff-card-name {{ font-weight: 600; font-size: 1.05rem; color: #1a1a1a; line-height: 1.25; margin: 0; }}
+.cff-card-name {{
+    font-weight: 600; font-size: 1.05rem; color: #1a1a1a;
+    line-height: 1.25; margin: 0;
+    /* Clamp names to 2 lines so card heights stay consistent. */
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden; min-height: 2.5em;
+}}
+/* Scoped styling for the Fix-7 search suggestion buttons. */
+.st-key-cff_search_suggestions div[data-testid="stButton"] button {{
+    text-align: left !important;
+    justify-content: flex-start !important;
+}}
+.cff-search-suggest-label {{
+    font-size: 0.78rem; color: #666; margin: 0.4rem 0 0.25rem; font-weight: 500;
+}}
 .cff-card-sub  {{ font-size: 0.85rem; color: #666; margin: 0.1rem 0 0.4rem; }}
 .cff-fit {{ font-size: 2rem; font-weight: 700; color: {ACCENT}; line-height: 1.1; margin: 0.3rem 0 0.1rem; }}
 .cff-fit-label {{ font-size: 0.75rem; color: #666; margin-bottom: 0.4rem; letter-spacing: 0.03em; }}
@@ -1134,35 +1148,51 @@ def _render_main_nav() -> None:
 
 
 def _render_toolbar(all_cards: list[ProfileCard], filtered: list[ProfileCard]) -> None:
-    # Row 1: searchable selectbox + count
+    # Row 1: text-input search + count
     left, right = st.columns([4, 1])
     with left:
-        chosen = st.selectbox(
+        st.text_input(
             "school_search",
-            options=[c.name for c in all_cards],
-            index=None,
-            placeholder="Search for a school...",
+            placeholder="Search for a school by name...",
             label_visibility="collapsed",
-            key="school_search_select",
+            key="school_search_text",
         )
-        if chosen:
-            # Find the matching card and navigate to its profile.
-            for c in all_cards:
-                if c.name == chosen:
-                    st.session_state.selected_school_id = c.school_id
-                    st.session_state.phase = "school_profile"
-                    # Clear the selectbox state so a "back" return to the
-                    # results page doesn't re-trigger navigation.
-                    if "school_search_select" in st.session_state:
-                        del st.session_state["school_search_select"]
-                    st.rerun()
-                    break
     with right:
         st.markdown(
             f"<div style='text-align:right; padding-top: 0.5rem;' class='cff-count'>"
             f"<strong>{len(filtered)}</strong> of {len(all_cards)} schools</div>",
             unsafe_allow_html=True,
         )
+
+    # Suggestion area — only once the user types 3+ characters.
+    query = (st.session_state.get("school_search_text") or "").strip()
+    if len(query) >= 3:
+        q = query.lower()
+        matches = [c for c in all_cards if q in (c.name or "").lower()][:8]
+        with st.container(key="cff_search_suggestions"):
+            if matches:
+                st.markdown(
+                    "<div class='cff-search-suggest-label'>Jump to a school:</div>",
+                    unsafe_allow_html=True,
+                )
+                for c in matches:
+                    if st.button(
+                        f"🎓 {c.name}",
+                        key=f"search_suggest_{c.school_id}",
+                        use_container_width=True,
+                        help=f"{c.classification} · {int(c.overall_fit)}% fit",
+                    ):
+                        st.session_state.selected_school_id = c.school_id
+                        st.session_state.phase = "school_profile"
+                        # Clear the search text so returning here is a fresh start.
+                        if "school_search_text" in st.session_state:
+                            del st.session_state["school_search_text"]
+                        st.rerun()
+            else:
+                st.info(
+                    "This school is not in your current results — "
+                    "try adjusting your filters."
+                )
 
     # Row 2: classification pills + stackable filter pills
     c1, c2 = st.columns([1, 2])
@@ -1247,13 +1277,23 @@ def _render_card(card: ProfileCard) -> None:
     size = _school_size(card)
     tuition, tuition_label = _card_tuition(card)
 
-    # Top HTML block — card header through vibe chips.
-    tags_html = ""
-    if card.vibe_tags:
-        chips = "".join(f"<span class='cff-vibe-chip'>{t}</span>" for t in card.vibe_tags[:4])
-        tags_html = f"<div class='cff-vibe-chips'>{chips}</div>"
+    # Fix 4 — always show enrollment as a full comma-formatted number.
+    size_str = f"{size:,}" if size is not None else "—"
 
+    # Fix 2 — climate label stays as plain text; Fix 6 — no vibe chips.
     location_line = f"{card.city}, {card.state}  ·  {card.climate.title()}"
+
+    # Fix 5 — the International population stat shows only for international
+    # and permanent-resident students.
+    student_status = st.session_state.survey.get("student_status") or "domestic"
+    intl_row_html = ""
+    if student_status in INTERNATIONAL_LIKE:
+        intl_row_html = (
+            "<div class='cff-mini-cell full'>"
+            "<div class='label'>INTERNATIONAL POPULATION</div>"
+            f"<div class='value'>{_fmt_pct(card.international_pct)}</div>"
+            "</div>"
+        )
 
     body_html = f"""
 <div class='cff-card-body'>
@@ -1265,7 +1305,7 @@ def _render_card(card: ProfileCard) -> None:
   <div class='cff-card-sub'>{location_line}</div>
 
   <div class='cff-fit-label'>OVERALL FIT</div>
-  <div class='cff-fit'>{fit_pct}</div>
+  <div class='cff-fit'>{fit_pct}%</div>
   <div class='cff-thin-bar'><div style='width:{fit_pct}%;'></div></div>
 
   <div class='cff-mini-grid'>
@@ -1275,7 +1315,7 @@ def _render_card(card: ProfileCard) -> None:
     </div>
     <div class='cff-mini-cell'>
       <div class='label'>SIZE</div>
-      <div class='value'>{_fmt_size(size)}</div>
+      <div class='value'>{size_str}</div>
     </div>
     <div class='cff-mini-cell'>
       <div class='label'>ACCEPTANCE</div>
@@ -1285,13 +1325,8 @@ def _render_card(card: ProfileCard) -> None:
       <div class='label'>MEDIAN DEBT</div>
       <div class='value'>{_fmt_currency(card.median_debt)}</div>
     </div>
-    <div class='cff-mini-cell full'>
-      <div class='label'>INTERNATIONAL</div>
-      <div class='value'>{_fmt_pct(card.international_pct)}</div>
-    </div>
+    {intl_row_html}
   </div>
-
-  {tags_html}
 </div>
 """
     st.markdown(body_html, unsafe_allow_html=True)
