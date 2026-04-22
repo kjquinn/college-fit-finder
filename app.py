@@ -442,6 +442,8 @@ footer {{ visibility: hidden; }}
 /* ── My List — saved rows and compare table ────────────────────────── */
 .cff-saved-row-body {{
     display: flex; flex-direction: column; justify-content: center; gap: 0.15rem;
+    /* Fix 2 — enforce consistent saved-row height regardless of content. */
+    min-height: 110px;
 }}
 .cff-saved-row-fit {{
     font-size: 2rem; font-weight: 700; color: {ACCENT};
@@ -450,6 +452,25 @@ footer {{ visibility: hidden; }}
 .cff-saved-row-fit-lbl {{
     font-size: 0.7rem; color: #666; text-align: center; letter-spacing: 0.03em;
 }}
+
+/* Fix 5 — Add-more-schools card styled to match a saved-row height. */
+.st-key-ml_add_more_card {{ margin-top: 0.75rem; }}
+.st-key-ml_add_more_card div[data-testid="stButton"] button {{
+    min-height: 150px;
+    border: 2px dashed #c0c0c0 !important;
+    background: transparent !important;
+    color: #666 !important;
+    font-size: 1.05rem !important;
+    font-weight: 500 !important;
+    border-radius: 10px !important;
+    box-shadow: none !important;
+}}
+.st-key-ml_add_more_card div[data-testid="stButton"] button:hover {{
+    border-color: {ACCENT} !important;
+    color: {ACCENT} !important;
+    background: rgba(24,95,165,0.04) !important;
+}}
+
 .cff-compare-col {{
     background: white; border: 1px solid #e5e7eb; border-radius: 8px;
     padding: 0.5rem 0.6rem; margin-bottom: 0.35rem;
@@ -470,8 +491,12 @@ footer {{ visibility: hidden; }}
     font-size: 0.88rem; color: #333;
     border-radius: 6px;
 }}
+/* Fix 6 — best value = green, ties = yellow/amber. */
 .cff-compare-cell.best {{
-    background: #e7f0fa; color: {ACCENT}; font-weight: 600;
+    background: #e9f3dc; color: #639922; font-weight: 600;
+}}
+.cff-compare-cell.tie {{
+    background: #fbeed6; color: #BA7517; font-weight: 600;
 }}
 .cff-compare-label {{
     padding: 0.35rem 0;
@@ -1654,13 +1679,9 @@ def _render_saved_row(card: ProfileCard) -> None:
     initial = (card.name or "?")[0]
     color = _initial_color(initial)
     badge_cls = _class_css(card.classification)
-    tags_html = ""
-    if card.vibe_tags:
-        chips = "".join(f"<span class='cff-vibe-chip'>{t}</span>" for t in card.vibe_tags[:4])
-        tags_html = f"<div class='cff-vibe-chips' style='margin-top:0.25rem;'>{chips}</div>"
 
     with st.container(border=True):
-        # Layout: initial | body (name+loc+tags+badge) | fit | buttons (3 side by side)
+        # Layout: initial | body (name → location → badge) | fit | 3 action buttons
         cols = st.columns([1, 6, 1.5, 5], gap="small")
 
         with cols[0]:
@@ -1671,11 +1692,11 @@ def _render_saved_row(card: ProfileCard) -> None:
             )
 
         with cols[1]:
+            # Fix 3 — order is: name, location, badge. Vibe chips removed.
             st.markdown(
                 f"""<div class='cff-saved-row-body'>
   <div class='cff-card-name'>{card.name}</div>
   <div class='cff-card-sub'>{card.city}, {card.state}  ·  {card.climate.title()}</div>
-  {tags_html}
   <div style='margin-top:0.35rem;'>
     <span class='cff-class-badge {badge_cls}'>{card.classification}</span>
   </div>
@@ -1684,8 +1705,9 @@ def _render_saved_row(card: ProfileCard) -> None:
             )
 
         with cols[2]:
+            # Fix 4 — append "%" to the fit score.
             st.markdown(
-                f"""<div class='cff-saved-row-fit'>{int(card.overall_fit)}</div>
+                f"""<div class='cff-saved-row-fit'>{int(card.overall_fit)}%</div>
 <div class='cff-saved-row-fit-lbl'>FIT</div>""",
                 unsafe_allow_html=True,
             )
@@ -1742,20 +1764,21 @@ def _fmt_score(v: float | None) -> str:
     return f"{v:.0f}" if v is not None else "—"
 
 
-def _best_index(values: list[Any], direction: str | None) -> int | None:
+def _best_indices(values: list[Any], direction: str | None) -> list[int]:
     """
-    `direction`:
-      - "high" → index of the largest non-None value
-      - "low"  → index of the smallest non-None value
-      - None   → no highlight
+    Return every index sharing the best value in `values`.
+      - "high" → all indices at the maximum non-None value
+      - "low"  → all indices at the minimum non-None value
+      - None   → empty list (no highlight)
+    Exact equality on the raw value defines a tie.
     """
     if direction not in ("high", "low"):
-        return None
+        return []
     candidates = [(i, v) for i, v in enumerate(values) if v is not None]
     if not candidates:
-        return None
-    pick = max if direction == "high" else min
-    return pick(candidates, key=lambda kv: kv[1])[0]
+        return []
+    best_val = (max if direction == "high" else min)(v for _, v in candidates)
+    return [i for i, v in candidates if v == best_val]
 
 
 def _render_compare_table(cards: list[ProfileCard]) -> None:
@@ -1813,20 +1836,25 @@ def _render_compare_table(cards: list[ProfileCard]) -> None:
 
     for label, extractor, direction, fmt in metrics:
         raw_values = [extractor(c) for c in cards]
-        # For SAT range the extractor returns the card itself (since the
-        # formatter needs both sat_range + act_range fallbacks) — skip
-        # best-highlighting on that row.
+        # For SAT range the extractor returns the card itself — skip highlight.
         if label == "SAT range (25–75%)":
-            best = None
+            best: list[int] = []
         else:
-            best = _best_index(raw_values, direction)
+            best = _best_indices(raw_values, direction)
+
+        # Fix 6 — a tie (2+ schools share the best value) highlights yellow;
+        # a single best highlights green.
+        is_tie = len(best) > 1
+        best_set = set(best)
 
         row = st.columns(col_widths, gap="small")
         row[0].markdown(f"<div class='cff-compare-label'>{label}</div>",
                          unsafe_allow_html=True)
         for i, v in enumerate(raw_values):
-            cell_cls = "cff-compare-cell best" if best is not None and i == best \
-                       else "cff-compare-cell"
+            if i in best_set:
+                cell_cls = "cff-compare-cell tie" if is_tie else "cff-compare-cell best"
+            else:
+                cell_cls = "cff-compare-cell"
             row[i + 1].markdown(
                 f"<div class='{cell_cls}'>{fmt(v)}</div>",
                 unsafe_allow_html=True,
@@ -1842,27 +1870,18 @@ def _render_my_list_tab() -> None:
     saved_ids = st.session_state.saved_schools
     saved_cards = [cards_by_id[sid] for sid in saved_ids if sid in cards_by_id]
 
-    # ── Filter toolbar (My List–scoped state, independent from Results page).
-    c1, c2 = st.columns([1, 2])
-    with c1:
-        cls = st.pills(
-            "ml_class_filter", CLASSIFICATION_FILTERS, selection_mode="single",
-            default=st.session_state.my_list_filter_class,
-            label_visibility="collapsed", key="my_list_filter_class_pills",
-        )
-        st.session_state.my_list_filter_class = cls or "All"
-    with c2:
-        flags = st.pills(
-            "ml_stack_filters", STACK_FILTER_LABELS, selection_mode="multi",
-            default=st.session_state.my_list_filter_flags,
-            label_visibility="collapsed", key="my_list_filter_flags_pills",
-        )
-        st.session_state.my_list_filter_flags = list(flags or [])
+    # ── Filter toolbar (My List–scoped, classification only per Fix 1) ──
+    cls = st.pills(
+        "ml_class_filter", CLASSIFICATION_FILTERS, selection_mode="single",
+        default=st.session_state.my_list_filter_class,
+        label_visibility="collapsed", key="my_list_filter_class_pills",
+    )
+    st.session_state.my_list_filter_class = cls or "All"
 
     filtered_saved = _apply_filters(
         saved_cards,
         filter_class=st.session_state.my_list_filter_class,
-        filter_flags=st.session_state.my_list_filter_flags,
+        filter_flags=[],  # stackable filters intentionally disabled on this tab
     )
 
     # ── Saved Schools section.
@@ -1886,6 +1905,18 @@ def _render_my_list_tab() -> None:
     else:
         for card in filtered_saved:
             _render_saved_row(card)
+
+    # Fix 5 — always-visible "Add more schools" card at the bottom of the
+    # saved list, regardless of how many schools are saved. Clicking jumps
+    # back to the Results tab.
+    with st.container(key="ml_add_more_card"):
+        if st.button(
+            "＋  Add more schools",
+            key="ml_add_more_btn",
+            use_container_width=True,
+        ):
+            st.session_state.main_tab = "results"
+            st.rerun()
 
     st.divider()
 
