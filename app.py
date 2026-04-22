@@ -500,6 +500,14 @@ def _init_session() -> None:
     ss.setdefault("step", 1)
     ss.setdefault("max_step_reached", 1)      # highest step the user has visited
     ss.setdefault("survey", _default_survey())
+    # Step-1 N/A toggles and step-2/3 collapse flags.
+    ss.setdefault("sat_not_applicable", False)
+    ss.setdefault("act_not_applicable", False)
+    ss.setdefault("distance_collapsed", False)
+    ss.setdefault("budget_collapsed", False)
+    # Remember the last non-zero slider values so Change restores them.
+    ss.setdefault("distance_last_value", 0)
+    ss.setdefault("budget_last_value", 0)
     ss.setdefault("results", None)            # list[ProfileCard]
     ss.setdefault("schools_by_id", {})        # id -> raw enriched school dict
     ss.setdefault("last_error", None)
@@ -678,27 +686,65 @@ def render_step_1() -> None:
     )
 
     c1, c2 = st.columns(2)
+
+    # ── SAT with Not-applicable toggle ──────────────────────────────────
     with c1:
-        # SAT floor raised to 400 (Scorecard's practical minimum); step is 10.
-        sat_default = int(s["sat"]) if s["sat"] else 400
-        if sat_default < 400:
-            sat_default = 400
-        sat_in = st.number_input(
-            "SAT score (optional)",
-            min_value=400, max_value=1600, step=10,
-            value=sat_default,
-        )
-        # Treat the minimum (400) as "no score entered" so the field stays
-        # effectively optional — the +/- buttons still step by 10.
-        s["sat"] = int(sat_in) if sat_in > 400 else None
+        sat_na = st.session_state.sat_not_applicable
+        hdr1, hdr2 = st.columns([2, 1.4])
+        hdr1.markdown("**SAT score**")
+        with hdr2:
+            if st.button(
+                "Not applicable",
+                key="sat_na_btn",
+                type="primary" if sat_na else "secondary",
+                use_container_width=True,
+            ):
+                st.session_state.sat_not_applicable = not sat_na
+                # Pop the widget key so when the input reappears it resets
+                # to the value= default instead of the user's last entry.
+                st.session_state.pop("sat_score_input", None)
+                st.rerun()
+
+        if not sat_na:
+            sat_in = st.number_input(
+                "SAT score",
+                min_value=400, max_value=1600, step=10,
+                value=400, label_visibility="collapsed",
+                key="sat_score_input",
+            )
+            s["sat"] = int(sat_in) if sat_in > 400 else None
+        else:
+            s["sat"] = None
+
+    # ── ACT with Not-applicable toggle ──────────────────────────────────
     with c2:
-        # ACT can't support min=400 or step=10 (scale is 1–36); keep step=1.
-        act_in = st.number_input(
-            "ACT score (optional)",
-            min_value=0, max_value=36, step=1,
-            value=int(s["act"]) if s["act"] else 0,
-        )
-        s["act"] = int(act_in) if act_in >= 1 else None
+        act_na = st.session_state.act_not_applicable
+        hdr1, hdr2 = st.columns([2, 1.4])
+        hdr1.markdown("**ACT score**")
+        with hdr2:
+            if st.button(
+                "Not applicable",
+                key="act_na_btn",
+                type="primary" if act_na else "secondary",
+                use_container_width=True,
+            ):
+                st.session_state.act_not_applicable = not act_na
+                st.session_state.pop("act_score_input", None)
+                st.rerun()
+
+        if not act_na:
+            # ACT scale is 1–36 so step=10 is incompatible; using step=1.
+            act_in = st.number_input(
+                "ACT score",
+                min_value=1, max_value=36, step=1,
+                value=1, label_visibility="collapsed",
+                key="act_score_input",
+            )
+            # 1 (the minimum) is treated as "no score entered" — real ACT=1
+            # is practically unseen.
+            s["act"] = int(act_in) if act_in > 1 else None
+        else:
+            s["act"] = None
 
     # Major is now a fixed-list selectbox.
     major_val = s.get("major") or "Undecided"
@@ -719,6 +765,11 @@ def render_step_1() -> None:
 
 def render_step_2() -> None:
     s = st.session_state.survey
+    # Reconcile: a non-zero distance coming in from outside (e.g., the
+    # My Profile tab) should uncollapse the slider so it's visible.
+    md = s.get("max_distance")
+    if isinstance(md, int) and md > 0 and st.session_state.distance_collapsed:
+        st.session_state.distance_collapsed = False
     st.markdown("<div class='cff-step-title'>Step 2 · Location & weather</div>", unsafe_allow_html=True)
     st.markdown("<div class='cff-step-hint'>Where do you want to be? Pick as many climates or regions as feel right.</div>",
                 unsafe_allow_html=True)
@@ -751,19 +802,38 @@ def render_step_2() -> None:
             index=names.index(s["home_state_name"]) if s["home_state_name"] in names else 0,
         )
 
-        # Max distance: slider 0..3000 step 100; 0 displays as "No preference".
-        raw_dist = s.get("max_distance", 0)
-        if not isinstance(raw_dist, int):
-            raw_dist = 0  # old "No preference" string → 0
-        dist_label = (
-            f"Max distance from home: **No preference**"
-            if raw_dist == 0
-            else f"Max distance from home: **{raw_dist:,} miles**"
-        )
-        s["max_distance"] = st.slider(
-            dist_label,
-            min_value=0, max_value=3000, step=100, value=int(raw_dist),
-        )
+        # Max distance: slider by default; "No preference" collapses it.
+        if st.session_state.distance_collapsed:
+            col_txt, col_btn = st.columns([3, 1])
+            col_txt.markdown("**Max distance from home:**  No preference")
+            with col_btn:
+                if st.button("Change", key="distance_change_btn",
+                             type="secondary", use_container_width=True):
+                    restored = int(st.session_state.get("distance_last_value") or 0)
+                    s["max_distance"] = restored
+                    st.session_state.distance_collapsed = False
+                    st.session_state.pop("distance_slider", None)
+                    st.rerun()
+            s["max_distance"] = 0
+        else:
+            raw_dist = s.get("max_distance", 0)
+            if not isinstance(raw_dist, int):
+                raw_dist = 0
+            s["max_distance"] = st.slider(
+                f"Max distance from home: **{int(raw_dist):,} miles**",
+                min_value=0, max_value=3000, step=100, value=int(raw_dist),
+                key="distance_slider",
+            )
+            _, col_btn = st.columns([3, 1])
+            with col_btn:
+                if st.button("No preference", key="distance_no_pref_btn",
+                             type="secondary", use_container_width=True):
+                    if int(s["max_distance"]) > 0:
+                        st.session_state.distance_last_value = int(s["max_distance"])
+                    s["max_distance"] = 0
+                    st.session_state.distance_collapsed = True
+                    st.session_state.pop("distance_slider", None)
+                    st.rerun()
 
         st.markdown("**Location preference**")
         current_label = TUITION_KEY_TO_LABEL.get(
@@ -805,20 +875,43 @@ def render_step_2() -> None:
 
 def render_step_3() -> None:
     s = st.session_state.survey
+    # Reconcile: non-zero budget from outside uncollapses the slider.
+    if int(s.get("budget") or 0) > 0 and st.session_state.budget_collapsed:
+        st.session_state.budget_collapsed = False
     st.markdown("<div class='cff-step-title'>Step 3 · Budget & campus vibe</div>", unsafe_allow_html=True)
     st.markdown("<div class='cff-step-hint'>Cost is the annual tuition figure. Leave at $0 for no budget cap.</div>",
                 unsafe_allow_html=True)
 
-    budget_val = int(s.get("budget") or 0)
-    budget_label = (
-        "Max annual tuition: **No preference**"
-        if budget_val == 0
-        else f"Max annual tuition: **${budget_val:,}**"
-    )
-    s["budget"] = st.slider(
-        budget_label,
-        min_value=0, max_value=100_000, step=5_000, value=budget_val,
-    )
+    # Budget: slider by default; "No preference" collapses it.
+    if st.session_state.budget_collapsed:
+        col_txt, col_btn = st.columns([3, 1])
+        col_txt.markdown("**Max annual tuition:**  No preference")
+        with col_btn:
+            if st.button("Change", key="budget_change_btn",
+                         type="secondary", use_container_width=True):
+                restored = int(st.session_state.get("budget_last_value") or 0)
+                s["budget"] = restored
+                st.session_state.budget_collapsed = False
+                st.session_state.pop("budget_slider", None)
+                st.rerun()
+        s["budget"] = 0
+    else:
+        budget_val = int(s.get("budget") or 0)
+        s["budget"] = st.slider(
+            f"Max annual tuition: **${budget_val:,}**",
+            min_value=0, max_value=100_000, step=5_000, value=budget_val,
+            key="budget_slider",
+        )
+        _, col_btn = st.columns([3, 1])
+        with col_btn:
+            if st.button("No preference", key="budget_no_pref_btn",
+                         type="secondary", use_container_width=True):
+                if int(s["budget"]) > 0:
+                    st.session_state.budget_last_value = int(s["budget"])
+                s["budget"] = 0
+                st.session_state.budget_collapsed = True
+                st.session_state.pop("budget_slider", None)
+                st.rerun()
 
     st.markdown("**Campus size**")
     size = st.pills("size", CAMPUS_SIZE_OPTIONS, selection_mode="single",
