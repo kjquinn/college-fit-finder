@@ -157,11 +157,12 @@ LOADING_MESSAGES = [
     "Building your personalized list...",
 ]
 
-ACCENT = "#185FA5"
+# Brand palette (hex values kept in sync with the CSS :root variables).
+ACCENT = "#4A8574"   # --sage — used where inline f-strings need a hex literal
 
-# School-initial square palette — cycled by initial letter so different
-# schools get different colors without any per-school mapping.
-INITIAL_PALETTE = ["#185FA5", "#2E7D32", "#C2410C", "#6A1B9A", "#00838F", "#AD1457", "#4527A0"]
+# School-initial square — brand spec calls for a single --ink background for
+# every school, so the "palette" is just that one color.
+INITIAL_PALETTE = ["#0A1F3D"]
 
 
 # -----------------------------------------------------------------------------
@@ -169,339 +170,507 @@ INITIAL_PALETTE = ["#185FA5", "#2E7D32", "#C2410C", "#6A1B9A", "#00838F", "#AD14
 # -----------------------------------------------------------------------------
 CSS = f"""
 <style>
-/* ── Page ────────────────────────────────────────────────────────────── */
-.stApp {{ background: #f5f6f8; }}
-.block-container {{ padding-top: 2rem; padding-bottom: 3rem; max-width: 1200px; }}
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;0,9..144,900;1,9..144,400;1,9..144,600&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
-/* ── Typography ─────────────────────────────────────────────────────── */
-.cff-title {{
-    font-weight: 700; font-size: 1.75rem; color: #1a1a1a;
-    text-align: center; margin: 0.25rem 0 0.5rem;
+:root {{
+  --ink: #0A1F3D;
+  --ink-soft: #142D52;
+  --sage: #4A8574;
+  --sage-deep: #2F5F4F;
+  --sky: #5B8DB8;
+  --paper: #F5F1E8;
+  --paper-warm: #EDE6D3;
+  --cream: #F0EADA;
+  --rule: #D8D1BC;
+  --mist: #B8C8D0;
+  --text: #1A1A1A;
+  --text-soft: #5C5C5C;
+  --text-mute: #8A8A8A;
+  --reach: #C0392B;
+  --match: #B7860B;
+  --safety: #2F5F4F;
 }}
-.cff-subtitle {{ text-align: center; color: #555; margin-bottom: 1rem; }}
-.cff-step-title {{ font-weight: 600; font-size: 1.25rem; color: #1a1a1a; margin: 1.25rem 0 0.25rem; }}
-.cff-step-hint  {{ color: #666; font-size: 0.9rem; margin-bottom: 1rem; }}
 
-/* Narrow the container only while in the survey flow */
+/* ── Base typography: Inter as the default, Fraunces + JetBrains Mono as
+   targeted overrides for headings and data labels respectively. ─────── */
+html, body, .stApp, .stApp *,
+button, input, textarea, select, [class*="st-"], [class*="css-"] {{
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}}
+.stApp {{ background: var(--paper) !important; color: var(--text); }}
+.block-container {{ padding-top: 2rem; padding-bottom: 3rem; max-width: 1200px; }}
 .cff-narrow .block-container {{ max-width: 760px; }}
 
-/* ── Progress indicator ─────────────────────────────────────────────── */
-.cff-progress {{
-    display: flex; align-items: center; justify-content: center;
-    padding: 1rem 0 1.5rem; max-width: 480px; margin: 0 auto;
+/* Fraunces (display serif) for headings, school names, fit scores, section
+   titles, and the logo wordmark. */
+h1, h2, h3, h4,
+.cff-title, .cff-step-title, .cff-section-title,
+.cff-card-name, .cff-fit, .cff-saved-row-fit,
+.cff-profile-name, .cff-profile-fit,
+.cff-profile-header h2,
+.cff-logo, .cff-logo *,
+.cff-compare-col-name,
+.cff-map-placeholder h3 {{
+  font-family: 'Fraunces', Georgia, 'Times New Roman', serif !important;
 }}
-.cff-progress .step {{
-    width: 36px; height: 36px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 600; font-size: 0.95rem; flex-shrink: 0; background: white;
-    transition: all 0.2s ease;
-}}
-.cff-progress .step.completed {{ background: {ACCENT}; color: white; border: 2px solid {ACCENT}; }}
-.cff-progress .step.current   {{ background: white;   color: {ACCENT}; border: 2px solid {ACCENT}; }}
-.cff-progress .step.future    {{ background: white;   color: #b0b0b0; border: 2px solid #d8d8d8; }}
-.cff-progress .line {{
-    flex: 1; height: 2px; background: #d8d8d8; margin: 0 6px; max-width: 90px;
-}}
-.cff-progress .line.completed {{ background: {ACCENT}; }}
 
-/* Clickable progress dots: scope button styling to the progress container
-   so we don't bleed into Back/Next/etc. in the rest of the survey. */
-.st-key-cff_progress_dots div[data-testid="stButton"] button {{
-    border-radius: 50% !important;
-    width: 42px; height: 42px;
-    padding: 0 !important;
-    font-weight: 600;
-    min-width: 0;
+/* JetBrains Mono for data labels, badges, and metadata. */
+.cff-class-badge,
+.cff-fit-label, .cff-saved-row-fit-lbl, .cff-profile-fit-lbl,
+.cff-mini-cell .label, .cff-stat-cell .label,
+.cff-compare-label,
+.cff-count, .cff-count strong,
+.cff-search-suggest-label {{
+  font-family: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace !important;
 }}
-.st-key-cff_progress_dots div[data-testid="stButton"] button[kind="primary"] {{
-    background: {ACCENT}; border: 2px solid {ACCENT}; color: white;
+
+/* ── Titles / page chrome ────────────────────────────────────────────── */
+.cff-title {{
+  font-weight: 800; font-size: 2.1rem; color: var(--ink);
+  text-align: center; margin: 0.25rem 0 0.5rem;
+  letter-spacing: -0.01em;
+}}
+.cff-subtitle {{ text-align: center; color: var(--text-soft); margin-bottom: 1rem; }}
+.cff-step-title {{
+  font-weight: 700; font-size: 1.4rem; color: var(--ink);
+  margin: 1.25rem 0 0.25rem; letter-spacing: -0.005em;
+}}
+.cff-step-hint {{ color: var(--text-soft); font-size: 0.9rem; margin-bottom: 1rem; }}
+.cff-section-title {{
+  font-weight: 700; font-size: 1.2rem; color: var(--ink);
+  margin: 1rem 0 0.5rem; letter-spacing: -0.005em;
+}}
+
+/* ── Main navigation bar ─────────────────────────────────────────────── */
+.st-key-cff_main_nav {{
+  background: var(--ink) !important;
+  padding: 0.85rem 1.1rem !important;
+  border-radius: 12px !important;
+  margin-bottom: 1rem !important;
+  border: 0 !important;
+}}
+.st-key-cff_main_nav div[data-testid="stButton"] button {{
+  background: transparent !important;
+  border: 0 !important;
+  color: rgba(255,255,255,0.6) !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+}}
+.st-key-cff_main_nav div[data-testid="stButton"] button:hover {{
+  background: rgba(255,255,255,0.06) !important;
+  color: white !important;
+}}
+.st-key-cff_main_nav div[data-testid="stButton"] button[kind="primary"] {{
+  background: rgba(74,133,116,0.24) !important;
+  color: white !important;
+  font-weight: 600 !important;
+}}
+.st-key-cff_main_nav div[data-testid="stButton"] button[kind="primary"]:hover {{
+  background: rgba(74,133,116,0.34) !important;
+}}
+
+/* ── Logo wordmark ───────────────────────────────────────────────────── */
+.cff-logo {{
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-size: 1.35rem; line-height: 1;
+}}
+.cff-logo-cap {{ color: var(--sage); flex-shrink: 0; }}
+.cff-logo .college, .cff-logo .finder {{ font-weight: 900; letter-spacing: -0.005em; }}
+.cff-logo .fit {{ font-style: italic; font-weight: 600; color: var(--sage); margin: 0 0.05rem; }}
+.cff-logo.dark .college, .cff-logo.dark .finder {{ color: var(--paper); }}
+.cff-logo.light .college, .cff-logo.light .finder {{ color: var(--ink); }}
+
+/* ── Progress dots ───────────────────────────────────────────────────── */
+.cff-progress {{ display: none; }}  /* legacy — replaced by button-based dots */
+.st-key-cff_progress_dots div[data-testid="stButton"] button {{
+  border-radius: 50% !important;
+  width: 42px; height: 42px;
+  padding: 0 !important;
+  font-weight: 600 !important;
+  min-width: 0;
 }}
 .st-key-cff_progress_dots div[data-testid="stButton"] button[kind="secondary"] {{
-    background: {ACCENT}; border: 2px solid {ACCENT}; color: white;
+  background: var(--sage) !important;
+  border: 2px solid var(--sage) !important;
+  color: var(--paper) !important;
+}}
+.st-key-cff_progress_dots div[data-testid="stButton"] button[kind="secondary"]:hover {{
+  background: var(--sage-deep) !important;
+  border-color: var(--sage-deep) !important;
 }}
 .st-key-cff_progress_dots div[data-testid="stButton"] button[disabled] {{
-    background: white !important;
-    color: #b0b0b0 !important;
-    border: 2px solid #d8d8d8 !important;
-    opacity: 1 !important;
-    cursor: not-allowed !important;
+  background: var(--paper-warm) !important;
+  color: var(--text-mute) !important;
+  border: 2px solid var(--rule) !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
 }}
 .cff-progress-dot-current {{
-    width: 42px; height: 42px; border-radius: 50%;
-    background: white; color: {ACCENT}; border: 2px solid {ACCENT};
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 600; font-size: 0.95rem;
-    margin: 0 auto;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: var(--ink); color: var(--paper); border: 2px solid var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 0.95rem;
+  margin: 0 auto;
+  box-shadow: 0 0 0 4px rgba(10,31,61,0.15);
 }}
 .cff-step-line {{ height: 2px; width: 100%; border-radius: 1px; }}
 
-/* ── Buttons / inputs ───────────────────────────────────────────────── */
+/* ── Buttons ─────────────────────────────────────────────────────────── */
 .stButton > button {{
-    border-radius: 8px; font-weight: 500;
-    box-shadow: none !important; transition: all 0.15s ease;
+  border-radius: 8px; font-weight: 500;
+  box-shadow: none !important; transition: all 0.15s ease;
 }}
 .stButton > button[kind="primary"] {{
-    background: {ACCENT}; border: 1px solid {ACCENT}; color: white;
+  background: var(--sage); border: 1px solid var(--sage); color: var(--paper);
 }}
-.stButton > button[kind="primary"]:hover {{ background: #124a83; border-color: #124a83; }}
+.stButton > button[kind="primary"]:hover {{
+  background: var(--sage-deep); border-color: var(--sage-deep); color: var(--paper);
+}}
 .stButton > button[kind="secondary"] {{
-    background: white; border: 1px solid #d8d8d8; color: #333;
+  background: transparent; border: 1px solid var(--rule); color: var(--text-soft);
+}}
+.stButton > button[kind="secondary"]:hover {{
+  border-color: var(--ink); color: var(--ink); background: rgba(10,31,61,0.03);
 }}
 
+/* ── Inputs ──────────────────────────────────────────────────────────── */
 input[type="number"], input[type="text"], textarea,
-.stTextInput input, .stNumberInput input,
+.stTextInput input, .stNumberInput input {{
+  border-radius: 8px !important;
+  border: 1px solid var(--rule) !important;
+  background: var(--cream) !important;
+  color: var(--text) !important;
+  box-shadow: none !important;
+}}
 .stSelectbox > div > div {{
-    border-radius: 8px !important;
-    border: 1px solid #d8d8d8 !important;
-    box-shadow: none !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--rule) !important;
+  background: var(--cream) !important;
+  box-shadow: none !important;
 }}
 input:focus, textarea:focus,
 .stTextInput input:focus, .stNumberInput input:focus {{
-    border-color: {ACCENT} !important;
+  border-color: var(--sage) !important;
 }}
-
 .stSlider [data-baseweb="slider"] [role="slider"] {{
-    background: {ACCENT} !important; box-shadow: none !important;
+  background: var(--sage) !important; box-shadow: none !important;
+}}
+.stSlider [data-baseweb="slider"] > div > div {{
+  background: var(--sage) !important;
 }}
 
-/* Pills (chip) look */
+/* ── Pills ───────────────────────────────────────────────────────────── */
 [data-testid="stPills"] button {{
-    border-radius: 999px !important;
-    border: 1px solid #d8d8d8 !important;
-    background: white !important;
-    box-shadow: none !important;
+  border-radius: 999px !important;
+  border: 1px solid var(--rule) !important;
+  background: var(--paper) !important;
+  color: var(--text) !important;
+  box-shadow: none !important;
+  font-weight: 500 !important;
 }}
 [data-testid="stPills"] button[aria-pressed="true"],
 [data-testid="stPills"] button[data-selected="true"] {{
-    background: {ACCENT} !important; color: white !important; border-color: {ACCENT} !important;
+  background: var(--ink) !important; color: var(--paper) !important;
+  border-color: var(--ink) !important;
 }}
 
-/* Native progress bar → blue */
-.stProgress > div > div > div > div {{ background: {ACCENT} !important; }}
-
-/* ── Loading screen ─────────────────────────────────────────────────── */
-.cff-loading {{
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 4rem 1rem; text-align: center;
+/* ── Sub-tabs (segmented control) ────────────────────────────────────── */
+[data-testid="stSegmentedControl"] button[aria-pressed="true"] {{
+  color: var(--sage-deep) !important;
+  border-bottom-color: var(--sage) !important;
+  border-bottom-width: 2px !important;
 }}
+
+/* Native progress bar fill */
+.stProgress > div > div > div > div {{ background: var(--sage) !important; }}
+
+/* ── Loading screen ──────────────────────────────────────────────────── */
+.st-key-cff_loading_screen {{
+  background: var(--ink) !important;
+  color: var(--paper) !important;
+  padding: 4rem 2rem !important;
+  border-radius: 16px !important;
+  text-align: center;
+  border: 0 !important;
+  min-height: 420px;
+}}
+.st-key-cff_loading_screen * {{ color: var(--paper); }}
+.st-key-cff_loading_screen .cff-logo-cap {{ color: var(--sage); }}
+.st-key-cff_loading_screen .cff-logo .fit {{ color: var(--sage); }}
 .cff-spinner {{
-    width: 56px; height: 56px;
-    border: 4px solid #e5e7eb; border-top-color: {ACCENT};
-    border-radius: 50%; animation: cff-spin 1s linear infinite;
-    margin: 1.5rem 0 1.5rem;
+  width: 56px; height: 56px;
+  border: 4px solid rgba(255,255,255,0.15); border-top-color: var(--sage);
+  border-radius: 50%; animation: cff-spin 1s linear infinite;
+  margin: 1.5rem auto;
 }}
 @keyframes cff-spin {{ to {{ transform: rotate(360deg); }} }}
-.cff-loading-msg {{ font-size: 1.05rem; color: #333; margin-top: 0.5rem; font-weight: 500; }}
+.cff-loading-msg {{
+  font-size: 1.05rem; color: var(--paper); margin-top: 0.5rem; font-weight: 500;
+}}
 
-/* Hide default chrome */
+/* Hide default Streamlit chrome */
 #MainMenu {{ visibility: hidden; }}
 footer {{ visibility: hidden; }}
 
-/* ── Toolbar (search + school count) ────────────────────────────────── */
+/* ── Toolbar ─────────────────────────────────────────────────────────── */
 .cff-toolbar {{
-    display: flex; align-items: center; justify-content: space-between;
-    background: white; border: 1px solid #e5e7eb; border-radius: 10px;
-    padding: 0.75rem 1rem; margin-bottom: 0.75rem;
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--cream); border: 1px solid var(--rule); border-radius: 12px;
+  padding: 0.75rem 1rem; margin-bottom: 0.75rem;
 }}
-.cff-count {{ color: #555; font-weight: 500; font-size: 0.95rem; }}
-.cff-count strong {{ color: #1a1a1a; }}
+.cff-count {{
+  color: var(--text-soft); font-weight: 500; font-size: 0.78rem;
+  text-transform: uppercase; letter-spacing: 0.12em;
+}}
+.cff-count strong {{ color: var(--ink); }}
 
-/* ── Cards (grid view) ──────────────────────────────────────────────── */
+/* ── Bordered containers (cards) ─────────────────────────────────────── */
+[data-testid="stVerticalBlockBorderWrapper"] {{
+  background: var(--cream) !important;
+  border: 1px solid var(--rule) !important;
+  border-radius: 12px !important;
+}}
+
+/* ── Grid-view cards ─────────────────────────────────────────────────── */
 .cff-card-body {{
-    min-height: 400px;
-    display: flex; flex-direction: column;
+  min-height: 400px;
+  display: flex; flex-direction: column;
 }}
 .cff-card-header {{
-    display: flex; align-items: flex-start; justify-content: space-between;
-    gap: 0.5rem; margin-bottom: 0.5rem;
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 0.5rem; margin-bottom: 0.6rem;
 }}
 .cff-initial {{
-    width: 40px; height: 40px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    color: white; font-weight: 700; font-size: 1.15rem;
-    flex-shrink: 0;
+  width: 44px; height: 44px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--paper) !important;
+  background: var(--ink) !important;
+  font-weight: 900 !important; font-size: 1.25rem;
+  flex-shrink: 0;
 }}
+
+/* Classification badges (light-bg variant) */
 .cff-class-badge {{
-    font-size: 0.75rem; font-weight: 600; padding: 3px 10px;
-    border-radius: 999px; white-space: nowrap;
+  font-size: 0.68rem; font-weight: 600;
+  padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  border: 1px solid transparent;
 }}
-.cff-class-badge.reach  {{ background: #fde7e9; color: #b42318; border: 1px solid #fca5a5; }}
-.cff-class-badge.match  {{ background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }}
-.cff-class-badge.safety {{ background: #dcfce7; color: #166534; border: 1px solid #86efac; }}
+.cff-class-badge.reach  {{ background: #fde8e6; color: var(--reach);  border-color: rgba(192,57,43,0.25); }}
+.cff-class-badge.match  {{ background: #f5eddb; color: var(--match);  border-color: rgba(183,134,11,0.3); }}
+.cff-class-badge.safety {{ background: #e0ede8; color: var(--safety); border-color: rgba(74,133,116,0.3); }}
 
 .cff-card-name {{
-    font-weight: 600; font-size: 1.05rem; color: #1a1a1a;
-    line-height: 1.25; margin: 0;
-    /* Clamp names to 2 lines so card heights stay consistent. */
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-    overflow: hidden; min-height: 2.5em;
+  font-weight: 700; font-size: 1.15rem; color: var(--ink);
+  line-height: 1.2; margin: 0;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; min-height: 2.5em; letter-spacing: -0.005em;
 }}
-/* Scoped styling for the Fix-7 search suggestion buttons. */
-.st-key-cff_search_suggestions div[data-testid="stButton"] button {{
-    text-align: left !important;
-    justify-content: flex-start !important;
+.cff-card-sub {{ font-size: 0.85rem; color: var(--text-soft); margin: 0.15rem 0 0.5rem; }}
+.cff-fit {{
+  font-weight: 900; font-size: 2.6rem; color: var(--sage-deep);
+  line-height: 1.05; margin: 0.3rem 0 0.1rem; letter-spacing: -0.02em;
 }}
-.cff-search-suggest-label {{
-    font-size: 0.78rem; color: #666; margin: 0.4rem 0 0.25rem; font-weight: 500;
+.cff-fit-label {{
+  font-size: 0.62rem; color: var(--text-mute);
+  margin-bottom: 0.4rem; letter-spacing: 0.15em; text-transform: uppercase;
 }}
-.cff-card-sub  {{ font-size: 0.85rem; color: #666; margin: 0.1rem 0 0.4rem; }}
-.cff-fit {{ font-size: 2rem; font-weight: 700; color: {ACCENT}; line-height: 1.1; margin: 0.3rem 0 0.1rem; }}
-.cff-fit-label {{ font-size: 0.75rem; color: #666; margin-bottom: 0.4rem; letter-spacing: 0.03em; }}
 
 .cff-thin-bar {{
-    width: 100%; height: 4px; background: #eef0f3; border-radius: 2px; overflow: hidden;
-    margin-bottom: 0.75rem;
+  width: 100%; height: 4px; background: var(--rule); border-radius: 2px;
+  overflow: hidden; margin-bottom: 0.75rem;
 }}
-.cff-thin-bar > div {{ height: 100%; background: {ACCENT}; border-radius: 2px; }}
+.cff-thin-bar > div {{ height: 100%; background: var(--sage); border-radius: 2px; }}
 
+/* Mini-grid stat cells on cards */
 .cff-mini-grid {{
-    display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; margin-bottom: 0.6rem;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; margin-bottom: 0.6rem;
 }}
 .cff-mini-cell {{
-    border: 1px solid #eef0f3; border-radius: 8px; padding: 0.4rem 0.55rem;
+  border: 1px solid var(--rule); border-radius: 8px; padding: 0.5rem 0.65rem;
+  background: var(--paper);
 }}
-.cff-mini-cell .label {{ font-size: 0.7rem; color: #666; letter-spacing: 0.03em; }}
-.cff-mini-cell .value {{ font-size: 0.95rem; font-weight: 600; color: #1a1a1a; margin-top: 2px; }}
-.cff-mini-cell .qual  {{ font-size: 0.7rem; color: #888; font-weight: 400; margin-left: 4px; }}
-.cff-mini-cell.full   {{ grid-column: 1 / -1; }}
+.cff-mini-cell .label {{
+  font-size: 0.6rem; color: var(--text-mute);
+  letter-spacing: 0.15em; text-transform: uppercase; font-weight: 500;
+}}
+.cff-mini-cell .value {{
+  font-size: 0.95rem; font-weight: 600; color: var(--ink); margin-top: 3px;
+}}
+.cff-mini-cell .qual {{ font-size: 0.7rem; color: var(--text-mute); font-weight: 400; margin-left: 4px; }}
+.cff-mini-cell.full {{ grid-column: 1 / -1; }}
 
-.cff-vibe-chips {{
-    display: flex; flex-wrap: wrap; gap: 4px; margin-top: auto; padding-top: 0.4rem;
-}}
+.cff-vibe-chips {{ display: flex; flex-wrap: wrap; gap: 4px; margin-top: auto; padding-top: 0.4rem; }}
 .cff-vibe-chip {{
-    font-size: 0.72rem; padding: 2px 8px; border-radius: 999px;
-    background: #f0f2f5; color: #333; border: 1px solid #e5e7eb;
+  font-size: 0.72rem; padding: 2px 8px; border-radius: 999px;
+  background: var(--paper-warm); color: var(--text); border: 1px solid var(--rule);
 }}
 
-/* ── School profile page ────────────────────────────────────────────── */
+/* Search suggestion buttons */
+.st-key-cff_search_suggestions div[data-testid="stButton"] button {{
+  text-align: left !important;
+  justify-content: flex-start !important;
+}}
+.cff-search-suggest-label {{
+  font-size: 0.7rem; color: var(--text-mute); margin: 0.4rem 0 0.25rem;
+  letter-spacing: 0.12em; text-transform: uppercase;
+}}
+
+/* ── School profile page ─────────────────────────────────────────────── */
+/* Distinguish school-profile header (dark card) from My Profile header
+   (plain light section) via :has() on the children that are unique to each. */
 .cff-profile-header {{
-    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-    padding-bottom: 0.5rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  margin-bottom: 0.75rem;
 }}
-.cff-profile-name {{ font-size: 1.75rem; font-weight: 700; color: #1a1a1a; margin: 0; }}
-.cff-profile-sub  {{ color: #555; margin: 0.25rem 0 0.25rem; }}
-.cff-profile-fit  {{
-    text-align: right; font-size: 3rem; font-weight: 700;
-    color: {ACCENT}; line-height: 1;
+.cff-profile-header:has(.cff-profile-name) {{
+  background: var(--ink); color: var(--paper);
+  padding: 1.5rem 1.75rem; border-radius: 14px;
+  align-items: flex-start;
 }}
-.cff-profile-fit-lbl {{ color: #666; font-size: 0.8rem; text-align: right; }}
+.cff-profile-name {{
+  font-size: 2rem; font-weight: 800; color: var(--paper); margin: 0;
+  letter-spacing: -0.01em;
+}}
+.cff-profile-sub {{ color: rgba(245,241,232,0.78); margin: 0.3rem 0 0.25rem; }}
+.cff-profile-fit {{
+  text-align: right; font-size: 3.25rem; font-weight: 900;
+  color: var(--sage); line-height: 1; letter-spacing: -0.02em;
+}}
+.cff-profile-fit-lbl {{
+  color: rgba(245,241,232,0.65); font-size: 0.7rem; text-align: right;
+  letter-spacing: 0.15em; text-transform: uppercase;
+}}
+/* Classification badges inside the dark profile card — semi-transparent tints. */
+.cff-profile-header .cff-class-badge.reach  {{ background: rgba(192,57,43,0.18);  color: #F5B7AE; border-color: rgba(192,57,43,0.4); }}
+.cff-profile-header .cff-class-badge.match  {{ background: rgba(183,134,11,0.18); color: #E8CE85; border-color: rgba(183,134,11,0.4); }}
+.cff-profile-header .cff-class-badge.safety {{ background: rgba(74,133,116,0.22); color: #9AC7B6; border-color: rgba(74,133,116,0.45); }}
 
-.cff-section-title {{
-    font-weight: 600; font-size: 1.05rem; color: #1a1a1a;
-    margin: 1rem 0 0.5rem;
-}}
 .cff-stat-grid {{
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;
 }}
-.cff-stat-grid.two   {{ grid-template-columns: 1fr 1fr; }}
+.cff-stat-grid.two {{ grid-template-columns: 1fr 1fr; }}
 .cff-stat-grid.three {{ grid-template-columns: repeat(3, 1fr); }}
 .cff-stat-cell {{
-    background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0.6rem 0.75rem;
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 8px;
+  padding: 0.7rem 0.85rem;
 }}
-.cff-stat-cell .label {{ font-size: 0.72rem; color: #666; letter-spacing: 0.03em; }}
-.cff-stat-cell .value {{ font-size: 1rem; font-weight: 600; color: #1a1a1a; margin-top: 2px; }}
+.cff-stat-cell .label {{
+  font-size: 0.6rem; color: var(--text-mute);
+  letter-spacing: 0.15em; text-transform: uppercase; font-weight: 500;
+}}
+.cff-stat-cell .value {{
+  font-size: 1rem; font-weight: 600; color: var(--ink); margin-top: 4px;
+}}
 
-.cff-bar-row {{ margin-bottom: 0.5rem; }}
+.cff-bar-row {{ margin-bottom: 0.55rem; }}
 .cff-bar-label {{
-    display: flex; justify-content: space-between;
-    font-size: 0.85rem; color: #333; margin-bottom: 3px;
+  display: flex; justify-content: space-between;
+  font-size: 0.88rem; color: var(--text); margin-bottom: 3px;
 }}
 
 /* Map placeholder */
 .cff-map-placeholder {{
-    background: white; border: 1px solid #e5e7eb; border-radius: 10px;
-    padding: 4rem 2rem; text-align: center; color: #555;
+  background: var(--cream); border: 1px solid var(--rule); border-radius: 12px;
+  padding: 4rem 2rem; text-align: center; color: var(--text-soft);
 }}
-.cff-map-placeholder h3 {{ margin: 0 0 0.5rem; color: #1a1a1a; font-weight: 600; }}
+.cff-map-placeholder h3 {{ margin: 0 0 0.5rem; color: var(--ink); font-weight: 700; }}
 
-/* ── My Profile — header + success flash ───────────────────────────── */
-.cff-profile-header {{
-    margin-bottom: 0.5rem;
+/* ── My Profile tab header (matches via :has on h2) ──────────────────── */
+.cff-profile-header:has(> h2) {{
+  background: transparent; color: var(--ink); padding: 0;
+  margin-bottom: 0.5rem;
+  flex-direction: column; align-items: flex-start;
 }}
 .cff-profile-header h2 {{
-    margin: 0 0 0.25rem; color: #1a1a1a; font-weight: 700; font-size: 1.5rem;
+  margin: 0 0 0.25rem; color: var(--ink); font-weight: 700; font-size: 1.7rem;
+  letter-spacing: -0.005em;
 }}
-.cff-profile-header .sub {{
-    color: #555; font-size: 0.95rem;
-}}
+.cff-profile-header .sub {{ color: var(--text-soft); font-size: 0.95rem; }}
+
 .cff-success-flash {{
-    background: #dcfce7; color: #166534;
-    border: 1px solid #86efac; border-radius: 8px;
-    padding: 0.65rem 1rem; margin: 0.25rem 0 1rem;
-    font-weight: 500; font-size: 0.95rem;
-    animation: cff-flash-fade 0.5s ease-in 3s forwards;
-    overflow: hidden;
+  background: #e0ede8; color: var(--safety);
+  border: 1px solid rgba(74,133,116,0.35); border-radius: 10px;
+  padding: 0.7rem 1rem; margin: 0.25rem 0 1rem;
+  font-weight: 500; font-size: 0.95rem;
+  animation: cff-flash-fade 0.5s ease-in 3s forwards;
+  overflow: hidden;
 }}
 @keyframes cff-flash-fade {{
-    0%   {{ opacity: 1; max-height: 60px; }}
-    99%  {{ opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0;
-            margin: 0; border-width: 0; }}
-    100% {{ display: none; }}
+  0%   {{ opacity: 1; max-height: 60px; }}
+  99%  {{ opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0;
+          margin: 0; border-width: 0; }}
+  100% {{ display: none; }}
 }}
 
-/* ── My List — saved rows and compare table ────────────────────────── */
+/* ── My List — saved rows ────────────────────────────────────────────── */
 .cff-saved-row-body {{
-    display: flex; flex-direction: column; justify-content: center; gap: 0.15rem;
-    /* Fix 2 — enforce consistent saved-row height regardless of content. */
-    min-height: 110px;
+  display: flex; flex-direction: column; justify-content: center; gap: 0.15rem;
+  min-height: 110px;
 }}
 .cff-saved-row-fit {{
-    font-size: 2rem; font-weight: 700; color: {ACCENT};
-    line-height: 1; text-align: center;
+  font-size: 2.3rem; font-weight: 900; color: var(--sage-deep);
+  line-height: 1; text-align: center; letter-spacing: -0.02em;
 }}
 .cff-saved-row-fit-lbl {{
-    font-size: 0.7rem; color: #666; text-align: center; letter-spacing: 0.03em;
+  font-size: 0.62rem; color: var(--text-mute); text-align: center;
+  letter-spacing: 0.15em; text-transform: uppercase;
 }}
 
-/* Fix 5 — Add-more-schools card styled to match a saved-row height. */
+/* Add-more-schools card */
 .st-key-ml_add_more_card {{ margin-top: 0.75rem; }}
 .st-key-ml_add_more_card div[data-testid="stButton"] button {{
-    min-height: 150px;
-    border: 2px dashed #c0c0c0 !important;
-    background: transparent !important;
-    color: #666 !important;
-    font-size: 1.05rem !important;
-    font-weight: 500 !important;
-    border-radius: 10px !important;
-    box-shadow: none !important;
+  min-height: 150px;
+  border: 2px dashed var(--rule) !important;
+  background: transparent !important;
+  color: var(--text-soft) !important;
+  font-size: 1.05rem !important;
+  font-weight: 500 !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
 }}
 .st-key-ml_add_more_card div[data-testid="stButton"] button:hover {{
-    border-color: {ACCENT} !important;
-    color: {ACCENT} !important;
-    background: rgba(24,95,165,0.04) !important;
+  border-color: var(--sage) !important;
+  color: var(--sage-deep) !important;
+  background: rgba(74,133,116,0.05) !important;
 }}
 
+/* ── Compare table ───────────────────────────────────────────────────── */
 .cff-compare-col {{
-    background: white; border: 1px solid #e5e7eb; border-radius: 8px;
-    padding: 0.5rem 0.6rem; margin-bottom: 0.35rem;
-    text-align: center;
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: 10px;
+  padding: 0.7rem 0.8rem; margin-bottom: 0.35rem;
+  text-align: center;
 }}
 .cff-compare-col-initial {{
-    width: 32px; height: 32px; border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-    color: white; font-weight: 700; font-size: 0.95rem;
-    margin: 0 auto 0.35rem;
+  width: 32px; height: 32px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--paper) !important; font-weight: 900; font-size: 0.95rem;
+  margin: 0 auto 0.35rem;
+  background: rgba(245,241,232,0.12);
 }}
 .cff-compare-col-name {{
-    font-size: 0.85rem; font-weight: 600; color: #1a1a1a;
-    line-height: 1.2; min-height: 2.2em;
+  font-size: 0.92rem; font-weight: 700; color: var(--paper);
+  line-height: 1.2; min-height: 2.2em; letter-spacing: -0.005em;
 }}
 .cff-compare-cell {{
-    padding: 0.35rem 0.5rem; text-align: center;
-    font-size: 0.88rem; color: #333;
-    border-radius: 6px;
+  padding: 0.45rem 0.5rem; text-align: center;
+  font-size: 0.88rem; color: var(--text);
+  border-radius: 6px;
+  background: var(--paper);
 }}
-/* Fix 6 — best value = green, ties = yellow/amber. */
 .cff-compare-cell.best {{
-    background: #e9f3dc; color: #639922; font-weight: 600;
+  background: #e0ede8; color: var(--sage-deep); font-weight: 600;
 }}
 .cff-compare-cell.tie {{
-    background: #fbeed6; color: #BA7517; font-weight: 600;
+  background: #f5eddb; color: var(--match); font-weight: 600;
 }}
 .cff-compare-label {{
-    padding: 0.35rem 0;
-    font-size: 0.82rem; color: #555; font-weight: 500;
-    letter-spacing: 0.02em;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.68rem; color: var(--text-soft); font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  background: var(--cream); border-radius: 6px;
 }}
 </style>
 """
@@ -1009,7 +1178,10 @@ def render_survey() -> None:
     # Narrow container during the survey only.
     st.markdown("<script>document.querySelector('body').classList.add('cff-narrow');</script>",
                 unsafe_allow_html=True)
-    st.markdown("<div class='cff-title'>🎓 College Fit Finder</div>", unsafe_allow_html=True)
+    st.markdown(
+        f"<div style='text-align:center; margin: 0.25rem 0 0.75rem;'>{_logo_html('light')}</div>",
+        unsafe_allow_html=True,
+    )
     st.markdown("<div class='cff-subtitle'>Tell us about you — we'll surface schools that fit.</div>",
                 unsafe_allow_html=True)
     render_progress(st.session_state.step)
@@ -1028,12 +1200,19 @@ def render_survey() -> None:
 # Loading screen + pipeline
 # -----------------------------------------------------------------------------
 def render_running() -> None:
-    st.markdown("<div class='cff-title'>🎓 College Fit Finder</div>", unsafe_allow_html=True)
-    st.markdown("<div class='cff-loading'>", unsafe_allow_html=True)
-    st.markdown("<div class='cff-spinner'></div>", unsafe_allow_html=True)
-    msg_slot = st.empty()
-    msg_slot.markdown(f"<div class='cff-loading-msg'>{LOADING_MESSAGES[0]}</div>", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+    # Dark brand container; the logo + spinner + cycling message all live
+    # inside the same st.container so the CSS background paints one block.
+    with st.container(key="cff_loading_screen"):
+        st.markdown(
+            f"<div style='text-align:center;'>{_logo_html('dark')}</div>",
+            unsafe_allow_html=True,
+        )
+        st.markdown("<div class='cff-spinner'></div>", unsafe_allow_html=True)
+        msg_slot = st.empty()
+        msg_slot.markdown(
+            f"<div class='cff-loading-msg'>{LOADING_MESSAGES[0]}</div>",
+            unsafe_allow_html=True,
+        )
 
     survey = st.session_state.survey
     profile, allowed_states, home_code = _survey_to_profile_and_backend(survey)
@@ -1156,20 +1335,44 @@ def _apply_filters(
 # -----------------------------------------------------------------------------
 # Results phase — main nav, toolbar, list view, map view, profile page
 # -----------------------------------------------------------------------------
+def _logo_html(variant: str = "dark") -> str:
+    """
+    Return the brand wordmark HTML.
+      variant="dark"  → white "College"/"Finder" (use on --ink backgrounds)
+      variant="light" → --ink "College"/"Finder" (use on --paper backgrounds)
+    "Fit" is always italic --sage.
+    """
+    return (
+        f"<div class='cff-logo {variant}'>"
+        "<svg class='cff-logo-cap' viewBox='0 0 24 24' width='26' height='26' "
+        "xmlns='http://www.w3.org/2000/svg' aria-hidden='true'>"
+        "<path d='M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm0 11.72"
+        "L5.18 11 12 7.28 18.82 11 12 14.72z' fill='currentColor'/>"
+        "</svg>"
+        "<span class='college'>College</span>"
+        "<span class='fit'>Fit</span>"
+        "<span class='finder'>Finder</span>"
+        "</div>"
+    )
+
+
 def _render_main_nav() -> None:
-    tabs = [("profile", "👤 My Profile"), ("results", "🎯 Results"), ("list", "💾 My List")]
-    cols = st.columns(len(tabs))
-    for i, (key, label) in enumerate(tabs):
-        with cols[i]:
-            is_active = st.session_state.main_tab == key
-            if st.button(
-                label,
-                key=f"nav_{key}",
-                type="primary" if is_active else "secondary",
-                use_container_width=True,
-            ):
-                st.session_state.main_tab = key
-                st.rerun()
+    tabs = [("profile", "My Profile"), ("results", "Results"), ("list", "My List")]
+    with st.container(key="cff_main_nav"):
+        cols = st.columns([2.2, 1, 1, 1], vertical_alignment="center")
+        with cols[0]:
+            st.markdown(_logo_html("dark"), unsafe_allow_html=True)
+        for i, (key, label) in enumerate(tabs):
+            with cols[i + 1]:
+                is_active = st.session_state.main_tab == key
+                if st.button(
+                    label,
+                    key=f"nav_{key}",
+                    type="primary" if is_active else "secondary",
+                    use_container_width=True,
+                ):
+                    st.session_state.main_tab = key
+                    st.rerun()
 
 
 def _render_toolbar(all_cards: list[ProfileCard], filtered: list[ProfileCard]) -> None:
@@ -2238,7 +2441,7 @@ def _render_profile_tab() -> None:
 
 
 def render_results_phase() -> None:
-    st.markdown("<div class='cff-title'>College Fit Finder</div>", unsafe_allow_html=True)
+    # Logo now lives inside the dark nav bar itself; no separate title above it.
     _render_main_nav()
     st.write("")
 
