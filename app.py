@@ -1864,6 +1864,15 @@ def _render_profile_tab() -> None:
     s = st.session_state.survey
     baseline = st.session_state.get("baseline_survey") or _default_survey()
 
+    # Reconcile the collapse flags with actual stored values so that, e.g.,
+    # a non-zero budget set in the survey doesn't display as "No preference"
+    # on the profile side.
+    md = s.get("max_distance")
+    if isinstance(md, int) and md > 0 and st.session_state.distance_collapsed:
+        st.session_state.distance_collapsed = False
+    if int(s.get("budget") or 0) > 0 and st.session_state.budget_collapsed:
+        st.session_state.budget_collapsed = False
+
     # ── Header ───────────────────────────────────────────────────────────
     st.markdown(
         """<div class='cff-profile-header'>
@@ -1890,45 +1899,75 @@ def _render_profile_tab() -> None:
             unsafe_allow_html=True,
         )
 
-        st.markdown("**Student status**")
-        status_label = STATUS_KEY_TO_LABEL.get(
-            s.get("student_status", "domestic"), "Domestic"
-        )
-        status_choice = st.pills(
-            "prof_status", STATUS_OPTIONS, selection_mode="single",
-            default=status_label,
-            label_visibility="collapsed", key="pills_prof_status",
-        )
-        s["student_status"] = STATUS_LABEL_TO_KEY.get(
-            status_choice or "Domestic", "domestic"
+        s["gpa"] = st.number_input(
+            "Unweighted GPA", min_value=0.0, max_value=4.0, step=0.01,
+            value=float(s["gpa"]) if s["gpa"] is not None else 3.00,
+            key="prof_gpa",
         )
 
         c1, c2 = st.columns(2)
-        with c1:
-            s["gpa"] = st.number_input(
-                "Unweighted GPA", min_value=0.0, max_value=4.0, step=0.01,
-                value=float(s["gpa"]) if s["gpa"] is not None else 3.5,
-                key="prof_gpa",
-            )
-        with c2:
-            s["major"] = st.text_input(
-                "Intended major", value=s["major"], key="prof_major",
-                placeholder="e.g. Computer Science",
-            )
 
-        c1, c2 = st.columns(2)
+        # SAT with Not-applicable toggle
         with c1:
-            sat_in = st.number_input(
-                "SAT (optional)", min_value=0, max_value=1600, step=10,
-                value=int(s["sat"]) if s["sat"] else 0, key="prof_sat",
-            )
-            s["sat"] = int(sat_in) if sat_in >= 400 else None
+            sat_na = st.session_state.sat_not_applicable
+            hdr1, hdr2 = st.columns([2, 1.4])
+            hdr1.markdown("**SAT score**")
+            with hdr2:
+                if st.button(
+                    "Not applicable",
+                    key="prof_sat_na_btn",
+                    type="primary" if sat_na else "secondary",
+                    use_container_width=True,
+                ):
+                    st.session_state.sat_not_applicable = not sat_na
+                    st.session_state.pop("sat_score_input", None)
+                    st.rerun()
+
+            if not sat_na:
+                sat_in = st.number_input(
+                    "SAT score",
+                    min_value=400, max_value=1600, step=10,
+                    value=400, label_visibility="collapsed",
+                    key="sat_score_input",
+                )
+                s["sat"] = int(sat_in) if sat_in > 400 else None
+            else:
+                s["sat"] = None
+
+        # ACT with Not-applicable toggle
         with c2:
-            act_in = st.number_input(
-                "ACT (optional)", min_value=0, max_value=36, step=1,
-                value=int(s["act"]) if s["act"] else 0, key="prof_act",
-            )
-            s["act"] = int(act_in) if act_in >= 1 else None
+            act_na = st.session_state.act_not_applicable
+            hdr1, hdr2 = st.columns([2, 1.4])
+            hdr1.markdown("**ACT score**")
+            with hdr2:
+                if st.button(
+                    "Not applicable",
+                    key="prof_act_na_btn",
+                    type="primary" if act_na else "secondary",
+                    use_container_width=True,
+                ):
+                    st.session_state.act_not_applicable = not act_na
+                    st.session_state.pop("act_score_input", None)
+                    st.rerun()
+
+            if not act_na:
+                act_in = st.number_input(
+                    "ACT score",
+                    min_value=1, max_value=36, step=1,
+                    value=1, label_visibility="collapsed",
+                    key="act_score_input",
+                )
+                s["act"] = int(act_in) if act_in > 1 else None
+            else:
+                s["act"] = None
+
+        # Major as selectbox
+        major_val = s.get("major") or "Undecided"
+        major_idx = MAJOR_OPTIONS.index(major_val) if major_val in MAJOR_OPTIONS else 0
+        s["major"] = st.selectbox(
+            "Intended major", MAJOR_OPTIONS,
+            index=major_idx, key="prof_major_select",
+        )
 
     # ── Location and Weather card ────────────────────────────────────────
     with st.container(border=True):
@@ -1937,37 +1976,79 @@ def _render_profile_tab() -> None:
             unsafe_allow_html=True,
         )
 
-        c1, c2 = st.columns(2)
-        with c1:
+        # Student status chips at the very top (moved here from the Academic card).
+        st.markdown("**Student status**")
+        status_label = STATUS_KEY_TO_LABEL.get(
+            s.get("student_status", "domestic"), "Domestic"
+        )
+        status_choice = st.pills(
+            "student_status", STATUS_OPTIONS, selection_mode="single",
+            default=status_label,
+            label_visibility="collapsed", key="pills_status",
+        )
+        s["student_status"] = STATUS_LABEL_TO_KEY.get(
+            status_choice or "Domestic", "domestic"
+        )
+
+        is_intl = s.get("student_status") in INTERNATIONAL_LIKE
+
+        if is_intl:
+            st.markdown(
+                "<div style='font-style: italic; color: #555; margin: 0.5rem 0 0.75rem;'>"
+                "International and permanent resident students are shown "
+                "out-of-state tuition for all schools.</div>",
+                unsafe_allow_html=True,
+            )
+            s["tuition_preference"] = "no_preference"
+        else:
             names = [n for n, _ in US_STATES_FULL]
             s["home_state_name"] = st.selectbox(
                 "Home state", names,
                 index=names.index(s["home_state_name"]) if s["home_state_name"] in names else 0,
                 key="prof_state",
             )
-        with c2:
-            s["max_distance"] = st.selectbox(
-                "Max distance from home", DISTANCE_OPTIONS,
-                index=DISTANCE_OPTIONS.index(s["max_distance"])
-                      if s["max_distance"] in DISTANCE_OPTIONS else 0,
-                key="prof_dist",
-            )
 
-        # Tuition preference — hidden for international / permanent-resident.
-        if s.get("student_status") in INTERNATIONAL_LIKE:
-            st.caption(
-                "_Tuition preference doesn't apply — you'll pay out-of-state "
-                "tuition at every US school._"
-            )
-            s["tuition_preference"] = "no_preference"
-        else:
-            st.markdown("**Tuition preference**")
+            # Max distance: slider by default; "No preference" collapses it.
+            if st.session_state.distance_collapsed:
+                col_txt, col_btn = st.columns([3, 1])
+                col_txt.markdown("**Max distance from home:**  No preference")
+                with col_btn:
+                    if st.button("Change", key="prof_distance_change_btn",
+                                 type="secondary", use_container_width=True):
+                        restored = int(st.session_state.get("distance_last_value") or 0)
+                        s["max_distance"] = restored
+                        st.session_state.distance_collapsed = False
+                        st.session_state.pop("distance_slider", None)
+                        st.rerun()
+                s["max_distance"] = 0
+            else:
+                raw_dist = s.get("max_distance", 0)
+                if not isinstance(raw_dist, int):
+                    raw_dist = 0
+                s["max_distance"] = st.slider(
+                    f"Max distance from home: **{int(raw_dist):,} miles**",
+                    min_value=0, max_value=3000, step=100, value=int(raw_dist),
+                    key="distance_slider",
+                )
+                _, col_btn = st.columns([3, 1])
+                with col_btn:
+                    if st.button("No preference", key="prof_distance_no_pref_btn",
+                                 type="secondary", use_container_width=True):
+                        if int(s["max_distance"]) > 0:
+                            st.session_state.distance_last_value = int(s["max_distance"])
+                        s["max_distance"] = 0
+                        st.session_state.distance_collapsed = True
+                        st.session_state.pop("distance_slider", None)
+                        st.rerun()
+
+            # Location preference (renamed from Tuition preference).
+            st.markdown("**Location preference**")
             tlabel = TUITION_KEY_TO_LABEL.get(
                 s.get("tuition_preference") or "no_preference", "No preference"
             )
             tchoice = st.pills(
-                "prof_tuition", TUITION_OPTIONS, selection_mode="single",
-                default=tlabel, label_visibility="collapsed", key="pills_prof_tuition",
+                "location_pref", TUITION_OPTIONS, selection_mode="single",
+                default=tlabel, label_visibility="collapsed", key="pills_location_pref",
             )
             s["tuition_preference"] = TUITION_LABEL_TO_KEY.get(
                 tchoice or "No preference", "no_preference"
@@ -1975,15 +2056,15 @@ def _render_profile_tab() -> None:
 
         st.markdown("**Preferred climate**")
         climates = st.pills(
-            "prof_climate", CLIMATE_OPTIONS, selection_mode="multi",
-            default=s["climates"], label_visibility="collapsed", key="pills_prof_climate",
+            "climate", CLIMATE_OPTIONS, selection_mode="multi",
+            default=s["climates"], label_visibility="collapsed", key="pills_climate",
         )
         s["climates"] = list(climates or [])
 
         st.markdown("**Preferred region**")
         regions = st.pills(
-            "prof_region", REGION_OPTIONS, selection_mode="multi",
-            default=s["regions"], label_visibility="collapsed", key="pills_prof_region",
+            "region", REGION_OPTIONS, selection_mode="multi",
+            default=s["regions"], label_visibility="collapsed", key="pills_region",
         )
         s["regions"] = list(regions or [])
 
@@ -1994,29 +2075,53 @@ def _render_profile_tab() -> None:
             unsafe_allow_html=True,
         )
 
-        s["budget"] = st.slider(
-            f"Max annual tuition: ${int(s['budget']):,}",
-            min_value=0, max_value=100_000, step=1_000,
-            value=int(s["budget"]),
-            key="prof_budget",
-        )
+        # Budget: slider by default; "No preference" collapses it.
+        if st.session_state.budget_collapsed:
+            col_txt, col_btn = st.columns([3, 1])
+            col_txt.markdown("**Max annual tuition:**  No preference")
+            with col_btn:
+                if st.button("Change", key="prof_budget_change_btn",
+                             type="secondary", use_container_width=True):
+                    restored = int(st.session_state.get("budget_last_value") or 0)
+                    s["budget"] = restored
+                    st.session_state.budget_collapsed = False
+                    st.session_state.pop("budget_slider", None)
+                    st.rerun()
+            s["budget"] = 0
+        else:
+            budget_val = int(s.get("budget") or 0)
+            s["budget"] = st.slider(
+                f"Max annual tuition: **${budget_val:,}**",
+                min_value=0, max_value=100_000, step=5_000, value=budget_val,
+                key="budget_slider",
+            )
+            _, col_btn = st.columns([3, 1])
+            with col_btn:
+                if st.button("No preference", key="prof_budget_no_pref_btn",
+                             type="secondary", use_container_width=True):
+                    if int(s["budget"]) > 0:
+                        st.session_state.budget_last_value = int(s["budget"])
+                    s["budget"] = 0
+                    st.session_state.budget_collapsed = True
+                    st.session_state.pop("budget_slider", None)
+                    st.rerun()
 
         st.markdown("**Campus size**")
         size = st.pills(
-            "prof_size", CAMPUS_SIZE_OPTIONS, selection_mode="single",
+            "size", CAMPUS_SIZE_OPTIONS, selection_mode="single",
             default=s["campus_size"] if s["campus_size"] in CAMPUS_SIZE_OPTIONS else "No preference",
-            label_visibility="collapsed", key="pills_prof_size",
+            label_visibility="collapsed", key="pills_size",
         )
         s["campus_size"] = size or "No preference"
 
         st.markdown("**Campus vibe**")
         vibes = st.pills(
-            "prof_vibes", VIBE_OPTIONS, selection_mode="multi",
-            default=s["vibes"], label_visibility="collapsed", key="pills_prof_vibes",
+            "vibes", VIBE_OPTIONS, selection_mode="multi",
+            default=s["vibes"], label_visibility="collapsed", key="pills_vibes",
         )
         s["vibes"] = list(vibes or [])
 
-    # ── Priority Weights card ────────────────────────────────────────────
+    # ── Priority Weights card (unchanged) ────────────────────────────────
     with st.container(border=True):
         st.markdown(
             "<div class='cff-section-title' style='margin-top:0;'>Priority Weights</div>",
