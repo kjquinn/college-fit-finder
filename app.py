@@ -1384,11 +1384,12 @@ def _render_card_grid(cards: list[ProfileCard]) -> None:
                 st.rerun()
 
 
-# Classification → pin color (exactly as specified).
+# Classification → pin color. Aligned with the list-view card badges:
+#   Safety = green, Match = amber, Reach = red.
 CLASS_COLOR = {
-    "Reach":  "#E24B4A",
-    "Match":  "#639922",
-    "Safety": "#185FA5",
+    "Reach":  "#E24B4A",   # red
+    "Match":  "#BA7517",   # amber
+    "Safety": "#639922",   # green
 }
 
 
@@ -1409,15 +1410,11 @@ def _pins_data(cards: list[ProfileCard]) -> list[tuple[ProfileCard, float, float
 
 
 def _build_folium_map(pins: list[tuple[ProfileCard, float, float]]) -> folium.Map:
-    if pins:
-        center_lat = sum(lat for _, lat, _ in pins) / len(pins)
-        center_lon = sum(lon for _, _, lon in pins) / len(pins)
-    else:
-        center_lat, center_lon = 39.5, -98.35  # approx CONUS centroid
-
+    # Always center on the continental US with a zoom that frames CONUS and
+    # excludes Hawaii / Alaska — regardless of where the filtered pins sit.
     m = folium.Map(
-        location=[center_lat, center_lon],
-        zoom_start=5,
+        location=[39.5, -98.35],
+        zoom_start=4,
         tiles="CartoDB Positron",
         control_scale=False,
     )
@@ -1470,11 +1467,23 @@ def _render_map_detail_panel(card: ProfileCard) -> None:
 
     size = _school_size(card)
     tuition, tuition_label = _card_tuition(card)
-    tags_html = ""
-    if card.vibe_tags:
-        chips = "".join(f"<span class='cff-vibe-chip'>{t}</span>" for t in card.vibe_tags[:5])
-        tags_html = f"<div class='cff-vibe-chips' style='margin-top:0.5rem;'>{chips}</div>"
 
+    # Fix 5 — enrollment always as a full comma-formatted number on the map panel.
+    size_str = f"{size:,}" if size is not None else "—"
+
+    # Fix 6 — International population row only renders for international /
+    # permanent-resident students.
+    student_status = st.session_state.survey.get("student_status") or "domestic"
+    intl_row_html = ""
+    if student_status in INTERNATIONAL_LIKE:
+        intl_row_html = (
+            "<div class='cff-mini-cell full'>"
+            "<div class='label'>INTERNATIONAL POPULATION</div>"
+            f"<div class='value'>{_fmt_pct(card.international_pct)}</div>"
+            "</div>"
+        )
+
+    # Fix 3 — add "%" after the overall fit score in the side panel.
     header_html = f"""
 <div style='display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;'>
   <div class='cff-initial' style='background:{color};'>{initial.upper()}</div>
@@ -1487,21 +1496,21 @@ def _render_map_detail_panel(card: ProfileCard) -> None:
   <span class='cff-class-badge {badge_cls}'>{card.classification}</span>
 </div>
 <div class='cff-fit-label'>OVERALL FIT</div>
-<div class='cff-fit'>{int(card.overall_fit)}</div>
+<div class='cff-fit'>{int(card.overall_fit)}%</div>
 <div class='cff-thin-bar'><div style='width:{int(card.overall_fit)}%;'></div></div>
 """
     st.markdown(header_html, unsafe_allow_html=True)
 
-    # Category bars
+    # Category bars — Fix 4: append "%" via _bar_row's fmt parameter.
     short_labels = {
         "academic_fit": "Academic", "affordability": "Affordability",
         "location_fit": "Location", "weather_fit": "Weather", "vibe_fit": "Vibe",
     }
     for cat in ("academic_fit", "affordability", "location_fit", "weather_fit", "vibe_fit"):
         score = card.category_scores.get(cat, 0)
-        _bar_row(short_labels[cat], float(score))
+        _bar_row(short_labels[cat], float(score), fmt="{:.0f}%")
 
-    # Mini stats
+    # Fix 7 — no more vibe tag chips in the side panel.
     mini_html = f"""
 <div class='cff-mini-grid' style='margin-top:0.5rem;'>
   <div class='cff-mini-cell'><div class='label'>TUITION</div>
@@ -1509,13 +1518,11 @@ def _render_map_detail_panel(card: ProfileCard) -> None:
   <div class='cff-mini-cell'><div class='label'>ACCEPTANCE</div>
     <div class='value'>{_fmt_pct(card.acceptance_rate)}</div></div>
   <div class='cff-mini-cell'><div class='label'>ENROLLMENT</div>
-    <div class='value'>{_fmt_size(size)}</div></div>
+    <div class='value'>{size_str}</div></div>
   <div class='cff-mini-cell'><div class='label'>MEDIAN DEBT</div>
     <div class='value'>{_fmt_currency(card.median_debt)}</div></div>
-  <div class='cff-mini-cell full'><div class='label'>INTERNATIONAL</div>
-    <div class='value'>{_fmt_pct(card.international_pct)}</div></div>
+  {intl_row_html}
 </div>
-{tags_html}
 """
     st.markdown(mini_html, unsafe_allow_html=True)
 
