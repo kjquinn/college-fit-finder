@@ -12,9 +12,11 @@ and are passed through untouched for downstream agents.
 
 from __future__ import annotations
 
+import json
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 import requests
@@ -39,6 +41,55 @@ US_STATE_CODES = [
     "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
     "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
 ]
+
+# Elite-school injection list (canonical Scorecard names). The per-state
+# fan-out only grabs the first 20 schools per state by Scorecard's default
+# alphabetical-by-name order, so universities with names that lose the
+# alphabet race (Harvard sits behind Adelphi/Amherst/Babson; MIT sits
+# behind a long list of M-states schools) never make the cut. These get
+# fetched explicitly so they always join the pool and Agent 2 can classify
+# them. Agent 1 still respects the user's explicit budget / state-scope
+# filters — selectivity is never a reason to drop a school.
+ELITE_SCHOOL_NAMES = [
+    # Ivies + peers
+    "Harvard University", "Yale University", "Princeton University",
+    "Columbia University in the City of New York",
+    "University of Pennsylvania", "Brown University",
+    "Cornell University", "Dartmouth College",
+    # Top private universities
+    "Massachusetts Institute of Technology", "Stanford University",
+    "California Institute of Technology", "University of Chicago",
+    "Duke University", "Northwestern University",
+    "Johns Hopkins University", "Vanderbilt University",
+    "Rice University", "University of Notre Dame",
+    "Washington University in St Louis", "Emory University",
+    "Georgetown University", "Carnegie Mellon University",
+    "New York University", "University of Southern California",
+    "Tufts University", "Boston College", "Boston University",
+    "Tulane University of Louisiana", "Wake Forest University",
+    # Top liberal arts colleges
+    "Williams College", "Amherst College", "Swarthmore College",
+    "Pomona College", "Middlebury College", "Wellesley College",
+    "Bowdoin College", "Carleton College", "Harvey Mudd College",
+    "Wesleyan University", "Reed College", "Oberlin College",
+    "Grinnell College",
+    # Top public flagships
+    "University of California-Berkeley",
+    "University of California-Los Angeles",
+    "University of Michigan-Ann Arbor",
+    "University of Virginia-Main Campus",
+    "University of North Carolina at Chapel Hill",
+    "Georgia Institute of Technology-Main Campus",
+    "The University of Texas at Austin",
+    "University of Illinois Urbana-Champaign",
+    "University of Wisconsin-Madison",
+    "University of Washington-Seattle Campus",
+    "University of Florida",
+]
+
+# Resolved at first call to _load_elite_unit_ids() and cached after that.
+_ELITE_UNIT_IDS_CACHE: list[int] | None = None
+_VIBE_DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "school_vibes.json"
 
 FIELDS = ",".join([
     "id",
@@ -336,6 +387,89 @@ def find_matching_schools(
 
 
 # -----------------------------------------------------------------------------
+# Elite-school injection (used by the national fan-out path)
+# -----------------------------------------------------------------------------
+def _load_elite_unit_ids() -> list[int]:
+    """
+    Look up the curated `ELITE_SCHOOL_NAMES` against `data/school_vibes.json`
+    to get their Scorecard unit IDs. Cached after first call.
+    """
+    global _ELITE_UNIT_IDS_CACHE
+    if _ELITE_UNIT_IDS_CACHE is not None:
+        return _ELITE_UNIT_IDS_CACHE
+
+    if not _VIBE_DATA_PATH.exists():
+        _ELITE_UNIT_IDS_CACHE = []
+        return _ELITE_UNIT_IDS_CACHE
+
+    try:
+        data = json.loads(_VIBE_DATA_PATH.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        _ELITE_UNIT_IDS_CACHE = []
+        return _ELITE_UNIT_IDS_CACHE
+
+    name_to_id: dict[str, int] = {}
+    for entry in data:
+        name = (entry.get("name") or "").lower().strip()
+        sid = entry.get("unit_id")
+        if name and sid is not None:
+            name_to_id[name] = int(sid)
+
+    ids: list[int] = []
+    missing: list[str] = []
+    for canonical in ELITE_SCHOOL_NAMES:
+        sid = name_to_id.get(canonical.lower().strip())
+        if sid is not None:
+            ids.append(sid)
+        else:
+            missing.append(canonical)
+    if missing:
+        # Surface name-mismatch warnings once per process so we can fix them.
+        print(
+            f"[Agent 1 elite] {len(missing)} elite school(s) not found in vibe data; "
+            f"first few: {missing[:5]}",
+            flush=True,
+        )
+    _ELITE_UNIT_IDS_CACHE = ids
+    return ids
+
+
+def _fetch_elite_schools(profile: StudentProfile) -> list[dict[str, Any]]:
+    """
+    Pull every elite school in one Scorecard call (`id=id1,id2,...`), then
+    apply the same local filters as the regular fan-out so an explicit user
+    budget cap or state-scope still applies. We never drop a school based
+    on selectivity — Agent 2 owns Reach/Match/Safety classification.
+    """
+    ids = _load_elite_unit_ids()
+    if not ids:
+        return []
+
+    params = {
+        "api_key": _api_key(),
+        "fields": FIELDS,
+        "id": ",".join(str(i) for i in ids),
+        "per_page": 100,
+    }
+
+    try:
+        resp = requests.get(SCORECARD_URL, params=params, timeout=REQUEST_TIMEOUT)
+        resp.raise_for_status()
+    except (requests.Timeout, requests.RequestException) as e:
+        print(f"[Agent 1 elite] fetch failed: {e}", flush=True)
+        return []
+
+    raw = resp.json().get("results", [])
+    flat = [_flatten(r) for r in raw]
+    print(
+        f"[Agent 1 elite] fetched {len(flat)} elite schools "
+        f"(of {len(ids)} requested unit IDs)",
+        flush=True,
+    )
+    return _apply_local_filters(flat, profile)
+
+
+# -----------------------------------------------------------------------------
 # Parallel "true national" fetcher
 # -----------------------------------------------------------------------------
 def _fetch_one_page(
@@ -391,26 +525,33 @@ def find_matching_schools_national(
             student_status=profile.student_status,
         )
 
-    print(f"[Agent 1 national] fan-out: 50 states × per_page={per_state}, "
-          f"workers={max_workers}", flush=True)
+    print(f"[Agent 1 national] fan-out: 50 states × per_page={per_state} "
+          f"+ elite unit-id batch, workers={max_workers}", flush=True)
 
     with ThreadPoolExecutor(max_workers=max_workers) as ex:
-        futures = {
-            ex.submit(_fetch_one_page, _per_state_profile(code), per_state): code
-            for code in US_STATE_CODES
-        }
+        # 50 state-scoped page-1 fetches.
+        futures: dict[Any, tuple[str, str]] = {}
+        for code in US_STATE_CODES:
+            f = ex.submit(_fetch_one_page, _per_state_profile(code), per_state)
+            futures[f] = ("state", code)
+
+        # Plus one batched-by-id elite fetch — runs in the same pool so it
+        # finishes inside the same wall-clock window as the state queries.
+        f_elite = ex.submit(_fetch_elite_schools, profile)
+        futures[f_elite] = ("elite", "—")
+
         for fut in as_completed(futures):
-            code = futures[fut]
+            kind, label = futures[fut]
             try:
-                state_schools = fut.result()
+                schools = fut.result()
             except Exception as e:
-                print(f"[Agent 1 national] {code} worker raised: {e}", flush=True)
+                print(f"[Agent 1 national] {kind} {label} raised: {e}", flush=True)
                 continue
-            for s in state_schools:
+            for s in schools:
                 sid = s.get("id")
                 if sid is not None and sid not in results_by_id:
                     results_by_id[sid] = s
 
     print(f"[Agent 1 national] merged {len(results_by_id)} unique schools "
-          f"across {len(US_STATE_CODES)} states", flush=True)
+          f"across {len(US_STATE_CODES)} states + elite injection", flush=True)
     return list(results_by_id.values())
