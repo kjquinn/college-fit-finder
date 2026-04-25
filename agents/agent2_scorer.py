@@ -122,12 +122,31 @@ def _affordability(profile: StudentProfile, school: dict[str, Any]) -> tuple[flo
     ratio = coa / profile.budget
     # 100 at ratio<=0.6, 80 at 0.9, 60 at 1.0, 30 at 1.3, 0 beyond 1.5.
     if ratio <= 0.6:
-        return 100.0, []
-    if ratio <= 1.0:
-        return _clamp(100 - (ratio - 0.6) * 100), []
-    if ratio <= 1.5:
-        return _clamp(60 - (ratio - 1.0) * 120), [f"COA is {int((ratio-1)*100)}% over budget."]
-    return 0.0, [f"COA is {int((ratio-1)*100)}% over budget."]
+        base = 100.0
+    elif ratio <= 1.0:
+        base = _clamp(100 - (ratio - 0.6) * 100)
+    elif ratio <= 1.5:
+        base = _clamp(60 - (ratio - 1.0) * 120)
+    else:
+        base = 0.0
+
+    notes: list[str] = []
+    if ratio > 1.0:
+        notes.append(f"COA is {int((ratio-1)*100)}% over budget.")
+
+    # IPEDS bonus — schools that hand out generous institutional aid get a
+    # small lift for budget-constrained students. Only applies when the
+    # student set a real budget under $50k AND avg aid >= $10k.
+    avg_aid = school.get("ipeds_avg_institutional_aid")
+    if profile.budget and profile.budget < 50_000 and avg_aid and avg_aid >= 10_000:
+        bonus = min(8.0, avg_aid / 5_000)   # ~2 pts per $10k aid, max +8
+        base = _clamp(base + bonus)
+        notes.append(
+            f"Generous institutional aid (~${avg_aid:,}/recipient) lifts "
+            f"affordability for tighter budgets."
+        )
+
+    return base, notes
 
 
 def _location_fit(profile: StudentProfile, school: dict[str, Any]) -> tuple[float, list[str]]:
@@ -187,7 +206,25 @@ def _vibe_fit(profile: StudentProfile, school: dict[str, Any]) -> tuple[float, l
         if note:
             notes.append(note)
 
-    return sum(scored) / len(scored), notes
+    base = sum(scored) / len(scored)
+
+    # IPEDS bonuses — applied on top of the existing vibe scoring.
+    pref_tokens = {v.lower() for v in prefs}
+
+    sfr = school.get("ipeds_student_faculty_ratio")
+    if sfr and sfr <= 12 and any(p in pref_tokens for p in ("small-town", "rural")):
+        base = _clamp(base + 5.0)
+        notes.append(f"Low student/faculty ratio ({sfr}:1) suits a tight-knit feel.")
+
+    ath_div = school.get("ipeds_athletics_division")
+    if ath_div in ("NCAA", "NAIA") and any(
+        ("sporty" in p) or ("athletic" in p) for p in pref_tokens
+    ):
+        bump = 4.0 if ath_div == "NCAA" else 2.0
+        base = _clamp(base + bump)
+        notes.append(f"{ath_div} athletics aligns with your sporty preference.")
+
+    return base, notes
 
 
 def _classify(profile: StudentProfile, school: dict[str, Any]) -> str:

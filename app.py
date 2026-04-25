@@ -18,6 +18,7 @@ from agents.agent1_matcher import (
 )
 from agents.agent2_scorer import score_schools
 from agents.agent3_profiler import ProfileCard, build_profile_cards
+from agents.ipeds import enrich_schools_with_ipeds
 from agents.vibe import enrich_schools_with_vibes
 from agents.weather import enrich_schools_with_climate
 
@@ -743,6 +744,56 @@ def _init_session() -> None:
 _init_session()
 
 
+def _diversify_by_state(scored: list, top_per_state: int = 3,
+                        target_count: int = 100) -> list:
+    """
+    Build a geographically diverse top-N pool from a fit-sorted list.
+
+    1. Group all scored results by school state.
+    2. Tier 1: take the top `top_per_state` highest-fit schools from each
+       state (gives at most num_states * top_per_state schools — usually ~150
+       for the national pool when most states have ≥3 schools).
+    3. If tier 1 already contains `target_count` or more, sort by fit desc
+       and cut to `target_count`.
+    4. Otherwise top off with the next-highest-fit schools that aren't in
+       tier 1, then sort the final list by fit desc.
+
+    Used only on the national-no-filter path so the user sees schools from
+    a broad set of states even when raw fit scores cluster a few states at
+    the top of the leaderboard. Region-filtered and state-restricted
+    searches skip this step (they're already geographically narrow by
+    construction).
+    """
+    if not scored:
+        return []
+
+    by_state: dict[str, list] = {}
+    for fs in scored:
+        state = ((fs.school.get("state") if fs.school else "") or "?").upper()
+        by_state.setdefault(state, []).append(fs)
+
+    for state in by_state:
+        by_state[state].sort(key=lambda fs: fs.overall, reverse=True)
+
+    tier1: list = []
+    tier1_ids: set = set()
+    for state, lst in by_state.items():
+        for fs in lst[:top_per_state]:
+            tier1.append(fs)
+            tier1_ids.add(fs.school_id)
+
+    if len(tier1) >= target_count:
+        tier1.sort(key=lambda fs: fs.overall, reverse=True)
+        return tier1[:target_count]
+
+    remaining = [fs for fs in scored if fs.school_id not in tier1_ids]
+    remaining.sort(key=lambda fs: fs.overall, reverse=True)
+    needed = target_count - len(tier1)
+    final = tier1 + remaining[:needed]
+    final.sort(key=lambda fs: fs.overall, reverse=True)
+    return final
+
+
 def _wants_home_state_only(survey: dict[str, Any]) -> bool:
     """
     True if the user wants to narrow the Scorecard query to their home state.
@@ -1306,18 +1357,29 @@ def render_running() -> None:
         msg_slot.markdown(f"<div class='cff-loading-msg'>{LOADING_MESSAGES[3]}</div>", unsafe_allow_html=True)
         pre_scored = score_schools(profile, schools, weights=survey["weights"])
         pre_scored.sort(key=lambda x: x.overall, reverse=True)   # defensive
-        top_ids = {s.school_id for s in pre_scored[:100]}
+
+        # Geographic diversity guarantee: take the top 3 highest-fit schools
+        # from each state first so the final 100 isn't dominated by whichever
+        # 2-3 states happen to have the most highly-scored schools.
+        diversified = _diversify_by_state(
+            pre_scored, top_per_state=3, target_count=100,
+        )
+        top_ids = {fs.school_id for fs in diversified}
         schools_top = [s for s in schools if s.get("id") in top_ids]
 
+        # Heavyweight enrichments only for the top slice (climate via
+        # Open-Meteo + IPEDS via Urban Institute). Both cache to disk.
         msg_slot.markdown(f"<div class='cff-loading-msg'>{LOADING_MESSAGES[2]}</div>", unsafe_allow_html=True)
-        enrich_schools_with_climate(schools_top)   # mutates dicts in place
+        enrich_schools_with_climate(schools_top)
+        enrich_schools_with_ipeds(schools_top)
 
-        # Re-score the top slice with the now-real climate data so displayed
-        # weather_fit numbers are accurate.
+        # Re-score with real climate + IPEDS data so weather_fit, vibe_fit,
+        # and affordability incorporate the new bonuses for the displayed pool.
         scored = score_schools(profile, schools_top, weights=survey["weights"])
     else:
         msg_slot.markdown(f"<div class='cff-loading-msg'>{LOADING_MESSAGES[2]}</div>", unsafe_allow_html=True)
         schools = enrich_schools_with_climate(schools)
+        enrich_schools_with_ipeds(schools)   # smaller pool — enrich everything
         msg_slot.markdown(f"<div class='cff-loading-msg'>{LOADING_MESSAGES[3]}</div>", unsafe_allow_html=True)
         scored = score_schools(profile, schools, weights=survey["weights"])
 
@@ -1615,8 +1677,8 @@ def _render_card(card: ProfileCard) -> None:
       <div class='value'>{_fmt_pct(card.acceptance_rate)}</div>
     </div>
     <div class='cff-mini-cell'>
-      <div class='label'>MEDIAN DEBT</div>
-      <div class='value'>{_fmt_currency(card.median_debt)}</div>
+      <div class='label'>AVG AID</div>
+      <div class='value'>{_fmt_currency(card.avg_institutional_aid)}</div>
     </div>
     {intl_row_html}
   </div>
@@ -2604,18 +2666,30 @@ def render_school_profile() -> None:
     summer = f"{card.summer_temp_f:.0f}°F" if card.summer_temp_f is not None else "—"
 
     st.markdown("<div class='cff-section-title'>Key stats</div>", unsafe_allow_html=True)
-    stat_html = "<div class='cff-stat-grid'>" + "".join([
-        _stat_cell("IN-STATE TUITION",     _fmt_currency(card.tuition_in_state)),
-        _stat_cell("OUT-OF-STATE TUITION", _fmt_currency(card.tuition_out_of_state)),
-        _stat_cell("ACCEPTANCE RATE",      _fmt_pct(card.acceptance_rate)),
-        _stat_cell("SAT RANGE (25–75%)",   sat),
-        _stat_cell("MEDIAN DEBT",          _fmt_currency(card.median_debt)),
-        _stat_cell("ENROLLMENT",           _fmt_size(size)),
-        _stat_cell("GRADUATION RATE",      _fmt_pct(card.graduation_rate)),
+    sf_ratio = (
+        f"{card.student_faculty_ratio}:1"
+        if card.student_faculty_ratio is not None else "—"
+    )
+    cells = [
+        _stat_cell("IN-STATE TUITION",      _fmt_currency(card.tuition_in_state)),
+        _stat_cell("OUT-OF-STATE TUITION",  _fmt_currency(card.tuition_out_of_state)),
+        _stat_cell("ACCEPTANCE RATE",       _fmt_pct(card.acceptance_rate)),
+        _stat_cell("SAT RANGE (25–75%)",    sat),
+        _stat_cell("AVG INSTITUTIONAL AID", _fmt_currency(card.avg_institutional_aid)),
+        _stat_cell("% RECEIVING AID",       _fmt_pct(card.pct_receiving_aid)),
+        _stat_cell("ENROLLMENT",            _fmt_size(size)),
+        _stat_cell("GRADUATION RATE",       _fmt_pct(card.graduation_rate)),
+        _stat_cell("STUDENT/FACULTY RATIO", sf_ratio),
+        _stat_cell("ATHLETICS",             card.athletics_division or "—"),
         _stat_cell("INTERNATIONAL STUDENTS", _fmt_pct(card.international_pct)),
-        _stat_cell("WINTER TEMP",          winter),
-        _stat_cell("SUMMER TEMP",          summer),
-    ]) + "</div>"
+        _stat_cell("MEDIAN DEBT",           _fmt_currency(card.median_debt)),
+        _stat_cell("WINTER TEMP",           winter),
+        _stat_cell("SUMMER TEMP",           summer),
+    ]
+    # Religious affiliation cell only when applicable.
+    if card.religious_affiliation:
+        cells.append(_stat_cell("RELIGIOUS AFFILIATION", card.religious_affiliation))
+    stat_html = "<div class='cff-stat-grid'>" + "".join(cells) + "</div>"
     st.markdown(stat_html, unsafe_allow_html=True)
 
     # Extra context for international / permanent-resident applicants.

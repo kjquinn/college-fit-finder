@@ -70,6 +70,16 @@ class ProfileCard:
     graduation_rate: float | None = None   # 0-1, 4yr 150% completion (Scorecard C150_4)
     median_debt: int | None = None         # median debt of completers (Scorecard DEBT_MDN)
     international_pct: float | None = None # 0-1, non-resident-alien undergrad share
+    # IPEDS-sourced fields (Urban Institute Education Data API)
+    student_faculty_ratio: int | None = None
+    housing_capacity: int | None = None
+    housing_guaranteed: bool | None = None
+    avg_institutional_aid: int | None = None
+    pct_receiving_aid: float | None = None
+    athletics_division: str | None = None
+    religious_affiliation: str | None = None
+    pct_on_campus: float | None = None
+    num_programs: int | None = None
     vibe_tags: list[str] = field(default_factory=list)
     vibe_campus_setting: str | None = None
     vibe_political_leaning: str | None = None
@@ -338,6 +348,16 @@ def build_profile_cards(
             graduation_rate=school.get("graduation_rate"),
             median_debt=school.get("median_debt"),
             international_pct=school.get("international_pct"),
+            # IPEDS pass-through fields (set by agents.ipeds.enrich_schools_with_ipeds)
+            student_faculty_ratio=school.get("ipeds_student_faculty_ratio"),
+            housing_capacity=school.get("ipeds_housing_capacity"),
+            housing_guaranteed=school.get("ipeds_housing_guaranteed"),
+            avg_institutional_aid=school.get("ipeds_avg_institutional_aid"),
+            pct_receiving_aid=school.get("ipeds_pct_receiving_aid"),
+            athletics_division=school.get("ipeds_athletics_division"),
+            religious_affiliation=school.get("ipeds_religious_affiliation"),
+            pct_on_campus=school.get("ipeds_pct_on_campus"),
+            num_programs=school.get("ipeds_num_programs"),
             vibe_tags=vibe_tags,
             vibe_campus_setting=(school.get("vibe") or {}).get("campus_setting"),
             vibe_political_leaning=(school.get("vibe") or {}).get("political_leaning"),
