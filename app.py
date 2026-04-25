@@ -744,6 +744,33 @@ def _init_session() -> None:
 _init_session()
 
 
+# -----------------------------------------------------------------------------
+# Background IPEDS preload for the curated elite schools — runs once per
+# Streamlit session so the most commonly viewed schools are already cached
+# by the time the user finishes the survey.
+# -----------------------------------------------------------------------------
+def _preload_elite_ipeds() -> None:
+    try:
+        from agents.agent1_matcher import _load_elite_unit_ids
+        from agents.ipeds import enrich_schools_with_ipeds
+        ids = _load_elite_unit_ids()
+        if not ids:
+            return
+        # Synthetic minimal school dicts — enrich_schools_with_ipeds only
+        # needs the "id" key. Cache hits skip the API entirely.
+        synthetic = [{"id": uid} for uid in ids]
+        enrich_schools_with_ipeds(synthetic)
+        print(f"[IPEDS preload] {len(ids)} elite schools warmed", flush=True)
+    except Exception as e:
+        print(f"[IPEDS preload] failed: {e}", flush=True)
+
+
+if not st.session_state.get("_elite_ipeds_preload_started"):
+    st.session_state["_elite_ipeds_preload_started"] = True
+    import threading as _bg_thread
+    _bg_thread.Thread(target=_preload_elite_ipeds, daemon=True).start()
+
+
 def _diversify_by_state(scored: list, top_per_state: int = 3,
                         target_count: int = 100) -> list:
     """
@@ -1367,11 +1394,14 @@ def render_running() -> None:
         top_ids = {fs.school_id for fs in diversified}
         schools_top = [s for s in schools if s.get("id") in top_ids]
 
-        # Heavyweight enrichments only for the top slice (climate via
-        # Open-Meteo + IPEDS via Urban Institute). Both cache to disk.
+        # Climate for the full top-100 (display data); IPEDS only for the
+        # top 50 by pre-score since those are the schools the user is most
+        # likely to drill into. Both cache to disk.
         msg_slot.markdown(f"<div class='cff-loading-msg'>{LOADING_MESSAGES[2]}</div>", unsafe_allow_html=True)
         enrich_schools_with_climate(schools_top)
-        enrich_schools_with_ipeds(schools_top)
+        top_50_ids = {fs.school_id for fs in diversified[:50]}
+        schools_top_50 = [s for s in schools_top if s.get("id") in top_50_ids]
+        enrich_schools_with_ipeds(schools_top_50)
 
         # Re-score with real climate + IPEDS data so weather_fit, vibe_fit,
         # and affordability incorporate the new bonuses for the displayed pool.
@@ -1379,7 +1409,13 @@ def render_running() -> None:
     else:
         msg_slot.markdown(f"<div class='cff-loading-msg'>{LOADING_MESSAGES[2]}</div>", unsafe_allow_html=True)
         schools = enrich_schools_with_climate(schools)
-        enrich_schools_with_ipeds(schools)   # smaller pool — enrich everything
+        # IPEDS only for the top 50 by a quick pre-score (skips the long
+        # tail of schools nobody will look at in detail).
+        pre_scored_for_ipeds = score_schools(profile, schools, weights=survey["weights"])
+        pre_scored_for_ipeds.sort(key=lambda x: x.overall, reverse=True)
+        top_50_ids = {fs.school_id for fs in pre_scored_for_ipeds[:50]}
+        schools_top_50 = [s for s in schools if s.get("id") in top_50_ids]
+        enrich_schools_with_ipeds(schools_top_50)
         msg_slot.markdown(f"<div class='cff-loading-msg'>{LOADING_MESSAGES[3]}</div>", unsafe_allow_html=True)
         scored = score_schools(profile, schools, weights=survey["weights"])
 

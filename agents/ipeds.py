@@ -18,7 +18,6 @@ from __future__ import annotations
 
 import json
 import threading
-import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -27,8 +26,8 @@ from typing import Any
 import requests
 
 BASE_URL = "https://educationdata.urban.org/api/v1/college-university/ipeds"
-DATA_YEAR = 2020          # most recent year with all four endpoints populated
-REQUEST_TIMEOUT = 25      # per-endpoint
+DATA_YEAR = 2020          # most recent year with all endpoints populated
+REQUEST_TIMEOUT = 5       # hard 5s ceiling per endpoint — speed > completeness
 CACHE_PATH = Path(__file__).resolve().parent.parent / ".cache" / "ipeds.json"
 
 _cache_lock = threading.Lock()
@@ -86,23 +85,30 @@ def _save_cache(cache: dict[str, Any]) -> None:
 
 
 # -----------------------------------------------------------------------------
-# Single Urban-Institute call with one retry + backoff
+# Single Urban-Institute call. No retry — speed > completeness, so a 5s
+# timeout means we move on rather than wait. Returns [] on any failure.
 # -----------------------------------------------------------------------------
 def _api_get(endpoint: str, unit_id: int) -> list[dict[str, Any]]:
     url = f"{BASE_URL}/{endpoint}/?unitid={unit_id}"
-    for attempt in range(2):
-        try:
-            r = requests.get(url, timeout=REQUEST_TIMEOUT)
-            r.raise_for_status()
-            return r.json().get("results", [])
-        except (requests.Timeout, requests.RequestException):
-            if attempt == 0:
-                time.sleep(0.5)
-    return []
+    try:
+        r = requests.get(url, timeout=REQUEST_TIMEOUT)
+        r.raise_for_status()
+        return r.json().get("results", [])
+    except (requests.Timeout, requests.RequestException):
+        return []
 
 
 def fetch_ipeds(unit_id: int, year: int = DATA_YEAR) -> IpedsSummary:
-    """Pull IPEDS data for one school across multiple endpoints."""
+    """
+    Pull IPEDS data for one school. To keep latency down we fetch only the
+    two endpoints that meaningfully feed Agent 2 scoring:
+      - student-faculty-ratio   → vibe bonus for tight-knit / low-ratio schools
+      - sfa-grants-and-net-price → affordability bonus for generous-aid schools
+
+    Other fields on `IpedsSummary` (housing, athletics, religion, etc.) stay
+    None for newly-fetched schools. Older cached entries that already include
+    those fields keep them — see `_enrich_one`'s cache merge.
+    """
     summary = IpedsSummary()
 
     # 1. Student-faculty ratio (single value)
@@ -110,47 +116,7 @@ def fetch_ipeds(unit_id: int, year: int = DATA_YEAR) -> IpedsSummary:
     if sfr_rows:
         summary.student_faculty_ratio = sfr_rows[0].get("student_faculty_ratio")
 
-    # 2. Institutional characteristics (one row, many fields)
-    ic_rows = _api_get(f"institutional-characteristics/{year}", unit_id)
-    if ic_rows:
-        ic = ic_rows[0]
-
-        cap = ic.get("dormitory_capacity")
-        summary.housing_capacity = int(cap) if cap and cap > 0 else None
-
-        req = ic.get("oncampus_required")
-        summary.housing_guaranteed = bool(req == 1) if req is not None else None
-
-        rel = ic.get("religious_affiliation")
-        if rel and rel > 0:
-            summary.religious_affiliation = RELIGION_NAMES.get(
-                rel, "Religious affiliation"
-            )
-
-        # Athletic association — proxy for division (NCAA / NAIA / NJCAA).
-        # Real NCAA Division I/II/III isn't a single IPEDS field, so we
-        # surface the membership level here and note the caveat upstream.
-        if ic.get("member_ncaa") == 1:
-            summary.athletics_division = "NCAA"
-        elif ic.get("member_naia") == 1:
-            summary.athletics_division = "NAIA"
-        elif ic.get("member_njcaa") == 1:
-            summary.athletics_division = "NJCAA"
-        else:
-            summary.athletics_division = "Non-NCAA"
-
-        # Programs offered = count of degree-level "*_offered" fields = 1.
-        offered_fields = (
-            "assoc_offered", "bach_offered", "masters_offered",
-            "doctors_research_offered", "doctors_professional_offered",
-            "doctors_other_offered", "postbac_cert_offered",
-            "post_masters_cert_offered", "cert_0_1_offered",
-            "cert_1_2_offered", "cert_2_4_offered",
-        )
-        offered = sum(1 for f in offered_fields if ic.get(f) == 1)
-        summary.num_programs = offered if offered > 0 else None
-
-    # 3. Aid grants — aggregate weighted average across all rows.
+    # 2. Aid grants — aggregate weighted average across all rows.
     sfa_rows = _api_get(f"sfa-grants-and-net-price/{year}", unit_id)
     if sfa_rows:
         total_grant = sum((r.get("total_grant") or 0) for r in sfa_rows)
@@ -160,22 +126,6 @@ def fetch_ipeds(unit_id: int, year: int = DATA_YEAR) -> IpedsSummary:
             summary.avg_institutional_aid = int(total_grant / recipients)
         if students > 0:
             summary.pct_receiving_aid = round(recipients / students, 3)
-
-    # 4. % living on campus — derived from sfa-by-living-arrangement.
-    living_rows = _api_get(f"sfa-by-living-arrangement/{year}", unit_id)
-    if living_rows:
-        # IPEDS living_arrangement codes: 1 = on-campus, 2 = with family,
-        # 3 = off-campus not with family, 99 = total.
-        on_campus = sum(
-            (r.get("number_of_students") or 0)
-            for r in living_rows if r.get("living_arrangement") == 1
-        )
-        all_arr = sum(
-            (r.get("number_of_students") or 0)
-            for r in living_rows if r.get("living_arrangement") != 99
-        )
-        if all_arr > 0:
-            summary.pct_on_campus = round(on_campus / all_arr, 3)
 
     return summary
 
@@ -214,11 +164,11 @@ def _enrich_one(school: dict[str, Any], cache: dict[str, Any]) -> bool:
 
 
 def enrich_schools_with_ipeds(
-    schools: list[dict[str, Any]], max_workers: int = 6
+    schools: list[dict[str, Any]], max_workers: int = 15
 ) -> list[dict[str, Any]]:
     """
-    Attach IPEDS fields to each school in place. Uses 6-worker concurrent
-    fetching against the Urban Institute API and caches by unit ID at
+    Attach IPEDS fields to each school in place. Uses a 15-worker thread pool
+    against the Urban Institute API and caches by unit ID at
     .cache/ipeds.json so warm runs are near-instant.
     """
     cache = _load_cache()
