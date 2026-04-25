@@ -14,6 +14,7 @@ from agents.agent1_matcher import (
     ScorecardError,
     StudentProfile,
     find_matching_schools,
+    find_matching_schools_national,
 )
 from agents.agent2_scorer import score_schools
 from agents.agent3_profiler import ProfileCard, build_profile_cards
@@ -792,11 +793,38 @@ def _survey_to_profile_and_backend(survey: dict[str, Any]) -> tuple[StudentProfi
     tuition_pref = tuition_pref_raw if tuition_pref_raw in ("in_state", "out_of_state") else None
     student_status = survey.get("student_status") or "domestic"
 
+    # Bug 3 — "Undecided" (the survey's default major sentinel) means the
+    # student hasn't picked a major; we must NOT send it to Scorecard as a
+    # CIP-title substring filter (no school has a program literally titled
+    # "Undecided" so the result would be 0 schools).
+    major_raw = (survey.get("major") or "").strip()
+    intended_major = None if major_raw.lower() in ("", "undecided") else major_raw
+
+    # Bug 5 — budget of 0 (the slider's "No preference" sentinel) means
+    # no cap; coerce to None so Agent 1's budget filter is skipped entirely.
+    budget_raw = survey.get("budget")
+    try:
+        budget_int = int(budget_raw) if budget_raw is not None else 0
+    except (TypeError, ValueError):
+        budget_int = 0
+    budget = budget_int if budget_int > 0 else None
+
+    # Bug 6 — GPA is passed through untouched; Agent 1 never filters on it.
+    # A GPA as low as 1.0 still produces a full pool — only Agent 2's
+    # classifier skews toward Reach.
+    gpa_val = survey.get("gpa")
+    gpa = float(gpa_val) if gpa_val else None
+
     profile = StudentProfile(
-        gpa=survey["gpa"] or None,
+        gpa=gpa,
+        # Bug 4 — sat/act stay None when the student toggled "Not applicable";
+        # Agent 1 has no SAT/ACT filter at the API level, so None is safe.
         sat=survey["sat"], act=survey["act"],
-        intended_major=(survey["major"] or None),
-        budget=int(survey["budget"]) if survey["budget"] else None,
+        intended_major=intended_major,
+        budget=budget,
+        # `state` is the *scoring* profile's home state used by Agent 2's
+        # location_fit. The matcher built in render_running gets a separate
+        # `state=matcher_state` that the Scorecard query actually sees.
         state=home_code,
         weather_pref=weather_pref,
         vibe_prefs=vibes,
@@ -1239,14 +1267,25 @@ def render_running() -> None:
         student_status=profile.student_status,
     )
 
+    # Fix 1 — true national diversity: when no state-scope filter is active
+    # (no region, no within-N-miles distance, no in/out-of-state preference)
+    # do a parallel 50-state fan-out instead of one alphabetically-ordered
+    # Scorecard call. International and permanent-resident students fall in
+    # here too — they have no tuition_preference set, so the condition holds.
+    is_national_search = (
+        matcher_state is None
+        and matcher_profile.tuition_preference not in ("in_state", "out_of_state")
+    )
+
     try:
-        schools = find_matching_schools(matcher_profile)
+        if is_national_search:
+            schools = find_matching_schools_national(matcher_profile)
+        else:
+            schools = find_matching_schools(matcher_profile)
     except ScorecardError as e:
         st.session_state.last_error = f"Scorecard API error: {e}"
         st.session_state.phase = "survey"; st.rerun(); return
 
-    # (Server-side filter already restricted to the selected regions;
-    # no post-filter needed.)
     if not schools:
         st.session_state.last_error = (
             "No schools matched those filters. Try widening your budget, "
@@ -1257,14 +1296,40 @@ def render_running() -> None:
     msg_slot.markdown(f"<div class='cff-loading-msg'>{LOADING_MESSAGES[1]}</div>", unsafe_allow_html=True)
     schools = enrich_schools_with_vibes(schools)
 
-    msg_slot.markdown(f"<div class='cff-loading-msg'>{LOADING_MESSAGES[2]}</div>", unsafe_allow_html=True)
-    schools = enrich_schools_with_climate(schools)
+    # ── Climate enrichment + scoring ────────────────────────────────────
+    # National pools can be ~1000 schools; enriching every one with the
+    # Open-Meteo Archive API would take ~1-2 minutes. Instead we pre-score
+    # using state-level climate fallback, take the top 100, enrich climate
+    # only for those, and re-score that top slice. For non-national pools
+    # (≤150 schools) we keep the existing single-pass flow.
+    if is_national_search and len(schools) > 200:
+        msg_slot.markdown(f"<div class='cff-loading-msg'>{LOADING_MESSAGES[3]}</div>", unsafe_allow_html=True)
+        pre_scored = score_schools(profile, schools, weights=survey["weights"])
+        pre_scored.sort(key=lambda x: x.overall, reverse=True)   # defensive
+        top_ids = {s.school_id for s in pre_scored[:100]}
+        schools_top = [s for s in schools if s.get("id") in top_ids]
 
-    msg_slot.markdown(f"<div class='cff-loading-msg'>{LOADING_MESSAGES[3]}</div>", unsafe_allow_html=True)
-    scored = score_schools(profile, schools, weights=survey["weights"])
+        msg_slot.markdown(f"<div class='cff-loading-msg'>{LOADING_MESSAGES[2]}</div>", unsafe_allow_html=True)
+        enrich_schools_with_climate(schools_top)   # mutates dicts in place
+
+        # Re-score the top slice with the now-real climate data so displayed
+        # weather_fit numbers are accurate.
+        scored = score_schools(profile, schools_top, weights=survey["weights"])
+    else:
+        msg_slot.markdown(f"<div class='cff-loading-msg'>{LOADING_MESSAGES[2]}</div>", unsafe_allow_html=True)
+        schools = enrich_schools_with_climate(schools)
+        msg_slot.markdown(f"<div class='cff-loading-msg'>{LOADING_MESSAGES[3]}</div>", unsafe_allow_html=True)
+        scored = score_schools(profile, schools, weights=survey["weights"])
+
+    # Fix 2 — make absolutely sure the list is sorted by overall_fit desc
+    # before Agent 3 builds cards. score_schools already sorts, but a
+    # defensive resort here costs nothing and guards against future changes.
+    scored.sort(key=lambda x: x.overall, reverse=True)
 
     msg_slot.markdown(f"<div class='cff-loading-msg'>{LOADING_MESSAGES[4]}</div>", unsafe_allow_html=True)
     cards = build_profile_cards(scored, profile, survey["weights"], top_n=100)
+    # Defensive resort on the card list too — guards Agent 3's iteration order.
+    cards.sort(key=lambda c: c.overall_fit, reverse=True)
 
     time.sleep(0.25)
     st.session_state.results = cards

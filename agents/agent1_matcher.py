@@ -13,6 +13,7 @@ and are passed through untouched for downstream agents.
 from __future__ import annotations
 
 import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -27,6 +28,17 @@ SCORECARD_URL = "https://api.data.gov/ed/collegescorecard/v1/schools"
 MIN_RESULTS_CAP = 150   # even if a caller asks for more, we stop at this
 MAX_PAGES       = 3     # three 100-result pages = 300 raw rows max per query
 REQUEST_TIMEOUT = 30    # seconds per Scorecard call
+
+# All 50 US state codes — used by the parallel "true national" fetch when
+# no state filter is active (so Scorecard's alphabetical-by-name default
+# order doesn't concentrate the pool in the first few states).
+US_STATE_CODES = [
+    "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+    "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+    "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+    "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+    "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
+]
 
 FIELDS = ",".join([
     "id",
@@ -144,23 +156,17 @@ def _relevant_tuition(school: dict[str, Any], profile: StudentProfile) -> int | 
     return school.get("out_of_state_tuition") or school.get("in_state_tuition")
 
 
-def _passes_budget(school: dict[str, Any], profile: StudentProfile) -> bool:
+def _passes_state_scope(school: dict[str, Any], profile: StudentProfile) -> bool:
     """
-    Budget filter. Rules:
-      - International / permanent resident: compare OOS tuition; do not
-        scope by state (no "home" state applies).
-      - Domestic + "in_state only":     restrict pool to home-state schools,
-                                        compare in-state tuition.
-      - Domestic + "out_of_state only": exclude home-state schools,
-                                        compare out-of-state tuition.
-      - Otherwise:                      compare the relevant tuition only.
-    """
-    if profile.budget is None:
-        return True
+    Restrict the pool when the student explicitly opted into "in-state only"
+    or "out-of-state only" tuition preference. This is independent from any
+    budget cap — applies even when budget is None / 0.
 
+    International and permanent-resident students never trigger state scope
+    (they pay OOS rates everywhere; "home state" doesn't apply).
+    """
     if profile.student_status in ("international", "permanent_resident"):
-        tuition = _relevant_tuition(school, profile)
-        return True if tuition is None else tuition <= profile.budget
+        return True
 
     pref = profile.tuition_preference
     home = (profile.home_state or "").upper()
@@ -170,10 +176,21 @@ def _passes_budget(school: dict[str, Any], profile: StudentProfile) -> bool:
         return False
     if pref == "out_of_state" and home and sch_state and home == sch_state:
         return False
+    return True
+
+
+def _passes_budget(school: dict[str, Any], profile: StudentProfile) -> bool:
+    """
+    Budget filter. Returns True when:
+      - No budget cap is set (profile.budget None or <= 0), OR
+      - The relevant tuition is unpublished (don't silently drop schools), OR
+      - The relevant tuition is at or under the student's cap.
+    """
+    if not profile.budget or profile.budget <= 0:
+        return True
 
     tuition = _relevant_tuition(school, profile)
     if tuition is None:
-        # Keep schools whose tuition isn't published rather than silently drop.
         return True
     return tuition <= profile.budget
 
@@ -184,10 +201,20 @@ def _apply_local_filters(
     """Post-filters for columns the Scorecard API doesn't let us filter on."""
     out = schools
 
-    if profile.budget is not None:
+    # State scope ("in-state only" / "out-of-state only") always applies
+    # when the student set that preference, even with no budget cap.
+    out = [s for s in out if _passes_state_scope(s, profile)]
+
+    # Budget filter only when a real positive cap is set.
+    if profile.budget and profile.budget > 0:
         out = [s for s in out if _passes_budget(s, profile)]
 
-    if profile.intended_major:
+    # Major filter only when a real program name is set. Sentinels like
+    # "Undecided" / None / "" should NOT be passed in (handled in app.py)
+    # but guard here as a defense-in-depth.
+    if profile.intended_major and profile.intended_major.strip().lower() not in (
+        "", "undecided"
+    ):
         out = [s for s in out if _matches_major(s, profile.intended_major)]
 
     return out
@@ -306,3 +333,84 @@ def find_matching_schools(
         page += 1
 
     return collected[:limit] if limit else collected
+
+
+# -----------------------------------------------------------------------------
+# Parallel "true national" fetcher
+# -----------------------------------------------------------------------------
+def _fetch_one_page(
+    profile: StudentProfile, per_page: int = 20
+) -> list[dict[str, Any]]:
+    """
+    Single-page fetch + flatten + local filter for one (state-scoped) profile.
+    No pagination. Returns [] on timeout / network error so a single state
+    failure doesn't abort the national fan-out.
+    """
+    params = _build_params(profile)
+    params["per_page"] = per_page
+    params["page"] = 0
+
+    try:
+        resp = requests.get(SCORECARD_URL, params=params, timeout=REQUEST_TIMEOUT)
+        resp.raise_for_status()
+    except (requests.Timeout, requests.RequestException) as e:
+        print(f"[Agent 1 national] {profile.state} fetch failed: {e}", flush=True)
+        return []
+
+    raw = resp.json().get("results", [])
+    return _apply_local_filters([_flatten(r) for r in raw], profile)
+
+
+def find_matching_schools_national(
+    profile: StudentProfile,
+    per_state: int = 20,
+    max_workers: int = 10,
+) -> list[dict[str, Any]]:
+    """
+    Fetch up to `per_state` schools from each US state in parallel, then
+    merge and dedupe by school id.
+
+    Use this only when the caller has *no* state-scope filter to apply —
+    i.e. no region picked, no within-N-miles distance restriction, no
+    in/out-of-state tuition preference. For any of those cases the regular
+    `find_matching_schools` is faster and produces the same result.
+    """
+    results_by_id: dict[Any, dict[str, Any]] = {}
+
+    def _per_state_profile(code: str) -> StudentProfile:
+        # Build a copy of the caller's profile with only the state field
+        # changed. Everything else (budget, major, tuition_preference, etc.)
+        # is preserved so the local filters behave identically.
+        return StudentProfile(
+            gpa=profile.gpa, sat=profile.sat, act=profile.act,
+            intended_major=profile.intended_major, budget=profile.budget,
+            state=code,
+            weather_pref=profile.weather_pref, vibe_prefs=profile.vibe_prefs,
+            home_state=profile.home_state,
+            tuition_preference=profile.tuition_preference,
+            student_status=profile.student_status,
+        )
+
+    print(f"[Agent 1 national] fan-out: 50 states × per_page={per_state}, "
+          f"workers={max_workers}", flush=True)
+
+    with ThreadPoolExecutor(max_workers=max_workers) as ex:
+        futures = {
+            ex.submit(_fetch_one_page, _per_state_profile(code), per_state): code
+            for code in US_STATE_CODES
+        }
+        for fut in as_completed(futures):
+            code = futures[fut]
+            try:
+                state_schools = fut.result()
+            except Exception as e:
+                print(f"[Agent 1 national] {code} worker raised: {e}", flush=True)
+                continue
+            for s in state_schools:
+                sid = s.get("id")
+                if sid is not None and sid not in results_by_id:
+                    results_by_id[sid] = s
+
+    print(f"[Agent 1 national] merged {len(results_by_id)} unique schools "
+          f"across {len(US_STATE_CODES)} states", flush=True)
+    return list(results_by_id.values())
