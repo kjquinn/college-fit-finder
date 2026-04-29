@@ -711,6 +711,8 @@ def _init_session() -> None:
     ss.setdefault("budget_last_value", 0)
     ss.setdefault("results", None)            # list[ProfileCard]
     ss.setdefault("schools_by_id", {})        # id -> raw enriched school dict
+    ss.setdefault("preserved_cards_by_id", {}) # ProfileCards for saves that
+                                                # dropped out of the latest pool
     ss.setdefault("last_error", None)
     # Results-page state
     ss.setdefault("main_tab", "results")      # profile | results | list
@@ -1316,12 +1318,25 @@ def render_running() -> None:
         )
 
     survey = st.session_state.survey
+
+    # Snapshot the prior run's saved-school context BEFORE the pipeline
+    # overwrites session state. Used at the end to keep saves alive across
+    # My-Profile refreshes (a "Start a new search" doesn't carry these
+    # because a new survey wipes saved/compare on the way in).
+    is_profile_refresh = st.session_state.get("_refresh_source") == "profile"
+    prev_saved      = list(st.session_state.get("saved_schools") or [])
+    prev_compare    = list(st.session_state.get("compare_schools") or [])
+    prev_results    = st.session_state.get("results") or []
+    prev_cards_by_id = {c.school_id: c for c in prev_results}
+    prev_schools_by_id = dict(st.session_state.get("schools_by_id") or {})
+
     # Bug 1 debug — log the raw survey state before any transformation.
     print(
         f"[survey state]      sat={survey.get('sat')!r}  "
         f"act={survey.get('act')!r}  "
         f"sat_not_applicable={st.session_state.get('sat_not_applicable')!r}  "
-        f"act_not_applicable={st.session_state.get('act_not_applicable')!r}",
+        f"act_not_applicable={st.session_state.get('act_not_applicable')!r}  "
+        f"profile_refresh={is_profile_refresh}",
         flush=True,
     )
     profile, allowed_states, home_code = _survey_to_profile_and_backend(survey)
@@ -1450,7 +1465,40 @@ def render_running() -> None:
 
     time.sleep(0.25)
     st.session_state.results = cards
-    st.session_state.schools_by_id = {s["id"]: s for s in schools if s.get("id") is not None}
+
+    # Build the new schools_by_id from the freshly-fetched pool.
+    new_schools_by_id = {s["id"]: s for s in schools if s.get("id") is not None}
+    new_card_ids = {c.school_id for c in cards}
+
+    if is_profile_refresh:
+        # Carry forward saved + compare entries. Drop any whose ID is
+        # neither in the new card pool nor recoverable from the previous
+        # run's cards. For preserved (dropped-out) saves, also rescue the
+        # raw school dict so My List size lookups still work.
+        preserved_cards: dict = {}
+        surviving_saved: list = []
+        for sid in prev_saved:
+            if sid in new_card_ids:
+                surviving_saved.append(sid)
+            elif sid in prev_cards_by_id:
+                surviving_saved.append(sid)
+                preserved_cards[sid] = prev_cards_by_id[sid]
+                if sid in prev_schools_by_id and sid not in new_schools_by_id:
+                    new_schools_by_id[sid] = prev_schools_by_id[sid]
+            # else: silently drop (no card data to fall back on).
+
+        surviving_compare = [sid for sid in prev_compare if sid in surviving_saved]
+
+        st.session_state.saved_schools = surviving_saved
+        st.session_state.compare_schools = surviving_compare
+        st.session_state.preserved_cards_by_id = preserved_cards
+    else:
+        # New survey from scratch — wipe saved/compare so the user starts clean.
+        st.session_state.saved_schools = []
+        st.session_state.compare_schools = []
+        st.session_state.preserved_cards_by_id = {}
+
+    st.session_state.schools_by_id = new_schools_by_id
     st.session_state.phase = "results"
     st.session_state.main_tab = "results"
     st.session_state.display_limit = 50  # reset on every new search
@@ -2217,6 +2265,11 @@ def _render_compare_table(cards: list[ProfileCard]) -> None:
 def _render_my_list_tab() -> None:
     all_cards: list[ProfileCard] = st.session_state.results or []
     cards_by_id = {c.school_id: c for c in all_cards}
+    # Schools saved across a profile refresh that fell out of the new top
+    # 100 still need to render here — fall back to their preserved cards.
+    preserved = st.session_state.get("preserved_cards_by_id") or {}
+    for sid, card in preserved.items():
+        cards_by_id.setdefault(sid, card)
     saved_ids = st.session_state.saved_schools
     saved_cards = [cards_by_id[sid] for sid in saved_ids if sid in cards_by_id]
 
@@ -2588,10 +2641,9 @@ def _render_profile_tab() -> None:
             help="No changes to apply" if not has_changes else None,
             key="profile_refresh_btn",
         ):
-            # New results may have a different pool — saved / compare lists
-            # pointing at the old pool aren't meaningful any more.
-            st.session_state.saved_schools = []
-            st.session_state.compare_schools = []
+            # Don't clear saved / compare here — render_running's profile-
+            # refresh branch will intersect them with the new results and
+            # preserve any saves whose card data we can still serve.
             st.session_state._refresh_source = "profile"
             st.session_state.phase = "running"
             st.rerun()
