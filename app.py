@@ -1328,6 +1328,9 @@ def render_running() -> None:
     prev_compare    = list(st.session_state.get("compare_schools") or [])
     prev_results    = st.session_state.get("results") or []
     prev_cards_by_id = {c.school_id: c for c in prev_results}
+    # Carry forward already-preserved cards so a save survives multiple
+    # consecutive profile refreshes (not just one).
+    prev_cards_by_id.update(st.session_state.get("preserved_cards_by_id") or {})
     prev_schools_by_id = dict(st.session_state.get("schools_by_id") or {})
 
     # Bug 1 debug — log the raw survey state before any transformation.
