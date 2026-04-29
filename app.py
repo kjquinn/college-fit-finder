@@ -141,15 +141,6 @@ MAJOR_OPTIONS = [
 ]
 
 CLASSIFICATION_FILTERS = ["All", "Reach", "Match", "Safety"]
-STACK_FILTERS = [
-    ("under_30k",   "Under $30k"),
-    ("warm",        "Warm climate"),
-    ("cold",        "Cold climate"),
-    ("small",       "Small school"),
-    ("large",       "Large school"),
-]
-STACK_FILTER_LABELS = [label for _, label in STACK_FILTERS]
-STACK_FILTER_LABEL_TO_KEY = {label: key for key, label in STACK_FILTERS}
 
 LOADING_MESSAGES = [
     "Searching thousands of colleges...",
@@ -725,7 +716,8 @@ def _init_session() -> None:
     ss.setdefault("main_tab", "results")      # profile | results | list
     ss.setdefault("sub_view", "List view")    # List view | Map view
     ss.setdefault("filter_class", "All")
-    ss.setdefault("filter_flags", [])         # list of stack-filter labels currently active
+    # (filter_flags / my_list_filter_flags state was used by stackable
+    #  pill filters; both pill rows have been removed and the keys are gone.)
     ss.setdefault("saved_schools", [])        # list of school ids
     ss.setdefault("compare_schools", [])      # list of school ids in the Compare table
     ss.setdefault("selected_school_id", None) # set when viewing a profile page
@@ -733,7 +725,6 @@ def _init_session() -> None:
     ss.setdefault("map_selected_id", None)    # school id currently highlighted on the map
     # Filter state for My List tab (independent from the Results page's filters)
     ss.setdefault("my_list_filter_class", "All")
-    ss.setdefault("my_list_filter_flags", [])
     ss.setdefault("pending_unsave_id", None)  # inline two-click unsave confirmation
     # Snapshot of the survey that produced the current results — used by
     # My Profile's change-detection to enable/disable Refresh Results.
@@ -1020,10 +1011,13 @@ def render_step_1() -> None:
                 st.rerun()
 
         if not sat_na:
+            # Pre-fill from the survey dict so a value entered here (or in
+            # the My Profile tab) survives navigation between contexts.
+            sat_default = int(s["sat"]) if s.get("sat") is not None else 400
             sat_in = st.number_input(
                 "SAT score",
                 min_value=400, max_value=1600, step=10,
-                value=400, label_visibility="collapsed",
+                value=sat_default, label_visibility="collapsed",
                 key="sat_score_input",
             )
             s["sat"] = int(sat_in) if sat_in > 400 else None
@@ -1047,11 +1041,12 @@ def render_step_1() -> None:
                 st.rerun()
 
         if not act_na:
-            # ACT scale is 1–36 so step=10 is incompatible; using step=1.
+            # Same pre-fill pattern as SAT.
+            act_default = int(s["act"]) if s.get("act") is not None else 1
             act_in = st.number_input(
                 "ACT score",
                 min_value=1, max_value=36, step=1,
-                value=1, label_visibility="collapsed",
+                value=act_default, label_visibility="collapsed",
                 key="act_score_input",
             )
             # 1 (the minimum) is treated as "no score entered" — real ACT=1
@@ -1321,6 +1316,14 @@ def render_running() -> None:
         )
 
     survey = st.session_state.survey
+    # Bug 1 debug — log the raw survey state before any transformation.
+    print(
+        f"[survey state]      sat={survey.get('sat')!r}  "
+        f"act={survey.get('act')!r}  "
+        f"sat_not_applicable={st.session_state.get('sat_not_applicable')!r}  "
+        f"act_not_applicable={st.session_state.get('act_not_applicable')!r}",
+        flush=True,
+    )
     profile, allowed_states, home_code = _survey_to_profile_and_backend(survey)
 
     # Build the matcher's state filter from the user's choices. Priority:
@@ -1345,14 +1348,30 @@ def render_running() -> None:
         student_status=profile.student_status,
     )
 
-    # Fix 1 — true national diversity: when no state-scope filter is active
-    # (no region, no within-N-miles distance, no in/out-of-state preference)
-    # do a parallel 50-state fan-out instead of one alphabetically-ordered
-    # Scorecard call. International and permanent-resident students fall in
-    # here too — they have no tuition_preference set, so the condition holds.
+    # National 50-state fan-out unless the user explicitly opted into
+    # in-state-only (which restricts the pool to their home state).
+    # Out-of-state and no-preference both still get full national coverage —
+    # tuition_preference only affects which tuition figure is displayed and
+    # how the budget cap is applied, never the geographic search scope.
+    # NB: assigned BEFORE the debug print below so the log line can read it.
     is_national_search = (
         matcher_state is None
-        and matcher_profile.tuition_preference not in ("in_state", "out_of_state")
+        and matcher_profile.tuition_preference != "in_state"
+    )
+
+    # Bug 1 debug — confirm the SAT/ACT carry-through end-to-end. Logged on
+    # every search so you can grep the Streamlit console for `[scoring profile]`.
+    print(
+        f"[scoring profile]   sat={profile.sat!r}  act={profile.act!r}  "
+        f"gpa={profile.gpa!r}  major={profile.intended_major!r}",
+        flush=True,
+    )
+    print(
+        f"[matcher profile]   sat={matcher_profile.sat!r}  "
+        f"act={matcher_profile.act!r}  state={matcher_profile.state!r}  "
+        f"tuition_pref={matcher_profile.tuition_preference!r}  "
+        f"national_search={is_national_search}",
+        flush=True,
     )
 
     try:
@@ -1457,42 +1476,16 @@ def _apply_filters(
     cards: Iterable[ProfileCard],
     *,
     filter_class: str | None = None,
-    filter_flags: list[str] | None = None,
+    # Kept for callsite compatibility (My List used to pass `filter_flags=[]`)
+    # but stackable filters were removed from both the Results toolbar and
+    # the My List filter bar. This argument is now ignored.
+    filter_flags: Any = None,
 ) -> list[ProfileCard]:
-    """
-    Filter cards by classification + stackable pill filters.
-
-    By default reads the Results page's session state; pass `filter_class`
-    and `filter_flags` explicitly to use a different set of pills (e.g. the
-    My List tab has its own separate filter state).
-    """
+    """Filter cards by classification only (Results + My List both)."""
     cls = filter_class if filter_class is not None else st.session_state.filter_class
-    flags_src = filter_flags if filter_flags is not None else st.session_state.filter_flags
-    flag_keys = {STACK_FILTER_LABEL_TO_KEY[f] for f in flags_src
-                 if f in STACK_FILTER_LABEL_TO_KEY}
-
-    out: list[ProfileCard] = []
-    for c in cards:
-        if cls != "All" and c.classification != cls:
-            continue
-        if "under_30k" in flag_keys:
-            coa = c.cost_of_attendance
-            if not (coa is not None and coa < 30_000):
-                continue
-        if "warm" in flag_keys and c.climate != "warm":
-            continue
-        if "cold" in flag_keys and c.climate != "cold":
-            continue
-        if "small" in flag_keys:
-            size = _school_size(c)
-            if not (size is not None and size < 5_000):
-                continue
-        if "large" in flag_keys:
-            size = _school_size(c)
-            if not (size is not None and size > 15_000):
-                continue
-        out.append(c)
-    return out
+    if cls == "All":
+        return list(cards)
+    return [c for c in cards if c.classification == cls]
 
 
 # -----------------------------------------------------------------------------
@@ -1585,22 +1578,13 @@ def _render_toolbar(all_cards: list[ProfileCard], filtered: list[ProfileCard]) -
                     "try adjusting your filters."
                 )
 
-    # Row 2: classification pills + stackable filter pills
-    c1, c2 = st.columns([1, 2])
-    with c1:
-        cls = st.pills(
-            "class_filter", CLASSIFICATION_FILTERS, selection_mode="single",
-            default=st.session_state.filter_class,
-            label_visibility="collapsed", key="filter_class_pills",
-        )
-        st.session_state.filter_class = cls or "All"
-    with c2:
-        flags = st.pills(
-            "stack_filters", STACK_FILTER_LABELS, selection_mode="multi",
-            default=st.session_state.filter_flags,
-            label_visibility="collapsed", key="filter_flags_pills",
-        )
-        st.session_state.filter_flags = list(flags or [])
+    # Row 2: classification pills only (stackable filters removed per spec).
+    cls = st.pills(
+        "class_filter", CLASSIFICATION_FILTERS, selection_mode="single",
+        default=st.session_state.filter_class,
+        label_visibility="collapsed", key="filter_class_pills",
+    )
+    st.session_state.filter_class = cls or "All"
 
 
 def _initial_color(letter: str) -> str:
@@ -2247,7 +2231,6 @@ def _render_my_list_tab() -> None:
     filtered_saved = _apply_filters(
         saved_cards,
         filter_class=st.session_state.my_list_filter_class,
-        filter_flags=[],  # stackable filters intentionally disabled on this tab
     )
 
     # ── Saved Schools section.
@@ -2359,15 +2342,24 @@ def _render_profile_tab() -> None:
                     use_container_width=True,
                 ):
                     st.session_state.sat_not_applicable = not sat_na
+                    # Pop both the survey-side and profile-side widget keys
+                    # so the input genuinely resets on toggle, regardless of
+                    # which tab the user toggled from.
                     st.session_state.pop("sat_score_input", None)
+                    st.session_state.pop("prof_sat_input", None)
                     st.rerun()
 
             if not sat_na:
+                # Pre-fill the widget from `survey["sat"]` so anything entered
+                # in the survey carries over here (and vice versa). Distinct
+                # widget key from the survey so Streamlit can't apply stale
+                # widget state from the other tab and override the survey value.
+                sat_default = int(s["sat"]) if s.get("sat") is not None else 400
                 sat_in = st.number_input(
                     "SAT score",
                     min_value=400, max_value=1600, step=10,
-                    value=400, label_visibility="collapsed",
-                    key="sat_score_input",
+                    value=sat_default, label_visibility="collapsed",
+                    key="prof_sat_input",
                 )
                 s["sat"] = int(sat_in) if sat_in > 400 else None
             else:
@@ -2387,14 +2379,16 @@ def _render_profile_tab() -> None:
                 ):
                     st.session_state.act_not_applicable = not act_na
                     st.session_state.pop("act_score_input", None)
+                    st.session_state.pop("prof_act_input", None)
                     st.rerun()
 
             if not act_na:
+                act_default = int(s["act"]) if s.get("act") is not None else 1
                 act_in = st.number_input(
                     "ACT score",
                     min_value=1, max_value=36, step=1,
-                    value=1, label_visibility="collapsed",
-                    key="act_score_input",
+                    value=act_default, label_visibility="collapsed",
+                    key="prof_act_input",
                 )
                 s["act"] = int(act_in) if act_in > 1 else None
             else:
