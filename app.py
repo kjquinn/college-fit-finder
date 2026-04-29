@@ -1539,6 +1539,82 @@ def _apply_filters(
     return [c for c in cards if c.classification == cls]
 
 
+def _fetch_school_on_demand(name: str) -> ProfileCard | None:
+    """
+    Look up a single school by name from Scorecard and run it through the
+    enrich → score → build_card pipeline using the user's current survey.
+
+    Used by the search bar when the requested school isn't in the current
+    top-100 pool. The resulting card is stashed in `preserved_cards_by_id`
+    (so render_school_profile's fallback finds it and the Results grid
+    isn't polluted) and the raw enriched school dict is added to
+    `schools_by_id` so size lookups continue to work.
+
+    Returns the ProfileCard or None if no school matches the name.
+    """
+    name = (name or "").strip()
+    if not name:
+        return None
+
+    survey = st.session_state.survey
+    profile, _, _ = _survey_to_profile_and_backend(survey)
+    weights = survey["weights"]
+
+    # Relaxed matcher profile — drop state, budget, and major so the
+    # requested school is never filtered out before it surfaces. The
+    # *scoring* profile keeps everything intact so the fit score reflects
+    # the user's actual preferences.
+    matcher_profile = StudentProfile(
+        gpa=profile.gpa, sat=profile.sat, act=profile.act,
+        intended_major=None, budget=None,
+        state=None,
+        weather_pref=profile.weather_pref, vibe_prefs=profile.vibe_prefs,
+        home_state=profile.home_state,
+        tuition_preference=None,
+        student_status=profile.student_status,
+    )
+
+    try:
+        results = find_matching_schools(
+            matcher_profile, name=name,
+            min_results=10, max_fetched=30, per_page=20,
+        )
+    except ScorecardError as e:
+        print(f"[on-demand] Scorecard error: {e}", flush=True)
+        return None
+
+    if not results:
+        return None
+
+    # Prefer an exact case-insensitive name match, otherwise the first hit
+    # (Scorecard returns alphabetically by default).
+    needle = name.lower()
+    school = next(
+        (s for s in results if (s.get("name") or "").lower() == needle),
+        results[0],
+    )
+
+    enrich_schools_with_vibes([school])
+    enrich_schools_with_climate([school])
+
+    scored = score_schools(profile, [school], weights=weights)
+    cards = build_profile_cards(scored, profile, weights, top_n=1)
+    if not cards:
+        return None
+
+    card = cards[0]
+    sid = card.school_id
+    if sid is None:
+        return None
+
+    preserved = dict(st.session_state.get("preserved_cards_by_id") or {})
+    preserved[sid] = card
+    st.session_state.preserved_cards_by_id = preserved
+    st.session_state.schools_by_id[sid] = school
+
+    return card
+
+
 # -----------------------------------------------------------------------------
 # Results phase — main nav, toolbar, list view, map view, profile page
 # -----------------------------------------------------------------------------
@@ -1623,11 +1699,43 @@ def _render_toolbar(all_cards: list[ProfileCard], filtered: list[ProfileCard]) -
                         if "school_search_text" in st.session_state:
                             del st.session_state["school_search_text"]
                         st.rerun()
-            else:
-                st.info(
-                    "This school is not in your current results — "
-                    "try adjusting your filters."
+                st.markdown(
+                    "<div class='cff-search-suggest-label' "
+                    "style='margin-top: 0.6rem;'>"
+                    "Looking for a school not in your top-100?"
+                    "</div>",
+                    unsafe_allow_html=True,
                 )
+            else:
+                st.markdown(
+                    "<div class='cff-search-suggest-label'>"
+                    f'"{query}" isn\'t in your top-100 results — '
+                    "fetch it from the College Scorecard:"
+                    "</div>",
+                    unsafe_allow_html=True,
+                )
+
+            # On-demand Scorecard lookup. Always offered when the user has
+            # typed 3+ chars so they can pull any school by name regardless
+            # of what's in the current pool.
+            if st.button(
+                f'Fetch "{query}" from the College Scorecard',
+                key="search_ondemand_btn",
+                use_container_width=True,
+            ):
+                with st.spinner("Fetching school profile..."):
+                    fetched = _fetch_school_on_demand(query)
+                if fetched is not None:
+                    st.session_state.selected_school_id = fetched.school_id
+                    st.session_state.phase = "school_profile"
+                    if "school_search_text" in st.session_state:
+                        del st.session_state["school_search_text"]
+                    st.rerun()
+                else:
+                    st.error(
+                        f'Couldn\'t find a school matching "{query}" in the '
+                        f'College Scorecard. Try a different spelling.'
+                    )
 
     # Row 2: classification pills only (stackable filters removed per spec).
     cls = st.pills(
@@ -2690,10 +2798,16 @@ def _stat_cell(label: str, value: str) -> str:
 
 def render_school_profile() -> None:
     card: ProfileCard | None = None
+    sid = st.session_state.selected_school_id
     for c in (st.session_state.results or []):
-        if c.school_id == st.session_state.selected_school_id:
+        if c.school_id == sid:
             card = c
             break
+    # Fall back to preserved cards — covers saves dropped from a profile
+    # refresh AND on-demand Scorecard lookups for schools outside the top-100.
+    if card is None:
+        preserved = st.session_state.get("preserved_cards_by_id") or {}
+        card = preserved.get(sid)
 
     # Fix 1 — add explicit top padding so the Back button is never clipped
     # by the browser chrome / Streamlit header area.

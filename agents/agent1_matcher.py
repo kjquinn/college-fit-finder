@@ -323,6 +323,7 @@ def find_matching_schools(
     max_fetched: int = 500,
     per_page: int = 100,
     limit: int | None = None,
+    name: str | None = None,
 ) -> list[dict[str, Any]]:
     """
     Query Scorecard with pagination and return the candidate pool.
@@ -333,6 +334,8 @@ def find_matching_schools(
       - the server has no more results to return
 
     `limit` optionally caps the returned list.
+    `name` optionally filters Scorecard's `school.name` field — used by the
+    on-demand search-bar lookup to fetch a specific school by name.
     """
     # Global cap so callers can't make the pipeline hang by asking for a huge
     # pool — 150 has always been plenty for Agent 2 to rank from.
@@ -340,6 +343,8 @@ def find_matching_schools(
 
     params = _build_params(profile)
     params["per_page"] = per_page   # defaults to 100 (the Scorecard max)
+    if name:
+        params["school.name"] = name
 
     collected: list[dict[str, Any]] = []
     fetched = 0
