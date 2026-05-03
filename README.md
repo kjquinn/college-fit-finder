@@ -1,117 +1,145 @@
-# College Fit Finder
+# 🎓 College Fit Finder
 
-A multi-agent Streamlit app that helps high school students discover colleges
-that match their academic profile, budget, location, weather, and campus-vibe
-preferences. Pulls real data from the U.S. Department of Education's College
-Scorecard and Open-Meteo, blends it with a curated vibe dataset, and produces
-ranked, explainable profile cards with Reach/Match/Safety classifications.
+A multi-agent AI platform that helps high school students find colleges that genuinely fit them. Enter your academic profile, preferences, and priorities — our intelligent agent pipeline analyzes 800+ schools nationally and delivers a personalized ranked dashboard in under 30 seconds.
 
-## How it works
+---
 
-A three-agent pipeline with two enrichment passes in between.
+## 🌐 Live Demo
 
-```
-  StudentProfile (GPA, test score, major, budget, state, weather, vibes, weights)
-        |
-        v
-  [Agent 1: Matcher]  ---> Scorecard API (paginated, up to 500 results)
-        |                  filters by state + major + budget
-        v
-  [Vibe Enrichment]   ---> data/school_vibes.json  (unit_id match)
-        |
-        v
-  [Weather Enrichment] --> Open-Meteo Archive API (cached to .cache/weather.json)
-        |
-        v
-  [Agent 2: Fit Scorer] -> scores 5 categories, user-weighted overall,
-        |                  classifies Reach / Match / Safety
-        v
-  [Agent 3: Profiler]  -> top-15 rich cards with descriptions,
-        |                  stats grid, strengths & weaknesses
-        v
-  Streamlit dashboard
-```
+[Launch College Fit Finder](https://college-fit-finder.streamlit.app)
 
-**Categories Agent 2 scores (0-100 each, then weighted):**
-- Academic Fit — SAT/GPA vs. school selectivity
-- Affordability — cost of attendance vs. user budget
-- Location — same state > same region > elsewhere
-- Weather — measured climate vs. user preference
-- Vibe — multi-dimensional match using the vibe dataset
+---
 
-## Setup
+## ✨ Features
+
+- **Personalized fit scores** — 5-category weighted scoring based on your academic profile, budget, location, climate, and campus vibe
+- **National school pool** — 800+ schools fetched via 50-state parallel API queries
+- **Reach / Match / Safety classification** — based on real admissions data compared to your GPA and SAT/ACT
+- **Interactive map** — color-coded pins for all matched schools, clickable for details
+- **Full school profiles** — detailed breakdown with strengths, weaknesses, and real data from 3 APIs
+- **My List** — save schools and compare them side by side
+- **Elite school injection** — Harvard, MIT, Stanford, and 50 other top schools always included
+- **GPA scale support** — both 4.0 and 5.0 scales with weighted GPA support
+
+---
+
+## 🤖 Agent Pipeline
+
+| Agent | Role | Output |
+|-------|------|--------|
+| **Agent 1 — School Matcher** | Queries College Scorecard API across all 50 states in parallel, filters by region/state/budget/major | Pool of 800+ matching schools |
+| **Agent 2 — Fit Scorer** | Scores every school across 5 weighted categories, classifies Reach/Match/Safety | Top 100 schools sorted by fit score |
+| **Agent 3 — Card Builder** | Builds rich profile cards with personalized strengths, weaknesses, and formatted data | ProfileCard objects ready for display |
+
+**Enrichment Pipelines** (run between Agent 1 and Agent 2):
+- **Weather** — real measured climate data via Open-Meteo API
+- **Vibe** — campus culture scores from a curated 400-school dataset
+- **IPEDS** — student-faculty ratio and financial aid data from Urban Institute API
+
+---
+
+## 🗂️ Project Structure
+college-fit-finder/
+├── app.py                  # Main Streamlit app and orchestrator
+├── agents/
+│   ├── agent1_matcher.py   # Agent 1 — School Matcher
+│   ├── agent2_scorer.py    # Agent 2 — Fit Scorer
+│   ├── agent3_profiler.py  # Agent 3 — Profile Card Builder
+│   ├── weather.py          # Weather enrichment pipeline
+│   ├── vibe.py             # Campus vibe enrichment pipeline
+│   └── ipeds.py            # IPEDS financial/faculty enrichment
+├── data/
+│   └── school_vibes.json   # Curated 400-school vibe dataset
+├── .cache/                 # Auto-generated API response cache
+├── requirements.txt        # Python dependencies
+└── .env                    # API keys (not committed — see setup)
+
+---
+
+## 🚀 Running Locally
+
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/kjquinn/college-fit-finder.git
 cd college-fit-finder
-python -m venv .venv
-source .venv/Scripts/activate          # Windows Git Bash
-# or: .venv\Scripts\activate           # PowerShell
+```
+
+### 2. Install dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
-Create a `.env` file in the project root:
+### 3. Get your College Scorecard API key
 
-```
+Go to [collegescorecard.ed.gov/data](https://collegescorecard.ed.gov/data) and click **Get API Key**. It is free and arrives instantly by email.
+
+The other APIs (Open-Meteo and IPEDS) require no key.
+
+### 4. Create your .env file
+
+Create a file called `.env` in the project root:
 COLLEGE_SCORECARD_API_KEY=your_key_here
-```
 
-Get a free Scorecard key at https://api.data.gov/signup/.
-Open-Meteo requires no key.
-
-## Running
+### 5. Run the app
 
 ```bash
 streamlit run app.py
 ```
 
-Opens at http://localhost:8501.
+Open [http://localhost:8501](http://localhost:8501) in your browser.
 
-## Project structure
+---
 
+## ☁️ Deploying to Streamlit Community Cloud
+
+1. Push your code to GitHub (ensure `.env` is in `.gitignore`)
+2. Go to [share.streamlit.io](https://share.streamlit.io) and sign in with GitHub
+3. Click **New app** and select this repository
+4. Set the main file path to `app.py`
+5. Under **Advanced settings → Secrets**, add:
+```toml
+COLLEGE_SCORECARD_API_KEY = "your_key_here"
 ```
-college-fit-finder/
-├── app.py                       Streamlit UI
-├── agents/
-│   ├── agent1_matcher.py        Scorecard query + pagination
-│   ├── agent2_scorer.py         5-category scoring + classification
-│   ├── agent3_profiler.py       ProfileCard dataclass + builder
-│   ├── vibe.py                  Vibe dataset loader + scoring
-│   └── weather.py               Open-Meteo enrichment + disk cache
-├── data/
-│   └── school_vibes.json        ~400 schools' vibe profiles
-├── scripts/
-│   └── generate_vibes.py        Regenerates the vibe dataset
-├── test_agent1.py .. test_vibes.py   Live smoke tests
-└── requirements.txt
-```
+6. Click **Deploy**
 
-## Data sources
+---
 
-| Source | What it provides | Why it was chosen |
-|--------|------------------|-------------------|
-| [College Scorecard](https://collegescorecard.ed.gov/data/documentation/) | School names, IDs, location, admission rate, SAT/ACT percentiles, costs, programs | Authoritative federal dataset, free, well-documented |
-| [Open-Meteo Archive](https://open-meteo.com/en/docs/historical-weather-api) | ERA5 historical daily weather | Free, no API key, global coverage |
-| `data/school_vibes.json` | Party scene, academic intensity, Greek life, politics, athletics, diversity, tags | Built in-repo; 62 schools hand-curated from reputation priors, 338 heuristically scored |
+## 🛠️ Tech Stack
 
-## Known limitations
+| Technology | Purpose |
+|------------|---------|
+| Python 3.10+ | Core language |
+| Streamlit | Web app framework and UI |
+| Folium + streamlit-folium | Interactive map |
+| College Scorecard API | Academic and financial school data |
+| Open-Meteo API | Real measured climate data |
+| IPEDS Urban Institute API | Student-faculty ratio and aid data |
+| ThreadPoolExecutor | Parallel API queries for speed |
+| Claude Code | AI-assisted development |
 
-Things worth knowing, in the spirit of not overselling:
+---
 
-- **GPA ranges are estimated.** Scorecard doesn't publish admitted-student GPA averages. Profile cards show an admission-rate-derived estimate with a visible note explaining the inference.
-- **Vibe data is only best-effort.** 338 of the 400 vibe entries come from heuristics (size, ownership, state, admission rate) — those are directionally reasonable but not Princeton-Review accurate. Expand the `CURATED` dict in `scripts/generate_vibes.py` and rerun the generator to improve them.
-- **Schools outside the top-400 vibe set** fall back to neutral scores on vibe preferences that need the dataset (Sporty, Greek, Artsy, etc.).
-- **Climate is from 2023 alone.** Aggregating multiple years would be more robust but slower. Extreme weather years could skew results.
-- **Major matching is substring-based.** "Fine Arts" won't match "Visual and Performing Arts" in Scorecard's CIP titles — phrasing matters.
+## 📊 Data Sources
 
-## Tech stack
+- **[College Scorecard](https://collegescorecard.ed.gov)** — US Department of Education — tuition, acceptance rates, SAT ranges, enrollment, graduation rates
+- **[Open-Meteo](https://open-meteo.com)** — Free weather API — real measured temperatures and precipitation by coordinates
+- **[IPEDS via Urban Institute](https://educationdata.urban.org)** — Student-faculty ratio, average institutional aid, percentage receiving aid
+- **Curated Vibe Dataset** — 400-school dataset with party scene, Greek life, athletics, academic intensity, and diversity scores
 
-- **Python 3.13** + Streamlit
-- **`requests`** for API calls (with `ThreadPoolExecutor` for concurrent weather pulls)
-- **`python-dotenv`** for local secrets
-- Dataclasses everywhere for typed structured data between agents
-- On-disk JSON cache for weather, keyed by rounded coordinates
+---
 
-## License
+## 👥 Team
 
-No license declared yet — treat as all-rights-reserved until one is added.
+| Name | University | Class |
+|------|-----------|-------|
+| Jonathan Ledesma | University of Arizona | BNAN 420 — Section 001 |
+| Kieran Quinn | University of Arizona | BNAN 420 — Section 001 |
+| Tolu Adeoti | University of Arizona | BNAN 420 — Section 001 |
+
+---
+
+## 📄 License
+
+Built for BNAN 420 Unit 3 Project B — University of Arizona, 2026.
