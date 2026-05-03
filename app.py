@@ -665,6 +665,80 @@ footer {{ visibility: hidden; }}
   letter-spacing: 0.12em; text-transform: uppercase;
   background: var(--cream); border-radius: 6px;
 }}
+
+/* ── Welcome / landing page ──────────────────────────────────────────── */
+.st-key-cff_welcome_nav {{
+  background: var(--ink) !important;
+  padding: 0.85rem 1.1rem !important;
+  border-radius: 12px !important;
+  margin-bottom: 2.5rem !important;
+  border: 0 !important;
+}}
+.cff-welcome-hero {{
+  text-align: center;
+  max-width: 720px;
+  margin: 1.5rem auto 1rem;
+  padding: 0 1rem;
+}}
+.cff-welcome-headline {{
+  font-family: 'Fraunces', Georgia, 'Times New Roman', serif !important;
+  font-weight: 800;
+  font-size: 3rem;
+  color: var(--ink);
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+  margin: 0.5rem 0 1.25rem;
+}}
+.cff-welcome-headline em {{
+  font-style: italic; font-weight: 600; color: var(--sage-deep);
+}}
+.cff-welcome-lede {{
+  font-family: 'Inter', sans-serif !important;
+  font-size: 1.1rem;
+  color: var(--text-soft);
+  line-height: 1.6;
+  margin: 0 auto 2.5rem;
+  max-width: 580px;
+}}
+.cff-welcome-features-label {{
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  text-align: center;
+  margin: 0 0 1rem;
+}}
+.cff-welcome-features {{
+  text-align: left;
+  display: flex; flex-direction: column;
+  gap: 0.85rem;
+  max-width: 540px;
+  margin: 0 auto 2.5rem;
+}}
+.cff-welcome-feature {{
+  display: flex; align-items: flex-start; gap: 0.85rem;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 1rem;
+  color: var(--text);
+  line-height: 1.5;
+}}
+.cff-welcome-feature::before {{
+  content: '';
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--sage);
+  margin-top: 0.55rem;
+  flex-shrink: 0;
+}}
+.st-key-cff_welcome_cta div[data-testid="stButton"] button {{
+  font-size: 1.05rem !important;
+  padding: 0.85rem 1.5rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em !important;
+}}
 </style>
 """
 
@@ -697,7 +771,7 @@ def _default_survey() -> dict[str, Any]:
 
 def _init_session() -> None:
     ss = st.session_state
-    ss.setdefault("phase", "survey")          # survey | running | results | school_profile
+    ss.setdefault("phase", "welcome")         # welcome | survey | running | results | school_profile
     ss.setdefault("step", 1)
     ss.setdefault("max_step_reached", 1)      # highest step the user has visited
     ss.setdefault("survey", _default_survey())
@@ -1275,6 +1349,46 @@ def render_step_4() -> None:
             st.session_state.phase = "running"
             st.session_state.last_error = None
             st.rerun()
+
+
+def render_welcome() -> None:
+    """Landing page shown before the survey on first load."""
+    # Top dark nav bar — same ink-block styling as the main results nav.
+    with st.container(key="cff_welcome_nav"):
+        st.markdown(_logo_html("dark"), unsafe_allow_html=True)
+
+    st.markdown(
+        """<div class='cff-welcome-hero'>
+  <h1 class='cff-welcome-headline'>Find the college that <em>actually</em> fits you</h1>
+  <p class='cff-welcome-lede'>
+    College Fit Finder ranks U.S. four-year colleges across academic fit,
+    affordability, location, weather, and campus vibe — using your real
+    profile, not a generic ranking. Tell us about you, and we'll surface
+    the schools that match.
+  </p>
+  <div class='cff-welcome-features-label'>What you get</div>
+  <div class='cff-welcome-features'>
+    <div class='cff-welcome-feature'>Personalized fit scores based on your academic profile</div>
+    <div class='cff-welcome-feature'>Schools ranked from a national pool of 800+ colleges</div>
+    <div class='cff-welcome-feature'>Interactive map with color-coded reach, match, and safety schools</div>
+    <div class='cff-welcome-feature'>Side-by-side school comparison tool</div>
+    <div class='cff-welcome-feature'>Real data from College Scorecard, IPEDS, and weather APIs</div>
+  </div>
+</div>""",
+        unsafe_allow_html=True,
+    )
+
+    _, mid, _ = st.columns([1, 1.2, 1])
+    with mid:
+        with st.container(key="cff_welcome_cta"):
+            if st.button(
+                "Get Started",
+                type="primary",
+                use_container_width=True,
+                key="welcome_get_started_btn",
+            ):
+                st.session_state.phase = "survey"
+                st.rerun()
 
 
 def render_survey() -> None:
@@ -2964,7 +3078,9 @@ def render_school_profile() -> None:
 # Phase routing
 # -----------------------------------------------------------------------------
 phase = st.session_state.phase
-if phase == "survey":
+if phase == "welcome":
+    render_welcome()
+elif phase == "survey":
     render_survey()
 elif phase == "running":
     render_running()
