@@ -145,6 +145,10 @@ class StudentProfile:
                                         # home state (distinct from `state`);
                                         # used to pick in- vs out-of-state
                                         # tuition for the budget filter.
+    filter_state: str | None = None     # 2-letter code of a single specific
+                                        # state the user wants to restrict
+                                        # the search to (overrides the
+                                        # region-derived `state` list when set).
     tuition_preference: str | None = None  # "in_state" | "out_of_state" | None
     student_status: str | None = None   # "domestic" | "international" | "permanent_resident"
 
@@ -177,7 +181,12 @@ def _build_params(profile: StudentProfile) -> dict[str, Any]:
         "school.degrees_awarded.predominant__range": "3..4",  # bachelor's+
     }
 
-    if profile.state:
+    # filter_state (a single specific state the user explicitly chose) takes
+    # precedence over the region-derived state list — even if both happen to
+    # be set on the profile.
+    if profile.filter_state and profile.filter_state.upper() != "NO PREFERENCE":
+        params["school.state"] = profile.filter_state.upper()
+    elif profile.state:
         params["school.state"] = profile.state.upper()
 
     return params

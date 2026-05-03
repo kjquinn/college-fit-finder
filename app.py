@@ -761,6 +761,8 @@ def _default_survey() -> dict[str, Any]:
         "home_state_name": "", "max_distance": 0,           # 0 miles = "No preference"
         "tuition_preference": "no_preference",
         "climates": [], "regions": ["No preference"],
+        "location_filter_type": "region",   # "region" | "state"
+        "filter_state": "No preference",    # full state name or "No preference"
         "budget": 0,                                         # 0 = "No preference"
         "campus_size": "No preference", "vibes": [],
         "weights": {
@@ -967,6 +969,16 @@ def _survey_to_profile_and_backend(survey: dict[str, Any]) -> tuple[StudentProfi
     if gpa_scale not in (4.0, 5.0):
         gpa_scale = 4.0
 
+    # Resolve the survey's "By State" dropdown selection to a 2-letter code,
+    # but only when the user is actually in By State mode AND picked a real
+    # state (not "No preference"). In every other case filter_state stays
+    # None so the agent layer falls back to the region-derived state list.
+    filter_state_code: str | None = None
+    if (survey.get("location_filter_type") or "region") == "state":
+        chosen_state_name = (survey.get("filter_state") or "").strip()
+        if chosen_state_name and chosen_state_name != "No preference":
+            filter_state_code = STATE_NAME_TO_CODE.get(chosen_state_name)
+
     profile = StudentProfile(
         gpa=gpa,
         gpa_scale=gpa_scale,
@@ -982,6 +994,7 @@ def _survey_to_profile_and_backend(survey: dict[str, Any]) -> tuple[StudentProfi
         weather_pref=weather_pref,
         vibe_prefs=vibes,
         home_state=home_code,
+        filter_state=filter_state_code,
         tuition_preference=tuition_pref,
         student_status=student_status,
     )
@@ -1259,16 +1272,38 @@ def render_step_2() -> None:
             loc_choice or "No preference", "no_preference"
         )
 
-    # ── Climate + region chips (shown for everyone) ─────────────────────
+    # ── Climate + location filter (shown for everyone) ──────────────────
     st.markdown("**Preferred climate**")
     climates = st.pills("climate", CLIMATE_OPTIONS, selection_mode="multi",
                         default=s["climates"], label_visibility="collapsed", key="pills_climate")
     s["climates"] = list(climates or [])
 
-    st.markdown("**Preferred region**")
-    regions = st.pills("region", REGION_OPTIONS, selection_mode="multi",
-                       default=s["regions"], label_visibility="collapsed", key="pills_region")
-    s["regions"] = list(regions or [])
+    st.markdown("**Filter schools by**")
+    current_loc_type = s.get("location_filter_type", "region")
+    loc_default = "By State" if current_loc_type == "state" else "By Region"
+    loc_choice = st.pills(
+        "loc_filter_type", ["By Region", "By State"], selection_mode="single",
+        default=loc_default, label_visibility="collapsed",
+        key="pills_loc_filter_type",
+    )
+    s["location_filter_type"] = "state" if loc_choice == "By State" else "region"
+
+    if s["location_filter_type"] == "state":
+        st.markdown("**Specific state**")
+        state_options = ["No preference"] + [n for n, _ in US_STATES_FULL if n]
+        current_filter = s.get("filter_state") or "No preference"
+        if current_filter not in state_options:
+            current_filter = "No preference"
+        s["filter_state"] = st.selectbox(
+            "filter_state", state_options,
+            index=state_options.index(current_filter),
+            label_visibility="collapsed", key="filter_state_select",
+        )
+    else:
+        st.markdown("**Preferred region**")
+        regions = st.pills("region", REGION_OPTIONS, selection_mode="multi",
+                           default=s["regions"], label_visibility="collapsed", key="pills_region")
+        s["regions"] = list(regions or [])
 
     st.write("")
     left, _, right = st.columns([1, 2, 1])
@@ -1485,12 +1520,18 @@ def render_running() -> None:
     profile, allowed_states, home_code = _survey_to_profile_and_backend(survey)
 
     # Build the matcher's state filter from the user's choices. Priority:
-    #   1. If specific regions are selected → Agent 1 queries all states
-    #      in those regions (server-side filtering).
+    #   0. If "By State" toggle is on AND a specific state was picked
+    #      (profile.filter_state is set) → query that one state only and
+    #      bypass regions entirely (the toggle is exclusive).
+    #   1. Else if "By Region" toggle is on AND specific regions are
+    #      selected → Agent 1 queries all states in those regions.
     #   2. Else if distance is "Within 500 miles" → narrow to home state.
-    #   3. Else → no state filter (all 50 states).
-    if allowed_states:
-        matcher_state: str | None = ",".join(allowed_states)
+    #   3. Else → no state filter (all 50 states; national fan-out path).
+    loc_type = survey.get("location_filter_type") or "region"
+    if profile.filter_state:
+        matcher_state: str | None = profile.filter_state
+    elif loc_type == "region" and allowed_states:
+        matcher_state = ",".join(allowed_states)
     elif _wants_home_state_only(survey) and home_code:
         matcher_state = home_code
     else:
@@ -1503,6 +1544,7 @@ def render_running() -> None:
         state=matcher_state,
         weather_pref=profile.weather_pref, vibe_prefs=profile.vibe_prefs,
         home_state=profile.home_state,
+        filter_state=profile.filter_state,
         tuition_preference=profile.tuition_preference,
         student_status=profile.student_status,
     )
@@ -2856,12 +2898,34 @@ def _render_profile_tab() -> None:
         )
         s["climates"] = list(climates or [])
 
-        st.markdown("**Preferred region**")
-        regions = st.pills(
-            "region", REGION_OPTIONS, selection_mode="multi",
-            default=s["regions"], label_visibility="collapsed", key="pills_region",
+        st.markdown("**Filter schools by**")
+        current_loc_type = s.get("location_filter_type", "region")
+        loc_default = "By State" if current_loc_type == "state" else "By Region"
+        loc_choice = st.pills(
+            "loc_filter_type", ["By Region", "By State"], selection_mode="single",
+            default=loc_default, label_visibility="collapsed",
+            key="prof_pills_loc_filter_type",
         )
-        s["regions"] = list(regions or [])
+        s["location_filter_type"] = "state" if loc_choice == "By State" else "region"
+
+        if s["location_filter_type"] == "state":
+            st.markdown("**Specific state**")
+            state_options = ["No preference"] + [n for n, _ in US_STATES_FULL if n]
+            current_filter = s.get("filter_state") or "No preference"
+            if current_filter not in state_options:
+                current_filter = "No preference"
+            s["filter_state"] = st.selectbox(
+                "filter_state", state_options,
+                index=state_options.index(current_filter),
+                label_visibility="collapsed", key="prof_filter_state_select",
+            )
+        else:
+            st.markdown("**Preferred region**")
+            regions = st.pills(
+                "region", REGION_OPTIONS, selection_mode="multi",
+                default=s["regions"], label_visibility="collapsed", key="pills_region",
+            )
+            s["regions"] = list(regions or [])
 
     # ── Budget & Campus Vibe card ────────────────────────────────────────
     with st.container(border=True):
