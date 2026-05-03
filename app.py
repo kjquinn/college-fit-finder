@@ -158,6 +158,139 @@ ACCENT = "#4A8574"   # --sage — used where inline f-strings need a hex literal
 INITIAL_PALETTE = ["#0A1F3D"]
 
 
+# Tooltip strings shown next to every survey input. Used both as the `help=`
+# argument to native widgets (number_input / slider / selectbox) and as the
+# title attribute on inline help icons next to custom markdown labels.
+SURVEY_HELP: dict[str, str] = {
+    "gpa": (
+        "Your grade point average. Use your most recent cumulative GPA. If "
+        "you took AP or honors classes your weighted GPA may exceed 4.0 on "
+        "the standard scale."
+    ),
+    "gpa_scale": (
+        "Choose 4.0 if your school uses a standard scale. Choose 5.0 if "
+        "your school grades on a 5-point scale."
+    ),
+    "sat": (
+        "Your total SAT score out of 1600. Leave as Not applicable if you "
+        "have not taken the SAT or are test optional."
+    ),
+    "act": (
+        "Your composite ACT score out of 36. Leave as Not applicable if you "
+        "have not taken the ACT or are test optional."
+    ),
+    "major": (
+        "Select the field of study you are most interested in. Choose "
+        "Undecided if you are not sure yet — you will still get great results."
+    ),
+    "student_status": (
+        "Select Domestic if you are a US citizen or permanent resident "
+        "applying within the US. Select International if you are applying "
+        "from outside the US."
+    ),
+    "home_state": (
+        "The state you currently live in. Used to calculate in-state "
+        "tuition eligibility and distance from home."
+    ),
+    "tuition_preference": (
+        "In-state only shows schools in your home state with in-state "
+        "tuition rates. Out-of-state shows schools outside your home state. "
+        "No preference shows all schools."
+    ),
+    "location_filter_type": (
+        "Choose By Region to filter schools by broad geographic area. "
+        "Choose By State to find schools in one specific state."
+    ),
+    "filter_state": (
+        "Pick one specific US state to restrict your search to. Pick No "
+        "preference to search all states."
+    ),
+    "max_distance": (
+        "How far from home you are willing to travel. Drag the slider or "
+        "click No preference for no restriction."
+    ),
+    "climate": (
+        "Select the type of weather you want at your college. This uses "
+        "real measured temperature data for each school."
+    ),
+    "region": (
+        "The part of the country where you want to go to school. You can "
+        "select multiple regions."
+    ),
+    "budget": (
+        "The maximum tuition you can afford per year before financial aid. "
+        "Drag to set your budget or click No preference for no cap. This "
+        "uses the relevant tuition rate based on your location preference."
+    ),
+    "campus_size": (
+        "How large you want your school to be. Small is under 5000 "
+        "students, Medium is 5000 to 15000, Large is over 15000."
+    ),
+    "vibes": (
+        "The type of social and academic environment you are looking for. "
+        "Select all that apply."
+    ),
+    "weights": (
+        "These sliders control how your overall fit score is calculated. "
+        "Drag higher for factors that matter most to you. A student who "
+        "cares most about academics should set Academic quality to 5. A "
+        "student on a tight budget should set Affordability to 5."
+    ),
+}
+
+
+# Short tab descriptions shown as a static info banner at the top of each
+# main-nav tab. Kept to one or two lines so they slot in cleanly above the
+# tab toolbar without competing for attention.
+TAB_HELP: dict[str, str] = {
+    "results": (
+        "Your personalized college matches ranked by fit score. Filter by "
+        "Reach, Match, or Safety. Switch between List and Map view. Click "
+        "View profile for full details."
+    ),
+    "profile": (
+        "Update your preferences here and click Refresh Results to "
+        "recalculate your matches. Your saved schools are preserved "
+        "across refreshes."
+    ),
+    "list": (
+        "Schools you have saved. View profiles, add to compare, or "
+        "unsave. Use Add more schools to return to results."
+    ),
+    "compare": (
+        "Side by side comparison of your saved schools. Add schools "
+        "using the Add to compare button on any profile or saved school row."
+    ),
+}
+
+
+def _label_with_help(label: str, help_text: str) -> str:
+    """Bold label HTML with a hover-help question-mark icon next to it.
+
+    Use in place of `st.markdown("**Label**")` for custom labels that sit
+    above pills or other widgets whose own label is collapsed.
+    """
+    safe = (help_text or "").replace('"', "&quot;").replace("\n", " ")
+    return (
+        "<div class='cff-label-help'>"
+        f"<strong>{label}</strong>"
+        f"<span class='cff-help-icon' title=\"{safe}\">?</span>"
+        "</div>"
+    )
+
+
+def _tab_info_banner(tab_key: str) -> None:
+    """Static styled info banner rendered at the top of every main-nav tab.
+
+    Plain `st.markdown` div so we own the DOM end-to-end — no fighting
+    Streamlit's expander internals.
+    """
+    text = TAB_HELP.get(tab_key, "")
+    if not text:
+        return
+    st.markdown(f"<div class='cff-tab-info'>{text}</div>", unsafe_allow_html=True)
+
+
 # -----------------------------------------------------------------------------
 # CSS
 # -----------------------------------------------------------------------------
@@ -739,6 +872,44 @@ footer {{ visibility: hidden; }}
   font-weight: 600 !important;
   letter-spacing: 0.01em !important;
 }}
+
+/* ── Inline help icon for custom labels ───────────────────────────────── */
+.cff-label-help {{
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  margin-bottom: 0.25rem;
+}}
+.cff-label-help strong {{ color: var(--ink); font-weight: 700; }}
+.cff-help-icon {{
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px;
+  font-size: 0.7rem; font-weight: 700;
+  border-radius: 50%;
+  border: 1px solid var(--rule);
+  color: var(--text-mute);
+  background: var(--paper-warm);
+  cursor: help;
+  font-family: 'JetBrains Mono', monospace;
+  user-select: none;
+  transition: all 0.12s ease;
+}}
+.cff-help-icon:hover {{
+  color: var(--ink); border-color: var(--ink); background: var(--cream);
+}}
+
+/* ── Tab info banner ─────────────────────────────────────────────────── */
+/* Static styled card rendered as a plain markdown div — owned end-to-end
+   so we don't have to fight Streamlit's expander internals. */
+.cff-tab-info {{
+  background: #F0EADA;
+  border: 1px solid #D8D1BC;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  color: #5C5C5C !important;
+}}
 </style>
 """
 
@@ -1082,7 +1253,8 @@ def render_step_1() -> None:
                 unsafe_allow_html=True)
 
     # ── GPA scale toggle ────────────────────────────────────────────────
-    st.markdown("**GPA scale**")
+    st.markdown(_label_with_help("GPA scale", SURVEY_HELP["gpa_scale"]),
+                unsafe_allow_html=True)
     current_scale = float(s.get("gpa_scale", 4.0))
     scale_label = "5.0 Scale" if current_scale == 5.0 else "4.0 Scale"
     chosen_scale = st.pills(
@@ -1099,6 +1271,7 @@ def render_step_1() -> None:
         "GPA *", min_value=0.0, max_value=5.0, step=0.1,
         value=min(5.0, max(0.0, raw_gpa)),
         key="step1_gpa_input",
+        help=SURVEY_HELP["gpa"],
     )
     if s["gpa_scale"] == 5.0:
         st.caption("Enter your GPA on a 5.0 scale — we'll convert it for comparison.")
@@ -1111,7 +1284,8 @@ def render_step_1() -> None:
     with c1:
         sat_na = st.session_state.sat_not_applicable
         hdr1, hdr2 = st.columns([2, 1.4])
-        hdr1.markdown("**SAT score**")
+        hdr1.markdown(_label_with_help("SAT score", SURVEY_HELP["sat"]),
+                      unsafe_allow_html=True)
         with hdr2:
             if st.button(
                 "Not applicable",
@@ -1143,7 +1317,8 @@ def render_step_1() -> None:
     with c2:
         act_na = st.session_state.act_not_applicable
         hdr1, hdr2 = st.columns([2, 1.4])
-        hdr1.markdown("**ACT score**")
+        hdr1.markdown(_label_with_help("ACT score", SURVEY_HELP["act"]),
+                      unsafe_allow_html=True)
         with hdr2:
             if st.button(
                 "Not applicable",
@@ -1173,7 +1348,10 @@ def render_step_1() -> None:
     # Major is now a fixed-list selectbox.
     major_val = s.get("major") or "Undecided"
     major_idx = MAJOR_OPTIONS.index(major_val) if major_val in MAJOR_OPTIONS else 0
-    s["major"] = st.selectbox("Intended major", MAJOR_OPTIONS, index=major_idx, key="major_select")
+    s["major"] = st.selectbox(
+        "Intended major", MAJOR_OPTIONS, index=major_idx, key="major_select",
+        help=SURVEY_HELP["major"],
+    )
 
     st.write("")
     _, right = st.columns([3, 1])
@@ -1199,7 +1377,8 @@ def render_step_2() -> None:
                 unsafe_allow_html=True)
 
     # ── Student status (moved here from Step 1) ─────────────────────────
-    st.markdown("**Student status**")
+    st.markdown(_label_with_help("Student status", SURVEY_HELP["student_status"]),
+                unsafe_allow_html=True)
     current_status_label = STATUS_KEY_TO_LABEL.get(s.get("student_status", "domestic"), "Domestic")
     status_choice = st.pills(
         "student_status", STATUS_OPTIONS, selection_mode="single",
@@ -1224,6 +1403,7 @@ def render_step_2() -> None:
         s["home_state_name"] = st.selectbox(
             "Home state", names,
             index=names.index(s["home_state_name"]) if s["home_state_name"] in names else 0,
+            help=SURVEY_HELP["home_state"],
         )
 
         # Max distance: slider by default; "No preference" collapses it.
@@ -1247,6 +1427,7 @@ def render_step_2() -> None:
                 f"Max distance from home: **{int(raw_dist):,} miles**",
                 min_value=0, max_value=3000, step=100, value=int(raw_dist),
                 key="distance_slider",
+                help=SURVEY_HELP["max_distance"],
             )
             _, col_btn = st.columns([3, 1])
             with col_btn:
@@ -1259,7 +1440,9 @@ def render_step_2() -> None:
                     st.session_state.pop("distance_slider", None)
                     st.rerun()
 
-        st.markdown("**Location preference**")
+        st.markdown(_label_with_help("Location preference",
+                                     SURVEY_HELP["tuition_preference"]),
+                    unsafe_allow_html=True)
         current_label = TUITION_KEY_TO_LABEL.get(
             s.get("tuition_preference", "no_preference"), "No preference"
         )
@@ -1273,12 +1456,15 @@ def render_step_2() -> None:
         )
 
     # ── Climate + location filter (shown for everyone) ──────────────────
-    st.markdown("**Preferred climate**")
+    st.markdown(_label_with_help("Preferred climate", SURVEY_HELP["climate"]),
+                unsafe_allow_html=True)
     climates = st.pills("climate", CLIMATE_OPTIONS, selection_mode="multi",
                         default=s["climates"], label_visibility="collapsed", key="pills_climate")
     s["climates"] = list(climates or [])
 
-    st.markdown("**Filter schools by**")
+    st.markdown(_label_with_help("Filter schools by",
+                                 SURVEY_HELP["location_filter_type"]),
+                unsafe_allow_html=True)
     current_loc_type = s.get("location_filter_type", "region")
     loc_default = "By State" if current_loc_type == "state" else "By Region"
     loc_choice = st.pills(
@@ -1289,7 +1475,8 @@ def render_step_2() -> None:
     s["location_filter_type"] = "state" if loc_choice == "By State" else "region"
 
     if s["location_filter_type"] == "state":
-        st.markdown("**Specific state**")
+        st.markdown(_label_with_help("Specific state", SURVEY_HELP["filter_state"]),
+                    unsafe_allow_html=True)
         state_options = ["No preference"] + [n for n, _ in US_STATES_FULL if n]
         current_filter = s.get("filter_state") or "No preference"
         if current_filter not in state_options:
@@ -1300,7 +1487,8 @@ def render_step_2() -> None:
             label_visibility="collapsed", key="filter_state_select",
         )
     else:
-        st.markdown("**Preferred region**")
+        st.markdown(_label_with_help("Preferred region", SURVEY_HELP["region"]),
+                    unsafe_allow_html=True)
         regions = st.pills("region", REGION_OPTIONS, selection_mode="multi",
                            default=s["regions"], label_visibility="collapsed", key="pills_region")
         s["regions"] = list(regions or [])
@@ -1347,6 +1535,7 @@ def render_step_3() -> None:
             f"Max annual tuition: **${budget_val:,}**",
             min_value=0, max_value=100_000, step=5_000, value=budget_val,
             key="budget_slider",
+            help=SURVEY_HELP["budget"],
         )
         _, col_btn = st.columns([3, 1])
         with col_btn:
@@ -1359,13 +1548,16 @@ def render_step_3() -> None:
                 st.session_state.pop("budget_slider", None)
                 st.rerun()
 
-    st.markdown("**Campus size**")
+    st.markdown(_label_with_help("Campus size", SURVEY_HELP["campus_size"]),
+                unsafe_allow_html=True)
     size = st.pills("size", CAMPUS_SIZE_OPTIONS, selection_mode="single",
                     default=s["campus_size"] if s["campus_size"] in CAMPUS_SIZE_OPTIONS else "No preference",
                     label_visibility="collapsed", key="pills_size")
     s["campus_size"] = size or "No preference"
 
-    st.markdown("**Campus vibe** *(pick any that fit)*")
+    st.markdown(_label_with_help("Campus vibe (pick any that fit)",
+                                 SURVEY_HELP["vibes"]),
+                unsafe_allow_html=True)
     vibes = st.pills("vibes", VIBE_OPTIONS, selection_mode="multi",
                      default=s["vibes"], label_visibility="collapsed", key="pills_vibes")
     s["vibes"] = list(vibes or [])
@@ -1390,6 +1582,8 @@ def render_step_4() -> None:
     st.markdown("<div class='cff-step-hint'>These sliders weight how the overall fit score is calculated. "
                 "Drag higher for dimensions that matter most to you.</div>", unsafe_allow_html=True)
 
+    st.markdown(_label_with_help("Priority Weights", SURVEY_HELP["weights"]),
+                unsafe_allow_html=True)
     for key, label in [
         ("academic_fit",   "Academic quality"),
         ("affordability",  "Affordability"),
@@ -1398,7 +1592,10 @@ def render_step_4() -> None:
         ("vibe_fit",       "Campus vibe"),
     ]:
         current = int(s["weights"].get(key, 3))
-        s["weights"][key] = st.slider(f"{label} — **{current}**", 1, 5, current, 1, key=f"w_{key}")
+        s["weights"][key] = st.slider(
+            f"{label} — **{current}**", 1, 5, current, 1, key=f"w_{key}",
+            help=SURVEY_HELP["weights"],
+        )
 
     st.write("")
     left, _, right = st.columns([1, 1.5, 1.5])
@@ -2327,6 +2524,7 @@ def _render_map_view(cards: list[ProfileCard]) -> None:
 
 
 def _render_results_content() -> None:
+    _tab_info_banner("results")
     all_cards = st.session_state.results or []
     if not all_cards:
         st.info("No results yet. Go back and run the survey.")
@@ -2566,6 +2764,7 @@ def _render_compare_table(cards: list[ProfileCard]) -> None:
 # My List tab — filter toolbar, saved rows, divider, compare table
 # -----------------------------------------------------------------------------
 def _render_my_list_tab() -> None:
+    _tab_info_banner("list")
     all_cards: list[ProfileCard] = st.session_state.results or []
     cards_by_id = {c.school_id: c for c in all_cards}
     # Schools saved across a profile refresh that fell out of the new top
@@ -2626,6 +2825,7 @@ def _render_my_list_tab() -> None:
 
 def _render_compare_tab() -> None:
     """Dedicated Compare tab — full side-by-side table, with empty state."""
+    _tab_info_banner("compare")
     all_cards: list[ProfileCard] = st.session_state.results or []
     cards_by_id = {c.school_id: c for c in all_cards}
     # Mirror the My List fallback so on-demand fetches and saves preserved
@@ -2671,6 +2871,7 @@ def _render_compare_tab() -> None:
 
 
 def _render_profile_tab() -> None:
+    _tab_info_banner("profile")
     s = st.session_state.survey
     baseline = st.session_state.get("baseline_survey") or _default_survey()
 
@@ -2710,7 +2911,8 @@ def _render_profile_tab() -> None:
         )
 
         # GPA scale toggle — mirrors Step 1 so changes round-trip.
-        st.markdown("**GPA scale**")
+        st.markdown(_label_with_help("GPA scale", SURVEY_HELP["gpa_scale"]),
+                    unsafe_allow_html=True)
         current_scale = float(s.get("gpa_scale", 4.0))
         scale_label = "5.0 Scale" if current_scale == 5.0 else "4.0 Scale"
         chosen_scale = st.pills(
@@ -2725,6 +2927,7 @@ def _render_profile_tab() -> None:
             "GPA", min_value=0.0, max_value=5.0, step=0.1,
             value=min(5.0, max(0.0, raw_gpa)),
             key="prof_gpa",
+            help=SURVEY_HELP["gpa"],
         )
         if s["gpa_scale"] == 5.0:
             st.caption("Enter your GPA on a 5.0 scale — we'll convert it for comparison.")
@@ -2737,7 +2940,8 @@ def _render_profile_tab() -> None:
         with c1:
             sat_na = st.session_state.sat_not_applicable
             hdr1, hdr2 = st.columns([2, 1.4])
-            hdr1.markdown("**SAT score**")
+            hdr1.markdown(_label_with_help("SAT score", SURVEY_HELP["sat"]),
+                          unsafe_allow_html=True)
             with hdr2:
                 if st.button(
                     "Not applicable",
@@ -2773,7 +2977,8 @@ def _render_profile_tab() -> None:
         with c2:
             act_na = st.session_state.act_not_applicable
             hdr1, hdr2 = st.columns([2, 1.4])
-            hdr1.markdown("**ACT score**")
+            hdr1.markdown(_label_with_help("ACT score", SURVEY_HELP["act"]),
+                          unsafe_allow_html=True)
             with hdr2:
                 if st.button(
                     "Not applicable",
@@ -2804,6 +3009,7 @@ def _render_profile_tab() -> None:
         s["major"] = st.selectbox(
             "Intended major", MAJOR_OPTIONS,
             index=major_idx, key="prof_major_select",
+            help=SURVEY_HELP["major"],
         )
 
     # ── Location and Weather card ────────────────────────────────────────
@@ -2814,7 +3020,9 @@ def _render_profile_tab() -> None:
         )
 
         # Student status chips at the very top (moved here from the Academic card).
-        st.markdown("**Student status**")
+        st.markdown(_label_with_help("Student status",
+                                     SURVEY_HELP["student_status"]),
+                    unsafe_allow_html=True)
         status_label = STATUS_KEY_TO_LABEL.get(
             s.get("student_status", "domestic"), "Domestic"
         )
@@ -2843,6 +3051,7 @@ def _render_profile_tab() -> None:
                 "Home state", names,
                 index=names.index(s["home_state_name"]) if s["home_state_name"] in names else 0,
                 key="prof_state",
+                help=SURVEY_HELP["home_state"],
             )
 
             # Max distance: slider by default; "No preference" collapses it.
@@ -2866,6 +3075,7 @@ def _render_profile_tab() -> None:
                     f"Max distance from home: **{int(raw_dist):,} miles**",
                     min_value=0, max_value=3000, step=100, value=int(raw_dist),
                     key="distance_slider",
+                    help=SURVEY_HELP["max_distance"],
                 )
                 _, col_btn = st.columns([3, 1])
                 with col_btn:
@@ -2879,7 +3089,9 @@ def _render_profile_tab() -> None:
                         st.rerun()
 
             # Location preference (renamed from Tuition preference).
-            st.markdown("**Location preference**")
+            st.markdown(_label_with_help("Location preference",
+                                         SURVEY_HELP["tuition_preference"]),
+                        unsafe_allow_html=True)
             tlabel = TUITION_KEY_TO_LABEL.get(
                 s.get("tuition_preference") or "no_preference", "No preference"
             )
@@ -2891,14 +3103,17 @@ def _render_profile_tab() -> None:
                 tchoice or "No preference", "no_preference"
             )
 
-        st.markdown("**Preferred climate**")
+        st.markdown(_label_with_help("Preferred climate", SURVEY_HELP["climate"]),
+                    unsafe_allow_html=True)
         climates = st.pills(
             "climate", CLIMATE_OPTIONS, selection_mode="multi",
             default=s["climates"], label_visibility="collapsed", key="pills_climate",
         )
         s["climates"] = list(climates or [])
 
-        st.markdown("**Filter schools by**")
+        st.markdown(_label_with_help("Filter schools by",
+                                     SURVEY_HELP["location_filter_type"]),
+                    unsafe_allow_html=True)
         current_loc_type = s.get("location_filter_type", "region")
         loc_default = "By State" if current_loc_type == "state" else "By Region"
         loc_choice = st.pills(
@@ -2909,7 +3124,9 @@ def _render_profile_tab() -> None:
         s["location_filter_type"] = "state" if loc_choice == "By State" else "region"
 
         if s["location_filter_type"] == "state":
-            st.markdown("**Specific state**")
+            st.markdown(_label_with_help("Specific state",
+                                         SURVEY_HELP["filter_state"]),
+                        unsafe_allow_html=True)
             state_options = ["No preference"] + [n for n, _ in US_STATES_FULL if n]
             current_filter = s.get("filter_state") or "No preference"
             if current_filter not in state_options:
@@ -2920,7 +3137,9 @@ def _render_profile_tab() -> None:
                 label_visibility="collapsed", key="prof_filter_state_select",
             )
         else:
-            st.markdown("**Preferred region**")
+            st.markdown(_label_with_help("Preferred region",
+                                         SURVEY_HELP["region"]),
+                        unsafe_allow_html=True)
             regions = st.pills(
                 "region", REGION_OPTIONS, selection_mode="multi",
                 default=s["regions"], label_visibility="collapsed", key="pills_region",
@@ -2953,6 +3172,7 @@ def _render_profile_tab() -> None:
                 f"Max annual tuition: **${budget_val:,}**",
                 min_value=0, max_value=100_000, step=5_000, value=budget_val,
                 key="budget_slider",
+                help=SURVEY_HELP["budget"],
             )
             _, col_btn = st.columns([3, 1])
             with col_btn:
@@ -2965,7 +3185,8 @@ def _render_profile_tab() -> None:
                     st.session_state.pop("budget_slider", None)
                     st.rerun()
 
-        st.markdown("**Campus size**")
+        st.markdown(_label_with_help("Campus size", SURVEY_HELP["campus_size"]),
+                    unsafe_allow_html=True)
         size = st.pills(
             "size", CAMPUS_SIZE_OPTIONS, selection_mode="single",
             default=s["campus_size"] if s["campus_size"] in CAMPUS_SIZE_OPTIONS else "No preference",
@@ -2973,7 +3194,8 @@ def _render_profile_tab() -> None:
         )
         s["campus_size"] = size or "No preference"
 
-        st.markdown("**Campus vibe**")
+        st.markdown(_label_with_help("Campus vibe", SURVEY_HELP["vibes"]),
+                    unsafe_allow_html=True)
         vibes = st.pills(
             "vibes", VIBE_OPTIONS, selection_mode="multi",
             default=s["vibes"], label_visibility="collapsed", key="pills_vibes",
@@ -2986,6 +3208,8 @@ def _render_profile_tab() -> None:
             "<div class='cff-section-title' style='margin-top:0;'>Priority Weights</div>",
             unsafe_allow_html=True,
         )
+        st.markdown(_label_with_help("Weights", SURVEY_HELP["weights"]),
+                    unsafe_allow_html=True)
         for key, label in [
             ("academic_fit",  "Academic quality"),
             ("affordability", "Affordability"),
@@ -2998,6 +3222,7 @@ def _render_profile_tab() -> None:
                 f"{label} — **{current}**",
                 min_value=1, max_value=5, value=current, step=1,
                 key=f"prof_w_{key}",
+                help=SURVEY_HELP["weights"],
             )
 
     # ── Refresh button ───────────────────────────────────────────────────
