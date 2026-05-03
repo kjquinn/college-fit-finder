@@ -167,8 +167,20 @@ class ScorecardError(RuntimeError):
 def _api_key() -> str:
     key = os.getenv("COLLEGE_SCORECARD_API_KEY")
     if not key:
+        # Fallback for Streamlit Community Cloud, where keys live in
+        # `.streamlit/secrets.toml` instead of a local `.env`. Imported
+        # lazily and broadly try/except'd so non-Streamlit callers (CLI
+        # scripts, tests) aren't penalized when streamlit isn't installed
+        # or no secrets file exists.
+        try:
+            import streamlit as st  # type: ignore
+            key = st.secrets.get("COLLEGE_SCORECARD_API_KEY")
+        except Exception:
+            key = None
+    if not key:
         raise ScorecardError(
-            "COLLEGE_SCORECARD_API_KEY not set. Add it to .env."
+            "COLLEGE_SCORECARD_API_KEY not set. Add it to .env or to "
+            "Streamlit secrets (.streamlit/secrets.toml)."
         )
     return key
 
