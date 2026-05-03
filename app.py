@@ -790,7 +790,7 @@ def _init_session() -> None:
                                                 # dropped out of the latest pool
     ss.setdefault("last_error", None)
     # Results-page state
-    ss.setdefault("main_tab", "results")      # profile | results | list
+    ss.setdefault("main_tab", "results")      # profile | results | list | compare
     ss.setdefault("sub_view", "List view")    # List view | Map view
     ss.setdefault("filter_class", "All")
     # (filter_flags / my_list_filter_flags state was used by stackable
@@ -1782,9 +1782,17 @@ def _logo_html(variant: str = "dark") -> str:
 
 
 def _render_main_nav() -> None:
-    tabs = [("profile", "My Profile"), ("results", "Results"), ("list", "My List")]
+    compare_count = len(st.session_state.get("compare_schools") or [])
+    compare_label = f"Compare ({compare_count})" if compare_count > 0 else "Compare"
+    tabs = [
+        ("profile", "My Profile"),
+        ("results", "Results"),
+        ("list", "My List"),
+        ("compare", compare_label),
+    ]
     with st.container(key="cff_main_nav"):
-        cols = st.columns([2.2, 1, 1, 1], vertical_alignment="center")
+        # Logo column + one column per tab. Tab columns are equal-width.
+        cols = st.columns([2.2] + [1] * len(tabs), vertical_alignment="center")
         with cols[0]:
             st.markdown(_logo_html("dark"), unsafe_allow_html=True)
         for i, (key, label) in enumerate(tabs):
@@ -2573,13 +2581,45 @@ def _render_my_list_tab() -> None:
             st.session_state.main_tab = "results"
             st.rerun()
 
-    st.divider()
 
-    # ── Compare Schools section.
-    compare_cards = [cards_by_id[sid] for sid in st.session_state.compare_schools
-                      if sid in cards_by_id]
+def _render_compare_tab() -> None:
+    """Dedicated Compare tab — full side-by-side table, with empty state."""
+    all_cards: list[ProfileCard] = st.session_state.results or []
+    cards_by_id = {c.school_id: c for c in all_cards}
+    # Mirror the My List fallback so on-demand fetches and saves preserved
+    # across a profile refresh stay comparable.
+    preserved = st.session_state.get("preserved_cards_by_id") or {}
+    for sid, card in preserved.items():
+        cards_by_id.setdefault(sid, card)
+
+    compare_cards = [
+        cards_by_id[sid] for sid in st.session_state.compare_schools
+        if sid in cards_by_id
+    ]
+
+    if not compare_cards:
+        st.markdown(
+            """<div class='cff-map-placeholder'>
+  <h3>No schools added yet</h3>
+  <p>Save schools from your results and click <strong>Add to compare</strong>
+     to build your comparison.</p>
+</div>""",
+            unsafe_allow_html=True,
+        )
+        _, mid, _ = st.columns([1, 1.2, 1])
+        with mid:
+            if st.button(
+                "Browse Results",
+                type="primary",
+                use_container_width=True,
+                key="compare_browse_results_btn",
+            ):
+                st.session_state.main_tab = "results"
+                st.rerun()
+        return
+
     st.markdown(
-        f"<div class='cff-section-title'>Compare schools "
+        f"<div class='cff-section-title' style='margin-top:0;'>Compare schools "
         f"<span style='color:#888; font-weight:400;'>"
         f"(comparing {len(compare_cards)} "
         f"school{'s' if len(compare_cards) != 1 else ''})</span></div>",
@@ -2927,6 +2967,8 @@ def render_results_phase() -> None:
         _render_profile_tab()
     elif st.session_state.main_tab == "list":
         _render_my_list_tab()
+    elif st.session_state.main_tab == "compare":
+        _render_compare_tab()
     else:
         _render_results_content()
 
