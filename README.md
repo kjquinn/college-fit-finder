@@ -92,19 +92,6 @@ streamlit run app.py
 
 Open [http://localhost:8501](http://localhost:8501) in your browser.
 
----
-
-## ☁️ Deploying to Streamlit Community Cloud
-
-1. Push your code to GitHub (ensure `.env` is in `.gitignore`)
-2. Go to [share.streamlit.io](https://share.streamlit.io) and sign in with GitHub
-3. Click **New app** and select this repository
-4. Set the main file path to `app.py`
-5. Under **Advanced settings → Secrets**, add:
-```toml
-COLLEGE_SCORECARD_API_KEY = "your_key_here"
-```
-6. Click **Deploy**
 
 ---
 
