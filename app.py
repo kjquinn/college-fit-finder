@@ -918,6 +918,42 @@ footer {{ visibility: hidden; }}
 # Streamlit bootstrap
 # -----------------------------------------------------------------------------
 st.set_page_config(page_title="College Fit Finder", page_icon="🎓", layout="wide")
+
+# ── Force light mode ─────────────────────────────────────────────────────
+# Streamlit auto-switches to a dark theme when the visitor's OS / browser
+# is set to dark mode, which clashes with the brand palette below. Pin
+# every major shell container to the paper / ink palette and set
+# `color-scheme: light` on html so even native form controls and
+# scrollbars stay light.
+st.markdown(
+    """
+<style>
+html { color-scheme: light only !important; }
+html, body,
+.stApp,
+[data-testid='stAppViewContainer'],
+[data-testid='stAppViewContainer'] > .main,
+[data-testid='stMain'],
+[data-testid='stMainBlockContainer'],
+[data-testid='block-container'] {
+    background-color: #F5F1E8 !important;
+    color: #1A1A1A !important;
+}
+[data-testid='stHeader'],
+[data-testid='stToolbar'] {
+    background-color: rgba(245, 241, 232, 0.9) !important;
+    color: #0A1F3D !important;
+}
+[data-testid='stSidebar'],
+[data-testid='stSidebarContent'] {
+    background-color: #F0EADA !important;
+    color: #1A1A1A !important;
+}
+</style>
+""",
+    unsafe_allow_html=True,
+)
+
 st.markdown(CSS, unsafe_allow_html=True)
 
 
