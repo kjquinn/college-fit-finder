@@ -129,6 +129,9 @@ ACT_TO_SAT = {
 @dataclass
 class StudentProfile:
     gpa: float | None = None
+    gpa_scale: float = 4.0              # 4.0 or 5.0 — Agent 2 normalizes
+                                        # the raw GPA to a 4.0-equivalent
+                                        # before comparing to school stats.
     sat: int | None = None
     act: int | None = None
     intended_major: str | None = None

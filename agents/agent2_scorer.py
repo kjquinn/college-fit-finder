@@ -67,6 +67,27 @@ def _clamp(x: float, lo: float = 0.0, hi: float = 100.0) -> float:
     return max(lo, min(hi, x))
 
 
+def normalize_gpa(gpa: float | None, scale: float) -> float | None:
+    """
+    Convert a raw GPA on the student's chosen scale to a 4.0-equivalent so
+    every downstream comparison against school averages happens on the same
+    scale.
+
+    - 4.0 scale: passthrough when gpa <= 4.0; divide by 1.25 above 4.0 so a
+      weighted 5.0 (AP/honors max) lands at 4.0 and 4.5 lands at 3.6.
+    - 5.0 scale: always multiply by 0.8 so 5.0 → 4.0 and 4.0 → 3.2.
+
+    Returns None when gpa is None so existing None-checks keep working.
+    """
+    if gpa is None:
+        return None
+    if scale == 4.0:
+        return gpa / 1.25 if gpa > 4.0 else gpa
+    if scale == 5.0:
+        return gpa * 0.8
+    return gpa  # Unknown scale — passthrough rather than mis-normalize.
+
+
 def _academic_fit(profile: StudentProfile, school: dict[str, Any]) -> tuple[float, list[str]]:
     """
     How academically appropriate is this school for the student?
@@ -94,11 +115,12 @@ def _academic_fit(profile: StudentProfile, school: dict[str, Any]) -> tuple[floa
         notes.append("No published SAT avg for this school.")
 
     admit = school.get("admission_rate")
-    if admit is not None and profile.gpa is not None:
+    student_gpa = normalize_gpa(profile.gpa, profile.gpa_scale)
+    if admit is not None and student_gpa is not None:
         # Implied school GPA from admission rate:
         # admit=0.05 -> 3.95, admit=0.5 -> 3.5, admit=0.9 -> 3.1
         implied_gpa = 3.0 + (1 - admit) * 1.0
-        gpa_diff = profile.gpa - implied_gpa
+        gpa_diff = student_gpa - implied_gpa
         if gpa_diff >= 0:
             score = max(85.0, 100 - max(0, gpa_diff - 0.1) * 30)
         else:
@@ -245,7 +267,7 @@ def _classify(profile: StudentProfile, school: dict[str, Any]) -> str:
     """
     admit = school.get("admission_rate")
     student_sat = profile.effective_sat()
-    student_gpa = profile.gpa
+    student_gpa = normalize_gpa(profile.gpa, profile.gpa_scale)
     sat_25 = school.get("sat_25")
     sat_75 = school.get("sat_75")
 

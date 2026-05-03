@@ -755,7 +755,8 @@ st.markdown(CSS, unsafe_allow_html=True)
 # -----------------------------------------------------------------------------
 def _default_survey() -> dict[str, Any]:
     return {
-        "gpa": 3.00, "sat": None, "act": None, "major": "Undecided",
+        "gpa": 3.00, "gpa_scale": 4.0,
+        "sat": None, "act": None, "major": "Undecided",
         "student_status": "domestic",
         "home_state_name": "", "max_distance": 0,           # 0 miles = "No preference"
         "tuition_preference": "no_preference",
@@ -959,9 +960,16 @@ def _survey_to_profile_and_backend(survey: dict[str, Any]) -> tuple[StudentProfi
     # classifier skews toward Reach.
     gpa_val = survey.get("gpa")
     gpa = float(gpa_val) if gpa_val else None
+    try:
+        gpa_scale = float(survey.get("gpa_scale", 4.0))
+    except (TypeError, ValueError):
+        gpa_scale = 4.0
+    if gpa_scale not in (4.0, 5.0):
+        gpa_scale = 4.0
 
     profile = StudentProfile(
         gpa=gpa,
+        gpa_scale=gpa_scale,
         # Bug 4 — sat/act stay None when the student toggled "Not applicable";
         # Agent 1 has no SAT/ACT filter at the API level, so None is safe.
         sat=survey["sat"], act=survey["act"],
@@ -1060,11 +1068,29 @@ def render_step_1() -> None:
     st.markdown("<div class='cff-step-hint'>We'll use these to gauge academic fit. Test scores are optional.</div>",
                 unsafe_allow_html=True)
 
-    s["gpa"] = st.number_input(
-        "Unweighted GPA *", min_value=0.0, max_value=4.0, step=0.01,
-        value=float(s["gpa"]) if s["gpa"] is not None else 3.00,
-        help="Required. Enter on a 0.0–4.0 scale.",
+    # ── GPA scale toggle ────────────────────────────────────────────────
+    st.markdown("**GPA scale**")
+    current_scale = float(s.get("gpa_scale", 4.0))
+    scale_label = "5.0 Scale" if current_scale == 5.0 else "4.0 Scale"
+    chosen_scale = st.pills(
+        "gpa_scale", ["4.0 Scale", "5.0 Scale"], selection_mode="single",
+        default=scale_label, label_visibility="collapsed",
+        key="pills_gpa_scale",
     )
+    s["gpa_scale"] = 5.0 if chosen_scale == "5.0 Scale" else 4.0
+
+    # GPA input — same 0.0–5.0 / 0.1 step regardless of scale; the helper
+    # caption below explains how to interpret it.
+    raw_gpa = float(s["gpa"]) if s["gpa"] is not None else 3.0
+    s["gpa"] = st.number_input(
+        "GPA *", min_value=0.0, max_value=5.0, step=0.1,
+        value=min(5.0, max(0.0, raw_gpa)),
+        key="step1_gpa_input",
+    )
+    if s["gpa_scale"] == 5.0:
+        st.caption("Enter your GPA on a 5.0 scale — we'll convert it for comparison.")
+    else:
+        st.caption("Weighted GPA from AP or honors classes may exceed 4.0.")
 
     c1, c2 = st.columns(2)
 
@@ -1471,7 +1497,8 @@ def render_running() -> None:
         matcher_state = None
 
     matcher_profile = StudentProfile(
-        gpa=profile.gpa, sat=profile.sat, act=profile.act,
+        gpa=profile.gpa, gpa_scale=profile.gpa_scale,
+        sat=profile.sat, act=profile.act,
         intended_major=profile.intended_major, budget=profile.budget,
         state=matcher_state,
         weather_pref=profile.weather_pref, vibe_prefs=profile.vibe_prefs,
@@ -1679,7 +1706,8 @@ def _fetch_school_on_demand(name: str) -> ProfileCard | None:
     # *scoring* profile keeps everything intact so the fit score reflects
     # the user's actual preferences.
     matcher_profile = StudentProfile(
-        gpa=profile.gpa, sat=profile.sat, act=profile.act,
+        gpa=profile.gpa, gpa_scale=profile.gpa_scale,
+        sat=profile.sat, act=profile.act,
         intended_major=None, budget=None,
         state=None,
         weather_pref=profile.weather_pref, vibe_prefs=profile.vibe_prefs,
@@ -2599,11 +2627,27 @@ def _render_profile_tab() -> None:
             unsafe_allow_html=True,
         )
 
+        # GPA scale toggle — mirrors Step 1 so changes round-trip.
+        st.markdown("**GPA scale**")
+        current_scale = float(s.get("gpa_scale", 4.0))
+        scale_label = "5.0 Scale" if current_scale == 5.0 else "4.0 Scale"
+        chosen_scale = st.pills(
+            "gpa_scale", ["4.0 Scale", "5.0 Scale"], selection_mode="single",
+            default=scale_label, label_visibility="collapsed",
+            key="prof_pills_gpa_scale",
+        )
+        s["gpa_scale"] = 5.0 if chosen_scale == "5.0 Scale" else 4.0
+
+        raw_gpa = float(s["gpa"]) if s["gpa"] is not None else 3.0
         s["gpa"] = st.number_input(
-            "Unweighted GPA", min_value=0.0, max_value=4.0, step=0.01,
-            value=float(s["gpa"]) if s["gpa"] is not None else 3.00,
+            "GPA", min_value=0.0, max_value=5.0, step=0.1,
+            value=min(5.0, max(0.0, raw_gpa)),
             key="prof_gpa",
         )
+        if s["gpa_scale"] == 5.0:
+            st.caption("Enter your GPA on a 5.0 scale — we'll convert it for comparison.")
+        else:
+            st.caption("Weighted GPA from AP or honors classes may exceed 4.0.")
 
         c1, c2 = st.columns(2)
 
