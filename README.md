@@ -10,7 +10,7 @@ A multi-agent AI platform that helps high school students find colleges that gen
 
 > Hosted on Streamlit Community Cloud — no installation required.
 > 
-**[Video Demo](https://youtu.be/wY16fKNaGTI))**
+**[Video Demo](https://youtu.be/wY16fKNaGTI)**
 > Video walk though of College Fit Finder
 ---
 
